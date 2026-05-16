@@ -1,0 +1,50 @@
+# Operating-system and editor noise
+.DS_Store
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.matplotlib-cache/
+
+# Environments and secrets
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Generated analysis outputs
+results/generated/*
+!results/generated/.gitkeep
+!results/generated/pictures/
+results/generated/pictures/*
+!results/generated/pictures/.gitkeep
+!results/generated/datas/
+results/generated/datas/*
+!results/generated/datas/.gitkeep
+
+# Local/private research material. Keep this folder out of GitHub.
+_private/
+
+# User-provided data are intentionally not shared.
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Notebook outputs and checkpoints
+notebooks/.ipynb_checkpoints/
+
+# Optional local scratch space
+scratch/
+tmp/

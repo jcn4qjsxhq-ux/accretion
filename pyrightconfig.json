@@ -1,0 +1,10 @@
+{
+  "include": ["src", "scripts", "notebooks"],
+  "exclude": ["_private", "**/__pycache__"],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": ["src"]
+    }
+  ]
+}

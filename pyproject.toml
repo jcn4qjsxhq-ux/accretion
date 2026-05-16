@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "accretion"
+version = "0.1.0"
+description = "Fitting simple accretion disk models to photometric and spectroscopic data."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "Muki" }
+]
+dependencies = [
+  "numpy",
+  "pandas",
+  "scipy",
+  "matplotlib",
+  "astropy",
+  "plotly",
+  "ipython",
+  "numba"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
