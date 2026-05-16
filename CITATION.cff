@@ -3,7 +3,7 @@ title: "Accretion Disk Fitting"
 message: "If you use this code, please cite this repository."
 type: software
 authors:
-  - family-names: "D J Lengyel"
+  - family-names: "D. J. Lengyel"
 repository-code: "https://github.com/jcn4qjsxhq-ux/accretion"
 abstract: "This project fits and visualises accretion models to photometric and spectroscopic data. "
 license: MIT
