@@ -42,6 +42,25 @@ DEFAULT_IRTF_SXD_NORMALIZATION_FACTORS = {
 }
 
 
+# Observation times associated with the reduced XSHOOTER filenames.  The files
+# themselves contain only wavelength and flux columns, so the epoch metadata is
+# supplied here from the observing log/photometry database.
+DEFAULT_XSHOOTER_NIR_EPOCHS = {
+    '201506': {'JD': 2457209.599, 'Date': '2015-07-06'},
+    '202402': {'JD': 2460364.850, 'Date': '2024-02-24'},
+    '202410': {'JD': 2460594.478, 'Date': '2024-10-10'},
+}
+
+DEFAULT_XSHOOTER_NIR_MASK_REGIONS = [
+    # The raw NIR spectra are unstable throughout the deep 1.4 and 1.9 micron
+    # atmospheric bands.  The previous 1.30--1.41 micron mask both discarded
+    # useful J-band continuum and retained the noisy red edge of the 1.4 micron
+    # band (clearly visible to about 1.48 micron in these reductions).
+    (1.34e-6, 1.48e-6),
+    (1.80e-6, 1.96e-6),
+]
+
+
 def assign_jd_day(df):
     """
     Add a day-level JD key without rounding the Julian Date.
@@ -362,6 +381,335 @@ def load_irtf_sxd_spectra(directory='IRTF', mask_regions=None,
         normalization_factors=normalization_factors, sample_stride=sample_stride,
         include_nonpositive=include_nonpositive,
     )
+
+
+def load_xshooter_nir_spectra(
+    directory='Xshooter',
+    wavelength_range=(1.0e-6, 2.0e-6),
+    mask_regions=None,
+    epoch_metadata=None,
+    fractional_error=0.10,
+    bin_width_micron=0.005,
+    sigma_clip=4.0,
+    sample_stride=1,
+    include_nonpositive=False,
+    convert_air_to_vacuum=True,
+):
+    r"""Load reduced XSHOOTER NIR spectra in the fitter's Jy convention.
+
+    The input files contain air wavelength in micron and :math:`F_\lambda` in
+    ``erg s^-1 cm^-2 Angstrom^-1``.  This loader optionally converts air to
+    vacuum wavelength and always converts flux density using
+
+    ``F_nu[Jy] = F_lambda * lambda[Angstrom]^2 / c[Angstrom/s] * 1e23``.
+
+    The supplied spectra do not contain an uncertainty column.  Raw detector
+    pixels are therefore robustly combined into 0.005 micron continuum bins by
+    default.  Importantly, negative pixels participate in a bin before a
+    non-positive *bin* is rejected; dropping negative raw pixels would bias a
+    noisy spectrum high.  The per-bin uncertainty combines the robust scatter
+    with a 10 per cent calibration floor.  The spectral fitter subsequently
+    adds its standard 5 per cent systematic floor in quadrature.
+    """
+    if sample_stride < 1:
+        raise ValueError('sample_stride must be >= 1')
+    if fractional_error <= 0:
+        raise ValueError('fractional_error must be positive')
+    if bin_width_micron is not None and bin_width_micron <= 0:
+        raise ValueError('bin_width_micron must be positive or None')
+    if sigma_clip is not None and sigma_clip <= 0:
+        raise ValueError('sigma_clip must be positive or None')
+
+    mask_regions = list(
+        DEFAULT_XSHOOTER_NIR_MASK_REGIONS if mask_regions is None else mask_regions
+    )
+    epoch_map = {key: dict(value) for key, value in DEFAULT_XSHOOTER_NIR_EPOCHS.items()}
+    if epoch_metadata:
+        for key, value in epoch_metadata.items():
+            if isinstance(value, dict):
+                epoch_map[str(key)] = dict(value)
+            else:
+                jd, date = value
+                epoch_map[str(key)] = {'JD': float(jd), 'Date': str(date)}
+
+    filepaths = sorted(glob.glob(os.path.join(directory, 'final_nir_*.txt')))
+    if not filepaths:
+        raise FileNotFoundError(f'No XSHOOTER NIR spectra found in {directory}')
+
+    frames = []
+    c_angstrom_per_second = constants.c * 1e10
+    for filepath in filepaths:
+        date_code = os.path.splitext(os.path.basename(filepath))[0].rsplit('_', 1)[-1]
+        if date_code not in epoch_map:
+            raise ValueError(
+                f'Missing epoch metadata for {os.path.basename(filepath)}; '
+                'pass epoch_metadata={date_code: {"JD": ..., "Date": ...}}'
+            )
+
+        spectrum = np.loadtxt(filepath, skiprows=1)
+        if spectrum.ndim == 1:
+            spectrum = spectrum[np.newaxis, :]
+        if spectrum.shape[1] < 2:
+            raise ValueError(f'Expected wavelength and F_lambda columns in {filepath}')
+
+        wavelength_air_m = spectrum[:, 0].astype(float) * 1e-6
+        flux_lambda = spectrum[:, 1].astype(float)
+        wavelength_m = wavelength_air_m.copy()
+        if convert_air_to_vacuum:
+            inverse_micron = 1e4 / (wavelength_air_m * 1e10)
+            refractive_index = (
+                1.0
+                + 0.00008336624212083
+                + 0.02408926869968 / (130.1065924522 - inverse_micron**2)
+                + 0.0001599740894897 / (38.92568793293 - inverse_micron**2)
+            )
+            wavelength_m = wavelength_air_m * refractive_index
+
+        # F_lambda is tabulated per Angstrom at the input (air) wavelength.
+        # Use that wavelength for the density conversion, while retaining the
+        # vacuum wavelength for frequency/model evaluation.
+        wavelength_angstrom = wavelength_air_m * 1e10
+        frequency_hz = constants.c / wavelength_m
+        flux_jy = flux_lambda * wavelength_angstrom**2 / c_angstrom_per_second * 1e23
+
+        valid = (
+            np.isfinite(wavelength_m)
+            & np.isfinite(frequency_hz)
+            & np.isfinite(flux_jy)
+            & (wavelength_m >= float(wavelength_range[0]))
+            & (wavelength_m <= float(wavelength_range[1]))
+        )
+        for region_start, region_end in mask_regions:
+            valid &= ~((wavelength_m >= region_start) & (wavelength_m <= region_end))
+
+        wavelength_m = wavelength_m[valid]
+        frequency_hz = frequency_hz[valid]
+        flux_jy = flux_jy[valid]
+
+        if bin_width_micron is None:
+            binned_wavelength_m = wavelength_m
+            binned_frequency_hz = frequency_hz
+            binned_flux_jy = flux_jy
+            binned_scatter_jy = np.zeros_like(binned_flux_jy)
+            samples_per_bin = np.ones(len(binned_flux_jy), dtype=int)
+        else:
+            bin_width_m = float(bin_width_micron) * 1e-6
+            start_m = float(wavelength_range[0])
+            bin_index = np.floor((wavelength_m - start_m) / bin_width_m).astype(int)
+            binned_rows = []
+            for index in np.unique(bin_index):
+                in_bin = bin_index == index
+                bin_wavelength = wavelength_m[in_bin]
+                bin_flux = flux_jy[in_bin]
+                if len(bin_flux) == 0:
+                    continue
+
+                median_flux = np.median(bin_flux)
+                robust_scatter = 1.4826 * np.median(np.abs(bin_flux - median_flux))
+                keep = np.ones(len(bin_flux), dtype=bool)
+                if sigma_clip is not None and robust_scatter > 0:
+                    keep = np.abs(bin_flux - median_flux) <= float(sigma_clip) * robust_scatter
+                if not np.any(keep):
+                    continue
+
+                kept_flux = bin_flux[keep]
+                kept_wavelength = bin_wavelength[keep]
+                center_flux = float(np.mean(kept_flux))
+                final_scatter = float(
+                    1.4826 * np.median(np.abs(kept_flux - np.median(kept_flux)))
+                )
+                # XSHOOTER NIR spectra are sampled at roughly three detector
+                # pixels per resolution element, so adjacent pixels are not
+                # independent when estimating the error on a bin.
+                effective_n = max(len(kept_flux) / 3.0, 1.0)
+                statistical_error = final_scatter / np.sqrt(effective_n)
+                calibration_error = float(fractional_error) * abs(center_flux)
+                flux_error = np.hypot(statistical_error, calibration_error)
+                center_wavelength = float(np.mean(kept_wavelength))
+                binned_rows.append((
+                    center_wavelength,
+                    constants.c / center_wavelength,
+                    center_flux,
+                    final_scatter,
+                    flux_error,
+                    len(kept_flux),
+                ))
+
+            if binned_rows:
+                binned = np.asarray(binned_rows, dtype=float)
+                binned_wavelength_m = binned[:, 0]
+                binned_frequency_hz = binned[:, 1]
+                binned_flux_jy = binned[:, 2]
+                binned_scatter_jy = binned[:, 3]
+                fluxerr_jy = binned[:, 4]
+                samples_per_bin = binned[:, 5].astype(int)
+            else:
+                binned_wavelength_m = np.array([], dtype=float)
+                binned_frequency_hz = np.array([], dtype=float)
+                binned_flux_jy = np.array([], dtype=float)
+                binned_scatter_jy = np.array([], dtype=float)
+                fluxerr_jy = np.array([], dtype=float)
+                samples_per_bin = np.array([], dtype=int)
+
+        if bin_width_micron is None:
+            fluxerr_jy = np.abs(binned_flux_jy) * float(fractional_error)
+
+        keep_bins = np.isfinite(binned_flux_jy) & np.isfinite(fluxerr_jy) & (fluxerr_jy > 0)
+        if not include_nonpositive:
+            keep_bins &= binned_flux_jy > 0
+        if sample_stride > 1:
+            sampled = np.zeros_like(keep_bins, dtype=bool)
+            sampled[np.flatnonzero(keep_bins)[::sample_stride]] = True
+            keep_bins &= sampled
+
+        wavelength_m = binned_wavelength_m[keep_bins]
+        frequency_hz = binned_frequency_hz[keep_bins]
+        flux_jy = binned_flux_jy[keep_bins]
+        fluxerr_jy = fluxerr_jy[keep_bins]
+        binned_scatter_jy = binned_scatter_jy[keep_bins]
+        samples_per_bin = samples_per_bin[keep_bins]
+
+        metadata = epoch_map[date_code]
+        jd = float(metadata['JD'])
+        date = str(metadata['Date'])
+        frames.append(pd.DataFrame({
+            'JD': jd,
+            'JD_day': jd,
+            'Date': date,
+            'DateCode': date_code,
+            'Filter': 'XSHOOTER_NIR',
+            'Lambda': wavelength_m * 1e6,
+            'Lambda_m': wavelength_m,
+            'Frequency': frequency_hz,
+            'Mag': np.nan,
+            'Magerr': np.nan,
+            'ZP': np.nan,
+            'Flux': flux_jy,
+            'Fluxerr': fluxerr_jy,
+            'Flag': 1,
+            'Interpolated': 'no',
+            'Instrument': 'VLT/XSHOOTER',
+            'Mode': 'NIR',
+            'Filename': os.path.basename(filepath),
+            'InputFluxConvention': 'F_lambda [erg/s/cm^2/Angstrom]',
+            'FractionalErrorAssigned': float(fractional_error),
+            'BinWidthMicron': np.nan if bin_width_micron is None else float(bin_width_micron),
+            'SamplesPerBin': samples_per_bin,
+            'RobustScatterJy': binned_scatter_jy,
+        }))
+
+    df = pd.concat(frames, ignore_index=True)
+    df.sort_values(['JD', 'Lambda_m'], inplace=True)
+    df.reset_index(drop=True, inplace=True)
+    print(f'Successfully loaded {len(df)} samples from {len(filepaths)} XSHOOTER NIR files')
+    print(f'Dates: {sorted(df["DateCode"].unique().tolist())}')
+    print(f'Fitting wavelength coverage: {df["Lambda"].min():.3f}–{df["Lambda"].max():.3f} μm')
+    return df
+
+
+def calibrate_spectra_to_photometry(
+    spectral_df,
+    photometry_df,
+    filters=('J', 'H'),
+    max_time_difference_days=1.0,
+    window_half_width_micron=0.03,
+):
+    """Apply a smooth absolute/colour correction from simultaneous photometry.
+
+    A power law in wavelength is fitted through the requested photometric
+    anchors for each spectral epoch.  Magnitude and zeropoint are preferred for
+    the anchor flux because legacy tables round small Jy values in ``Flux``.
+    The uncorrected values are retained in ``FluxUncalibrated`` and
+    ``FluxerrUncalibrated``.
+    """
+    if spectral_df is None or len(spectral_df) == 0:
+        return spectral_df
+    if photometry_df is None or len(photometry_df) == 0:
+        raise ValueError('photometry_df must contain calibration measurements')
+    if window_half_width_micron <= 0:
+        raise ValueError('window_half_width_micron must be positive')
+
+    calibrated = spectral_df.copy()
+    calibrated['FluxUncalibrated'] = pd.to_numeric(calibrated['Flux'], errors='coerce')
+    calibrated['FluxerrUncalibrated'] = pd.to_numeric(calibrated['Fluxerr'], errors='coerce')
+    calibrated['FluxCalibrationFactor'] = np.nan
+    calibrated['PhotometricCalibration'] = ''
+
+    photometry = repair_flux_from_magnitude(photometry_df)
+    photometry = photometry.copy()
+    photometry['JD'] = pd.to_numeric(photometry['JD'], errors='coerce')
+    photometry['Lambda'] = pd.to_numeric(photometry['Lambda'], errors='coerce')
+
+    for jd_day, epoch in calibrated.groupby('JD_day'):
+        anchor_wavelengths = []
+        anchor_scales = []
+        anchor_labels = []
+        for filter_name in filters:
+            candidates = photometry[
+                (photometry['Filter'].astype(str).str.lower() == str(filter_name).lower())
+                & np.isfinite(photometry['JD'])
+                & (np.abs(photometry['JD'] - float(jd_day)) <= float(max_time_difference_days))
+            ].copy()
+            if candidates.empty:
+                continue
+            candidates['_time_distance'] = np.abs(candidates['JD'] - float(jd_day))
+            row = candidates.sort_values('_time_distance').iloc[0]
+            wavelength_um = float(row['Lambda'])
+
+            mag = pd.to_numeric(pd.Series([row.get('Mag', np.nan)]), errors='coerce').iloc[0]
+            zp = pd.to_numeric(pd.Series([row.get('ZP', np.nan)]), errors='coerce').iloc[0]
+            if np.isfinite(mag) and np.isfinite(zp) and zp > 0:
+                photometric_flux = float(zp * 10 ** (-0.4 * mag))
+            else:
+                photometric_flux = float(row.get('Flux', np.nan))
+
+            local = epoch[
+                np.abs(pd.to_numeric(epoch['Lambda'], errors='coerce') - wavelength_um)
+                <= float(window_half_width_micron)
+            ]
+            local_flux = pd.to_numeric(local['FluxUncalibrated'], errors='coerce')
+            local_flux = local_flux[np.isfinite(local_flux) & (local_flux > 0)]
+            if len(local_flux) == 0 or not np.isfinite(photometric_flux) or photometric_flux <= 0:
+                continue
+            spectral_flux = float(np.median(local_flux))
+            if spectral_flux <= 0:
+                continue
+
+            anchor_wavelengths.append(wavelength_um)
+            anchor_scales.append(photometric_flux / spectral_flux)
+            anchor_labels.append(
+                f'{filter_name}@{float(row["JD"]):.3f}:x{photometric_flux / spectral_flux:.4g}'
+            )
+
+        if not anchor_scales:
+            raise ValueError(f'No usable photometric calibration anchors near JD {jd_day}')
+
+        anchor_wavelengths = np.asarray(anchor_wavelengths, dtype=float)
+        anchor_scales = np.asarray(anchor_scales, dtype=float)
+        reference_wavelength = float(np.exp(np.mean(np.log(anchor_wavelengths))))
+        if len(anchor_scales) >= 2 and np.ptp(np.log(anchor_wavelengths)) > 0:
+            slope, intercept = np.polyfit(
+                np.log(anchor_wavelengths / reference_wavelength),
+                np.log(anchor_scales),
+                1,
+            )
+        else:
+            slope = 0.0
+            intercept = float(np.mean(np.log(anchor_scales)))
+
+        epoch_index = epoch.index
+        wavelength = pd.to_numeric(calibrated.loc[epoch_index, 'Lambda'], errors='coerce')
+        correction = np.exp(intercept) * (wavelength / reference_wavelength) ** slope
+        calibrated.loc[epoch_index, 'Flux'] = (
+            calibrated.loc[epoch_index, 'FluxUncalibrated'] * correction
+        )
+        calibrated.loc[epoch_index, 'Fluxerr'] = (
+            calibrated.loc[epoch_index, 'FluxerrUncalibrated'] * correction
+        )
+        calibrated.loc[epoch_index, 'FluxCalibrationFactor'] = correction
+        calibrated.loc[epoch_index, 'PhotometricCalibration'] = '; '.join(anchor_labels)
+
+    return calibrated
 
 
 def load_database_new(filepath):
@@ -714,6 +1062,8 @@ __all__ = [
     'get_daily_data',
     'load_irtf_lxd_spectra',
     'load_irtf_sxd_spectra',
+    'load_xshooter_nir_spectra',
+    'calibrate_spectra_to_photometry',
     'load_database_new',
     'generated_data_path',
     'result_saver',

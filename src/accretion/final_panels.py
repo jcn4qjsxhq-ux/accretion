@@ -6,6 +6,7 @@ module has no plotting or data-loading side effects.
 
 from __future__ import annotations
 
+import io
 from pathlib import Path
 
 import matplotlib as mpl
@@ -43,8 +44,10 @@ FINAL_PANEL_STYLE = {
 FINAL_PANEL_COLOURS = {
     'mdot_photometric': '#e6ab02',
     'mdot_spectroscopic': '#54278f',
+    'mdot_xshooter': '#0072b2',
     'av_photometric': '#d95f02',
-    'av_spectroscopic': '#1f4e79',
+    'av_spectroscopic': '#54278f',
+    'av_xshooter': '#0072b2',
     'residual_palette': ['#54278f', '#1b9e77', '#66a61e', '#e6ab02', '#d95f02'],
 }
 
@@ -361,6 +364,65 @@ def _get_defaults(results):
     }
 
 
+def _stellar_mass_solar(results, default_params=None):
+    """Resolve stellar mass for M_star*Mdot without a 1 Msun fallback."""
+    default_params = default_params or {}
+    if 'M_star' in default_params:
+        value = float(default_params['M_star'])
+        return value / M_sun if value > 10 else value
+
+    fit_info = results.get('fit_info', {}) if isinstance(results, dict) else {}
+    value = fit_info.get('stellar_mass_solar', np.nan)
+    if np.isfinite(value) and value > 0:
+        return float(value)
+    return float(_get_defaults(results)['M'] / M_sun)
+
+
+def _spectral_source(results, jd_day):
+    """Classify a fitted spectral epoch from its saved row provenance."""
+    daily_data = results.get('daily_data', {}) if isinstance(results, dict) else {}
+    jd_key = _resolve_jd_key(daily_data, jd_day, tolerance=1e-3)
+    if jd_key is None:
+        return 'Other spectrum'
+    frame = daily_data.get(jd_key)
+    if not isinstance(frame, pd.DataFrame) or frame.empty:
+        return 'Other spectrum'
+
+    provenance = []
+    for column in ('Instrument', 'Filename', 'Filter'):
+        if column in frame.columns:
+            provenance.extend(frame[column].dropna().astype(str).str.lower().tolist())
+    joined = ' '.join(provenance)
+    if 'xshooter' in joined or 'x-shooter' in joined:
+        return 'XSHOOTER'
+    if 'spex' in joined or 'irtf' in joined or '_sxd_' in joined or '_lxd_' in joined:
+        return 'IRTF/SpeX'
+    return 'Other spectrum'
+
+
+def _spectral_plot_style(source):
+    if source == 'XSHOOTER':
+        return {
+            'marker': 'D',
+            'color_mdot': FINAL_PANEL_COLOURS['mdot_xshooter'],
+            'color_av': FINAL_PANEL_COLOURS['av_xshooter'],
+            'markersize': 6,
+        }
+    if source == 'IRTF/SpeX':
+        return {
+            'marker': 'x',
+            'color_mdot': FINAL_PANEL_COLOURS['mdot_spectroscopic'],
+            'color_av': FINAL_PANEL_COLOURS['av_spectroscopic'],
+            'markersize': 7,
+        }
+    return {
+        'marker': '+',
+        'color_mdot': '0.35',
+        'color_av': '0.35',
+        'markersize': 7,
+    }
+
+
 def _mstar_mdot_solar2_per_year(M_star_solar, params):
     mdot = params.get('Mdot', np.nan) if isinstance(params, dict) else np.nan
     if not np.isfinite(mdot):
@@ -523,7 +585,7 @@ def plot_final_panels_0_to_4(
 
     daily_params = photometric_results['daily_params']
     jd_days = sorted(daily_params.keys())
-    photo_m_star_solar = default_params.get('M_star', 0.5 * M_sun) / M_sun
+    photo_m_star_solar = _stellar_mass_solar(photometric_results, default_params)
     mdot_values = [photo_m_star_solar * daily_params[jd]['Mdot'] for jd in jd_days]
     mdot_errors = [photo_m_star_solar * daily_params[jd]['Mdot_err'] for jd in jd_days]
     av_values = [daily_params[jd]['Av'] for jd in jd_days]
@@ -660,27 +722,36 @@ def plot_final_panels_0_to_4(
     ax.set_yscale('log')
     ax.grid(True, alpha=0.3)
     spectral_jds = []
-    spect_m_star_solar = default_params.get('M_star', 0.5 * M_sun) / M_sun
+    spect_m_star_solar = _stellar_mass_solar(spectral_results, default_params)
     if 'daily_params' in spectral_results:
         spectral_jds = sorted(spectral_results['daily_params'].keys())
-        spectral_mdots = [spect_m_star_solar * spectral_results['daily_params'][jd]['Mdot'] for jd in spectral_jds]
-        spectral_mdot_errors = [
-            spect_m_star_solar * _mdot_error_solar_per_year(spectral_results['daily_params'][jd])
-            for jd in spectral_jds
-        ]
-        ax.errorbar(
-            spectral_jds,
-            spectral_mdots,
-            yerr=spectral_mdot_errors,
-            marker='x',
-            linestyle='None',
-            color=FINAL_PANEL_COLOURS['mdot_spectroscopic'],
-            markersize=7,
-            markeredgewidth=1.8,
-            capsize=3,
-            label='Spectroscopic fit',
-            zorder=4,
-        )
+        spectral_sources = {jd: _spectral_source(spectral_results, jd) for jd in spectral_jds}
+        for source in ('IRTF/SpeX', 'XSHOOTER', 'Other spectrum'):
+            source_jds = [jd for jd in spectral_jds if spectral_sources[jd] == source]
+            if not source_jds:
+                continue
+            style = _spectral_plot_style(source)
+            source_mdots = [
+                spect_m_star_solar * spectral_results['daily_params'][jd]['Mdot']
+                for jd in source_jds
+            ]
+            source_mdot_errors = [
+                spect_m_star_solar * _mdot_error_solar_per_year(spectral_results['daily_params'][jd])
+                for jd in source_jds
+            ]
+            ax.errorbar(
+                source_jds,
+                source_mdots,
+                yerr=source_mdot_errors,
+                marker=style['marker'],
+                linestyle='None',
+                color=style['color_mdot'],
+                markersize=style['markersize'],
+                markeredgewidth=1.8,
+                capsize=3,
+                label=source,
+                zorder=5 if source == 'XSHOOTER' else 4,
+            )
         ax.legend()
 
     ax = axes[2]
@@ -688,21 +759,26 @@ def plot_final_panels_0_to_4(
     ax.set_ylabel(r'$A_V\ \mathrm{(mag)}$', fontsize=label_fontsize)
     ax.grid(True, alpha=0.3)
     if spectral_jds:
-        spectral_avs = [spectral_results['daily_params'][jd]['Av'] for jd in spectral_jds]
-        spectral_av_errors = [_av_error(spectral_results['daily_params'][jd]) for jd in spectral_jds]
-        ax.errorbar(
-            spectral_jds,
-            spectral_avs,
-            yerr=spectral_av_errors,
-            marker='x',
-            linestyle='None',
-            color=FINAL_PANEL_COLOURS['av_spectroscopic'],
-            markersize=7,
-            markeredgewidth=1.8,
-            capsize=3,
-            label='Spectroscopic fit',
-            zorder=4,
-        )
+        for source in ('IRTF/SpeX', 'XSHOOTER', 'Other spectrum'):
+            source_jds = [jd for jd in spectral_jds if spectral_sources[jd] == source]
+            if not source_jds:
+                continue
+            style = _spectral_plot_style(source)
+            source_avs = [spectral_results['daily_params'][jd]['Av'] for jd in source_jds]
+            source_av_errors = [_av_error(spectral_results['daily_params'][jd]) for jd in source_jds]
+            ax.errorbar(
+                source_jds,
+                source_avs,
+                yerr=source_av_errors,
+                marker=style['marker'],
+                linestyle='None',
+                color=style['color_av'],
+                markersize=style['markersize'],
+                markeredgewidth=1.8,
+                capsize=3,
+                label=source,
+                zorder=5 if source == 'XSHOOTER' else 4,
+            )
         ax.legend()
 
     residual_palette = FINAL_PANEL_COLOURS['residual_palette']
@@ -844,6 +920,90 @@ def plot_final_panels_0_to_4(
     else:
         plt.close(fig)
     return fig, axes, residuals
+
+
+def plot_final_panels_0_to_4_layouts(
+    df,
+    photometric_results,
+    spectral_results=None,
+    default_params=None,
+    selected_filters=('J', 'H', 'K'),
+    photometric_fit_filters=None,
+    residual_filter_groups=('I', 'J', 'H', 'K', 'L+W1'),
+    plot_panel0_fits=True,
+    filter_diff=True,
+    show_panel3=True,
+    end_zoom_range=(2459000, 2461300),
+    flux_residual_log_scale=False,
+    one_column_save_path=None,
+    two_column_save_path=None,
+    show=True,
+    raster_dpi=300,
+):
+    """Save the full-timeline and full-plus-end-zoom layouts for panels 0-4.
+
+    The one-column version contains only the complete time baseline.  The
+    two-column version places that same baseline on the left and a matching
+    end-of-timeline zoom on the right.  The comparison canvas embeds
+    high-resolution renders of the two otherwise identical panel stacks so
+    their rows remain perfectly aligned.
+    """
+    common_kwargs = {
+        'spectral_results': spectral_results,
+        'default_params': default_params,
+        'selected_filters': selected_filters,
+        'photometric_fit_filters': photometric_fit_filters,
+        'residual_filter_groups': residual_filter_groups,
+        'plot_panel0_fits': plot_panel0_fits,
+        'filter_diff': filter_diff,
+        'show_panel3': show_panel3,
+        'flux_residual_log_scale': flux_residual_log_scale,
+        'show': False,
+    }
+    full_fig, full_axes, residuals = plot_final_panels_0_to_4(
+        df,
+        photometric_results,
+        date_range=None,
+        save_path=one_column_save_path,
+        **common_kwargs,
+    )
+    zoom_fig, zoom_axes, _ = plot_final_panels_0_to_4(
+        df,
+        photometric_results,
+        date_range=end_zoom_range,
+        save_path=None,
+        **common_kwargs,
+    )
+
+    def _render_figure(figure):
+        buffer = io.BytesIO()
+        figure.savefig(buffer, format='png', dpi=raster_dpi, bbox_inches='tight')
+        buffer.seek(0)
+        image = plt.imread(buffer, format='png')
+        buffer.close()
+        return image
+
+    full_image = _render_figure(full_fig)
+    zoom_image = _render_figure(zoom_fig)
+    n_panels = 5 if show_panel3 else 4
+    comparison_fig, comparison_axes = plt.subplots(1, 2, figsize=(20, 4 * n_panels))
+    for axis, image in zip(comparison_axes, (full_image, zoom_image)):
+        axis.imshow(image)
+        axis.set_axis_off()
+    comparison_fig.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0, wspace=0.015)
+
+    if two_column_save_path:
+        comparison_fig.savefig(
+            _generated_figure_path(two_column_save_path),
+            dpi=raster_dpi,
+            bbox_inches='tight',
+            pad_inches=0.02,
+        )
+    if show:
+        plt.show()
+    else:
+        plt.close(comparison_fig)
+    return full_fig, comparison_fig, residuals
 
 
 def plot_filter_evolution_panel(
@@ -1167,7 +1327,7 @@ def plot_panel5_sed(
         sed_date_str = julian_to_calendar([sed_jd])[0]
 
     default_params = default_params or {}
-    photo_m_star_solar = default_params.get('M_star', 0.5 * M_sun) / M_sun
+    photo_m_star_solar = _stellar_mass_solar(photometric_results, default_params)
     spect_m_star_solar = photo_m_star_solar
 
     spectral_series = _prepare_day_series_from_frame(spectral_df, sed_jd)
@@ -1378,6 +1538,180 @@ def plot_panel5_seds(sed_jds, photometric_results, spectral_results, **kwargs):
     ]
 
 
+def fit_parameter_table(result_sets, m_star_solar=0.5):
+    """Return paper-ready Mdot, Mstar*Mdot, and Av rows from saved fits.
+
+    Parameters
+    ----------
+    result_sets : mapping or fitting-result dict
+        A mapping of dataset labels to result dictionaries, or one result dict.
+    m_star_solar : float
+        Stellar mass in solar masses.  The paper plots ``Mstar*Mdot``; the
+        fitted ``Mdot`` values themselves are already in solar masses per year.
+    """
+    if isinstance(result_sets, dict) and 'daily_params' in result_sets:
+        result_sets = {'fit': result_sets}
+    if not isinstance(result_sets, dict):
+        raise TypeError('result_sets must be a fitting-result dict or label-to-result mapping')
+
+    rows = []
+    for dataset, results in result_sets.items():
+        if not isinstance(results, dict):
+            continue
+        daily_params = results.get('daily_params', {})
+        date_lookup = {}
+        for jd_key, day_df in results.get('daily_data', {}).items():
+            if isinstance(day_df, pd.DataFrame) and len(day_df) and 'Date' in day_df.columns:
+                date_lookup[float(jd_key)] = str(day_df['Date'].iloc[0])[:10]
+
+        for jd, params in sorted(daily_params.items(), key=lambda item: float(item[0])):
+            jd = float(jd)
+            mdot = params.get('Mdot')
+            if mdot is None and params.get('logMdot') is not None:
+                mdot = 10.0 ** float(params['logMdot']) / M_sun * year
+            mdot = float(mdot)
+            mdot_err = _mdot_error_solar_per_year(params)
+            rows.append({
+                'Dataset': str(dataset),
+                'JD': jd,
+                'Date': date_lookup.get(jd, str(julian_to_calendar([jd])[0])),
+                'Mdot_Msun_per_yr': mdot,
+                'Mdot_err_Msun_per_yr': mdot_err,
+                'MstarMdot_Msun2_per_yr': float(m_star_solar) * mdot,
+                'MstarMdot_err_Msun2_per_yr': float(m_star_solar) * mdot_err,
+                'Av_mag': float(params.get('Av', np.nan)),
+                'Av_err_mag': _av_error(params),
+            })
+    return pd.DataFrame(rows)
+
+
+def integrate_accretion_history(
+    results,
+    start_jd=None,
+    end_jd=None,
+    max_gap_days=None,
+    m_star_solar=0.5,
+):
+    """Integrate a fitted accretion-rate curve with linear interpolation.
+
+    Each included interval is integrated with the trapezoid rule, equivalent to
+    assuming that Mdot changes linearly between adjacent fitted epochs.  Setting
+    ``max_gap_days`` excludes longer gaps instead of interpolating across them.
+    No extrapolation is performed beyond the first or last fitted epoch.
+    """
+    table = fit_parameter_table(results, m_star_solar=m_star_solar)
+    if table.empty:
+        raise ValueError('No fitted daily parameters are available to integrate')
+    table = table.sort_values('JD').drop_duplicates('JD', keep='last')
+    jd = table['JD'].to_numpy(dtype=float)
+    mdot = table['Mdot_Msun_per_yr'].to_numpy(dtype=float)
+    mdot_err = table['Mdot_err_Msun_per_yr'].to_numpy(dtype=float)
+    finite = np.isfinite(jd) & np.isfinite(mdot) & (mdot >= 0)
+    jd, mdot, mdot_err = jd[finite], mdot[finite], mdot_err[finite]
+    if len(jd) < 2:
+        raise ValueError('At least two finite fitted epochs are required for integration')
+
+    lower = jd[0] if start_jd is None else max(float(start_jd), jd[0])
+    upper = jd[-1] if end_jd is None else min(float(end_jd), jd[-1])
+    if lower >= upper:
+        raise ValueError('The requested integration interval does not overlap the fitted epochs')
+
+    interior = (jd > lower) & (jd < upper)
+    eval_jd = np.concatenate(([lower], jd[interior], [upper]))
+    eval_mdot = np.interp(eval_jd, jd, mdot)
+    finite_err = np.isfinite(mdot_err)
+    if np.sum(finite_err) >= 2:
+        eval_err = np.interp(eval_jd, jd[finite_err], mdot_err[finite_err])
+    else:
+        eval_err = np.full_like(eval_jd, np.nan)
+
+    gap_days = np.diff(eval_jd)
+    include = np.ones(len(gap_days), dtype=bool)
+    if max_gap_days is not None:
+        include &= gap_days <= float(max_gap_days)
+    interval_years = gap_days / 365.25
+    interval_mass = 0.5 * (eval_mdot[:-1] + eval_mdot[1:]) * interval_years
+    mass_accreted = float(np.sum(interval_mass[include]))
+
+    # Linear propagation for trapezoidal weights.  These are fit-only errors;
+    # they do not include the much larger systematic uncertainty in gap filling.
+    weights = np.zeros(len(eval_jd), dtype=float)
+    for index, (dt_years, use_interval) in enumerate(zip(interval_years, include)):
+        if use_interval:
+            weights[index] += 0.5 * dt_years
+            weights[index + 1] += 0.5 * dt_years
+    mass_error = (
+        float(np.sqrt(np.sum((weights * eval_err) ** 2)))
+        if np.all(np.isfinite(eval_err)) else np.nan
+    )
+
+    excluded = [
+        {'start_jd': float(eval_jd[i]), 'end_jd': float(eval_jd[i + 1]), 'gap_days': float(gap_days[i])}
+        for i in np.flatnonzero(~include)
+    ]
+    return {
+        'start_jd': float(lower),
+        'end_jd': float(upper),
+        'span_years': float((upper - lower) / 365.25),
+        'covered_years': float(np.sum(interval_years[include])),
+        'mass_accreted_Msun': mass_accreted,
+        'mass_accreted_err_Msun': mass_error,
+        'integrated_MstarMdot_Msun2': float(m_star_solar) * mass_accreted,
+        'interpolation': 'piecewise linear between adjacent fitted epochs',
+        'max_gap_days': None if max_gap_days is None else float(max_gap_days),
+        'excluded_gaps': excluded,
+        'n_epochs': int(len(eval_jd)),
+        'n_intervals_included': int(np.sum(include)),
+    }
+
+
+def print_final_panel_results(
+    spectral_result_sets=None,
+    photometric_result_sets=None,
+    integration_results=None,
+    m_star_solar=0.5,
+):
+    """Print the fit quantities and accreted-mass estimates used by the paper."""
+    frames = []
+    if spectral_result_sets:
+        frame = fit_parameter_table(spectral_result_sets, m_star_solar=m_star_solar)
+        if not frame.empty:
+            frame.insert(0, 'Kind', 'spectrum')
+            frames.append(frame)
+    if photometric_result_sets:
+        frame = fit_parameter_table(photometric_result_sets, m_star_solar=m_star_solar)
+        if not frame.empty:
+            frame.insert(0, 'Kind', 'photometry')
+            frames.append(frame)
+
+    print('\nFit parameters for Table 2 / final panels')
+    if frames:
+        report = pd.concat(frames, ignore_index=True)
+        columns = ['Kind', 'Dataset', 'JD', 'Date', 'Mdot_Msun_per_yr', 'MstarMdot_Msun2_per_yr', 'Av_mag']
+        print(report[columns].to_string(index=False, formatters={
+            'JD': lambda value: f'{value:.3f}',
+            'Mdot_Msun_per_yr': lambda value: f'{value:.4e}',
+            'MstarMdot_Msun2_per_yr': lambda value: f'{value:.4e}',
+            'Av_mag': lambda value: f'{value:.3f}',
+        }))
+    else:
+        report = pd.DataFrame()
+        print('No fit results supplied.')
+
+    if integration_results:
+        if isinstance(integration_results, dict) and 'mass_accreted_Msun' in integration_results:
+            integration_results = {'accretion history': integration_results}
+        print('\nIntegrated accreted mass')
+        for label, summary in integration_results.items():
+            gap_note = 'all gaps interpolated' if summary.get('max_gap_days') is None else f"gaps > {summary['max_gap_days']:g} d excluded"
+            print(
+                f"{label}: {summary['mass_accreted_Msun']:.4e} +/- "
+                f"{summary['mass_accreted_err_Msun']:.2e} Msun over "
+                f"{summary['covered_years']:.2f} covered yr ({gap_note})"
+            )
+    return report
+
+
 __all__ = [
     '_normalise_sed_jds',
     '_parse_filter_groups',
@@ -1393,6 +1727,10 @@ __all__ = [
     'plot_filter_evolution_panel',
     'plot_final_residuals',
     'plot_final_panels_0_to_4',
+    'plot_final_panels_0_to_4_layouts',
     'plot_panel5_sed',
     'plot_panel5_seds',
+    'fit_parameter_table',
+    'integrate_accretion_history',
+    'print_final_panel_results',
 ]

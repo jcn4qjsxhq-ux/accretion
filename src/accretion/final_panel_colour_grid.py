@@ -632,27 +632,29 @@ def _colourbar(fig, axes, jds, data_year_colours, fit_year_colours, show_fit=Tru
     for year_value in year_bins[1:]:
         data_row.append(colors.to_rgba(data_year_colours[year_value]))
         fit_row.append(colors.to_rgba(fit_year_colours[year_value]))
-    image_rows = [fit_row, data_row] if show_fit else [data_row]
-    image = np.array(image_rows, dtype=float)
-    row_count = image.shape[0]
+    image_rows = [data_row, fit_row] if show_fit else [data_row]
+    image = np.transpose(np.array(image_rows, dtype=float), (1, 0, 2))
+    column_count = image.shape[1]
 
-    fig.subplots_adjust(bottom=0.18, top=0.92)
-    cbar_height = 0.075 if show_fit else 0.052
-    cax = fig.add_axes([0.055, 0.045, 0.91, cbar_height])
+    # Keep the time key vertical on the right so it does not compete with the
+    # x-axis labels of the bottom panels.  The Gregorian year and abbreviated
+    # JD labels live on opposite sides of the strip for legibility.
+    cbar_width = 0.060 if show_fit else 0.036
+    cax = fig.add_axes([0.89, 0.09, cbar_width, 0.82])
     cax.imshow(
         image,
         aspect='auto',
         interpolation='nearest',
-        origin='lower',
-        extent=(-0.5, len(year_bins) - 0.5, 0, row_count),
+        origin='upper',
+        extent=(0, column_count, len(year_bins) - 0.5, -0.5),
     )
-    cax.set_xlim(-0.5, len(year_bins) - 0.5)
+    cax.set_ylim(len(year_bins) - 0.5, -0.5)
     if show_fit:
-        cax.set_yticks([1.5, 0.5])
-        cax.set_yticklabels(['Data', 'Fit'], fontsize=11)
+        cax.set_xticks([0.5, 1.5])
+        cax.set_xticklabels(['Data', 'Fit'], fontsize=9, rotation=45, ha='left')
     else:
-        cax.set_yticks([0.5])
-        cax.set_yticklabels(['Data'], fontsize=11)
+        cax.set_xticks([0.5])
+        cax.set_xticklabels(['Data'], fontsize=9, rotation=45, ha='left')
     jd_labels = []
     for year_value in year_bins:
         if isinstance(year_value, str):
@@ -662,19 +664,21 @@ def _colourbar(fig, axes, jds, data_year_colours, fit_year_colours, show_fit=Tru
             representative_jd = _calendar_to_jd(year_value, 1, 1)
         jd_labels.append(str(int(representative_jd))[:5])
 
-    cax.set_xticks(range(len(year_bins)))
-    cax.set_xticklabels(jd_labels, rotation=90, fontsize=10)
-    cax.tick_params(axis='x', bottom=True, top=False, labelbottom=True, pad=2, length=2)
-    cax.tick_params(axis='y', length=0, pad=4)
+    cax.set_yticks(range(len(year_bins)))
+    cax.set_yticklabels(jd_labels, fontsize=8)
+    cax.yaxis.tick_right()
+    cax.yaxis.set_label_position('right')
+    cax.tick_params(axis='x', bottom=False, top=True, labelbottom=False, labeltop=True, pad=2, length=2)
+    cax.tick_params(axis='y', left=False, right=True, labelleft=False, labelright=True, pad=2, length=2)
     for spine in cax.spines.values():
         spine.set_linewidth(0.6)
 
-    top_axis = cax.secondary_xaxis('top')
-    top_axis.set_xticks(range(len(year_bins)))
-    top_axis.set_xticklabels([str(year_value) for year_value in year_bins], rotation=90, fontsize=10)
-    top_axis.tick_params(axis='x', pad=2, length=2)
-    cax.set_xlabel('JD', fontsize=11, labelpad=3)
-    top_axis.set_xlabel('Gregorian year', fontsize=11, labelpad=3)
+    year_axis = cax.secondary_yaxis('left')
+    year_axis.set_yticks(range(len(year_bins)))
+    year_axis.set_yticklabels([str(year_value) for year_value in year_bins], fontsize=8)
+    year_axis.tick_params(axis='y', pad=2, length=2)
+    cax.set_ylabel('JD', fontsize=10, labelpad=4)
+    year_axis.set_ylabel('Gregorian year', fontsize=10, labelpad=4)
 
 
 def _plot_one(ax, spec, matches, model_matches, data_colours, fit_colours, show_fit=True):
@@ -752,8 +756,17 @@ def _plot_one(ax, spec, matches, model_matches, data_colours, fit_colours, show_
     _add_av_grid(ax, spec)
 
 
-def plot_final_panel_colour_grid(df, results, tolerance=2.0, show_fit=True, save_path=None, show=True, plot=None):
-    """Create Panel 6: the 2x2 colour-colour/colour-magnitude grid."""
+def plot_final_panel_colour_grid(
+    df,
+    results,
+    tolerance=2.0,
+    show_fit=True,
+    save_path=None,
+    show=True,
+    plot=None,
+    two_columns=True,
+):
+    """Create Panel 6 in a two-column grid or a wider single column."""
     daily_params = results.get('daily_params', {}) if results else {}
     global_params = results.get('global_params', {}) if results else {}
     fit_info = results.get('fit_info', {}) if results else {}
@@ -775,13 +788,20 @@ def plot_final_panel_colour_grid(df, results, tolerance=2.0, show_fit=True, save
     fit_colours_all, fit_year_colours = _build_year_colours(all_jds, 'tab20c', '0.25', colour_order=fit_colour_order)
 
     n_panels = len(panel_specs)
-    ncols = 2 if n_panels > 1 else 1
+    ncols = 2 if two_columns and n_panels > 1 else 1
     nrows = int(np.ceil(n_panels / ncols))
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 6 * nrows))
+    if ncols == 2:
+        figure_width, figure_height = 10, 10
+    else:
+        figure_width, figure_height = 7, 6 * nrows
+    fig, axes = plt.subplots(nrows, ncols, figsize=(figure_width, figure_height))
     axes_flat = np.asarray(axes).ravel()
     plot_axes = axes_flat[:n_panels]
     for extra_ax in axes_flat[n_panels:]:
         fig.delaxes(extra_ax)
+    if ncols == 2:
+        for ax in plot_axes:
+            ax.set_box_aspect(1)
 
     colour_offset = 0
     for ax, spec in zip(plot_axes, panel_specs):
@@ -803,8 +823,8 @@ def plot_final_panel_colour_grid(df, results, tolerance=2.0, show_fit=True, save
     handles, labels = plot_axes[0].get_legend_handles_labels()
     if handles:
         fig.legend(handles, labels, loc='upper center', ncol=min(len(handles), 4), frameon=False)
+    fig.tight_layout(rect=[0.0, 0.02, 0.82, 0.92])
     _colourbar(fig, plot_axes, all_jds, data_year_colours, fit_year_colours, show_fit=show_fit)
-    fig.tight_layout(rect=[0.0, 0.18, 1.0, 0.92])
 
     if save_path:
         fig.savefig(_generated_figure_path(save_path), dpi=300, bbox_inches='tight')

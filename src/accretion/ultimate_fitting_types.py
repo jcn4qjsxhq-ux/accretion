@@ -74,7 +74,7 @@ def allpams_fitting(df, lambda_reg=0, debug=False):
 
 
 def AR_fitting(df, filename, required_filters=('J', 'H', 'K'), fit_filters=('J', 'H', 'K'), debug=False, lambda_reg=0):
-    """Example of running AR mode"""
+    """Run photometric AR fitting with a 3-D MCMC posterior."""
 
     print("Running AR mode fitting...")
 
@@ -129,15 +129,18 @@ def rede_fitting(df, required_filters, fit_filters, filename, debug=False, lambd
 
 
 def spectral_fitting(df, lambda_reg=0, debug=False, save_dir='results/generated/pictures/spectral_mode', rede=False,
-                     joint_refine=True, max_blue_bb_fraction=SPECTRAL_REDE_MAX_BLUE_BB_FRACTION):
+                     joint_refine=True, max_blue_bb_fraction=SPECTRAL_REDE_MAX_BLUE_BB_FRACTION,
+                     ar_mode=False):
     mode_label = 'Spectral Red-Excess Accretion + BB Fitting' if rede else 'Spectral Accretion Fitting'
+    if ar_mode:
+        mode_label += ' + AR MCMC'
     print(f'\n=== {mode_label} (λ={lambda_reg}) ===')
 
     start_time = time.time()
     results = ultimate_fitting_regularized(
         required_filters=(),
         fit_filters=(),
-        AR_mode=False,
+        AR_mode=ar_mode,
         red_excess_mode=rede,
         df=df,
         debug=debug,
@@ -153,6 +156,8 @@ def spectral_fitting(df, lambda_reg=0, debug=False, save_dir='results/generated/
     print(f"\nTotal execution time: {execution_time:.1f} seconds")
 
     if results and results['success']:
+        if ar_mode:
+            plot_ar_surface(results, save_dir)
         visualize_spectral_results(results, df, save_dir=save_dir)
         print('And it was a success')
     return results

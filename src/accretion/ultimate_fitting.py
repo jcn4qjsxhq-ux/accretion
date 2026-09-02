@@ -196,15 +196,29 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
     data_mode='photometry',
     spectral_rede_joint_refine=True,
     spectral_rede_max_blue_bb_fraction=SPECTRAL_REDE_MAX_BLUE_BB_FRACTION,
-    spectral_rede_blue_penalty_weight=SPECTRAL_REDE_BLUE_PENALTY_WEIGHT):
+    spectral_rede_blue_penalty_weight=SPECTRAL_REDE_BLUE_PENALTY_WEIGHT,
+    optimizer_maxiter=100000,
+    optimizer_maxfun=100000,
+    optimizer_ftol=1e-12,
+    optimizer_gtol=1e-6,
+    local_solver_max_nfev=10000,
+    local_solver_ftol=1e-13,
+    local_solver_gtol=1e-13):
     data_mode = str(data_mode).strip().lower()
     if data_mode not in ('photometry', 'spectral'):
         raise ValueError("data_mode must be either 'photometry' or 'spectral'")
     if AR_mode and red_excess_mode:
         raise ValueError('AR_mode and red_excess_mode cannot be enabled together')
-    if data_mode == 'spectral' and AR_mode:
-        raise ValueError('Spectral mode currently supports only the standard and red-excess accretion fits')
-
+    if optimizer_maxiter < 1 or optimizer_maxfun < 1 or local_solver_max_nfev < 1:
+        raise ValueError('Optimizer iteration/evaluation limits must be positive')
+    for tolerance_name, tolerance_value in (
+        ('optimizer_ftol', optimizer_ftol),
+        ('optimizer_gtol', optimizer_gtol),
+        ('local_solver_ftol', local_solver_ftol),
+        ('local_solver_gtol', local_solver_gtol),
+    ):
+        if not np.isfinite(tolerance_value) or tolerance_value <= 0:
+            raise ValueError(f'{tolerance_name} must be a positive finite value')
     fit_param_name = None
     fitted_param_internal = None
     fitted_param_names = ['logMdot', 'Av']
@@ -282,10 +296,11 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
     ar_visualization_days = None
     if AR_mode:
         all_days = list(daily_data.keys())
-        n_viz_days = max(2, len(all_days) // 20)
-        ar_visualization_days = all_days[-3:]
-        print(ar_visualization_days)
-        print(f"AR mode: Will visualize {len(ar_visualization_days)} days for parameter surface")
+        if data_mode == 'spectral':
+            ar_visualization_days = all_days
+        else:
+            ar_visualization_days = all_days[-3:]
+        print(f"AR mode: Will sample and visualize {len(ar_visualization_days)} days with MCMC")
 
     all_frequencies = []
     all_log_fluxes = []
@@ -818,17 +833,17 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                                 absolute_residual,
                                 bracket[0],
                                 bracket[1],
-                                xtol=1e-12,
-                                rtol=1e-12,
-                                maxiter=100
+                                xtol=local_solver_ftol,
+                                rtol=local_solver_ftol,
+                                maxiter=local_solver_max_nfev
                             )
                         elif hasattr(optimize, 'root_scalar'):
                             root_result = optimize.root_scalar(
                                 absolute_residual,
                                 bracket=bracket,
-                                xtol=1e-12,
-                                rtol=1e-12,
-                                maxiter=100
+                                xtol=local_solver_ftol,
+                                rtol=local_solver_ftol,
+                                maxiter=local_solver_max_nfev
                             )
                             logMdot_solution = root_result.root if root_result.converged else None
                         else:
@@ -848,11 +863,11 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                         two_param_residual,
                         x0=x0,
                         bounds=(lower, upper),
-                        ftol=1e-13,
-                        xtol=1e-13,
-                        gtol=1e-13,
+                        ftol=local_solver_ftol,
+                        xtol=local_solver_ftol,
+                        gtol=local_solver_gtol,
                         x_scale=np.maximum(np.abs(x0), 1.0),
-                        max_nfev=10000
+                        max_nfev=local_solver_max_nfev
                     )
                     candidate = local_result.x
                 except Exception as exc:
@@ -1093,10 +1108,10 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                 bounds=param_bounds,
                 callback=progress_callback,
                 options={
-                    'maxiter': 100000,
-                    'maxfun': 100000,
-                    'ftol': 1e-12,
-                    'gtol': 1e-6,
+                    'maxiter': optimizer_maxiter,
+                    'maxfun': optimizer_maxfun,
+                    'ftol': optimizer_ftol,
+                    'gtol': optimizer_gtol,
                     'disp': debug,
                     'maxcor': 20,
                     'maxls': 50,
@@ -1176,10 +1191,19 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                 'required_filters': list(required_filters),
                 'fit_filters': list(fit_filters),
                 'photometric_wavelength_source': 'row Lambda with filter-table fallback',
+                # Fixed model parameters are not repeated in global_params.
+                # Store the adopted stellar mass explicitly so downstream
+                # M_star*Mdot calculations do not silently assume 1 Msun.
+                'stellar_mass_solar': float(default_params['M'] / M_sun),
                 'param_names': fitted_param_names,
                 'regularize_params': regularize_params,
                 'data_mode': data_mode,
                 'AR_mode': AR_mode,
+                'AR_method': 'random-walk Metropolis MCMC' if AR_mode else None,
+                'AR_mcmc_chains': AR_MCMC_CHAINS if AR_mode else None,
+                'AR_mcmc_steps': AR_MCMC_STEPS if AR_mode else None,
+                'AR_mcmc_burn_in': AR_MCMC_BURN_IN if AR_mode else None,
+                'AR_mcmc_thin': AR_MCMC_THIN if AR_mode else None,
                 'two_filter_direct_solver': direct_two_filter_mode,
                 'red_excess_mode': red_excess_mode,
                 'red_excess_fit_param': fit_param_name,
@@ -1189,7 +1213,18 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                 'spectral_rede_blue_penalty_weight': float(spectral_rede_blue_penalty_weight) if spectral_rede_mode else None,
                 'spectral_rede_stage_info': _to_builtin(spectral_rede_stage_info) if spectral_rede_mode and '_to_builtin' in globals() else spectral_rede_stage_info,
                 'fixed_T_bb': fixed_T_bb,
-                'fixed_R_bb': fixed_R_bb
+                'fixed_R_bb': fixed_R_bb,
+                'optimizer_method': 'direct two-filter root/least-squares' if direct_two_filter_mode else 'L-BFGS-B',
+                'optimizer_maxiter': optimizer_maxiter,
+                'optimizer_maxfun': optimizer_maxfun,
+                'optimizer_ftol': optimizer_ftol,
+                'optimizer_gtol': optimizer_gtol,
+                'local_solver_max_nfev': local_solver_max_nfev,
+                'local_solver_ftol': local_solver_ftol,
+                'local_solver_gtol': local_solver_gtol,
+                'optimizer_nfev': int(result.nfev),
+                'optimizer_nit': int(result.nit) if hasattr(result, 'nit') else None,
+                'optimizer_message': str(result.message),
             }
         }
 
@@ -1273,12 +1308,12 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
         results['daily_data'] = daily_data
 
         if AR_mode and ar_visualization_days:
-            print("Generating AR mode 3D parameter surface...")
-            ar_surface_data = generate_ar_parameter_surface(
+            print("Generating AR mode 3D MCMC posterior...")
+            ar_mcmc_data = generate_ar_mcmc_samples(
                 ar_visualization_days, daily_data, fit_filters, default_params,
-                global_param_map, popt, results['daily_params']
+                global_param_map, popt, results['daily_params'], data_mode=data_mode
             )
-            results['AR_surface_data'] = ar_surface_data
+            results['AR_mcmc_data'] = ar_mcmc_data
 
         if red_excess_mode:
             results['red_excess_data'] = red_excess_data

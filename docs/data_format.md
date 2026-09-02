@@ -62,11 +62,26 @@ Recommended columns:
 ## Built-in Loaders
 
 ```python
-from accretion import load_database_new, load_irtf_sxd_spectra, load_irtf_lxd_spectra
+from accretion import (
+    calibrate_spectra_to_photometry,
+    load_database_new,
+    load_irtf_sxd_spectra,
+    load_irtf_lxd_spectra,
+    load_xshooter_nir_spectra,
+)
 
 photometry = load_database_new("data/raw/my_legacy_photometry.txt")
 sxd = load_irtf_sxd_spectra("data/raw/IRTF")
 lxd = load_irtf_lxd_spectra("data/raw/IRTF")
+
+# The XSHOOTER files have no uncertainty column. The loader robustly bins raw
+# pixels before rejecting non-positive bins and masks the deep atmospheric
+# bands. Simultaneous J/H photometry can correct the absolute scale and colour.
+xshooter = load_xshooter_nir_spectra(
+    "data/raw/Xshooter",
+    wavelength_range=(1.15e-6, 1.75e-6),
+)
+xshooter = calibrate_spectra_to_photometry(xshooter, photometry, filters=("J", "H"))
 ```
 
 For a normal CSV, use:

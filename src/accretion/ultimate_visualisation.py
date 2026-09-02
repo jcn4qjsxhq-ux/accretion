@@ -22,9 +22,41 @@ try:
 except ImportError:
     from ultimate_fitting import *
 
+try:
+    from .ultimate_helpers import AR_AV_RANGE, AR_MDOT_RANGE_SOLAR_PER_YEAR, AR_RIN_RANGE_RSTAR
+except ImportError:
+    from ultimate_helpers import AR_AV_RANGE, AR_MDOT_RANGE_SOLAR_PER_YEAR, AR_RIN_RANGE_RSTAR
+
 # CHANGE THRESHOLDS FOR YOUR OWN NEEDS
 SPECTRAL_REDE_THRESHOLD_MICRON = globals().get('SPECTRAL_REDE_THRESHOLD_MICRON', 2.0)
 SPECTRAL_REDE_BB_PLOT_FLOOR_JY = globals().get('SPECTRAL_REDE_BB_PLOT_FLOOR_JY', 1e-5)
+
+
+def _stellar_mass_solar(results):
+    """Return the fitted/adopted stellar mass in solar-mass units.
+
+    New results record the fixed mass in fit_info.  Older bundles used the
+    same 0.5 Msun model default but omitted it, so 0.5 is the compatible
+    fallback.  Fitted ``M`` values are stored in SI units.
+    """
+    results = results if isinstance(results, dict) else {}
+    fit_info = results.get('fit_info', {}) or {}
+    value = fit_info.get('stellar_mass_solar', np.nan)
+    if np.isfinite(value) and value > 0:
+        return float(value)
+
+    global_params = results.get('global_params', {}) or {}
+    if 'M_star_solar' in global_params:
+        value = global_params['M_star_solar']
+    elif 'M' in global_params:
+        value = float(global_params['M']) / M_sun
+    elif 'M_star' in global_params:
+        value = global_params['M_star']
+        if np.isfinite(value) and value > 10:
+            value = float(value) / M_sun
+    else:
+        value = 0.5
+    return float(value) if np.isfinite(value) and value > 0 else 0.5
 
 
 def _project_root():
@@ -186,7 +218,7 @@ def plot_results_regularized(results, df, filename="Mdot-Av_plot", end=True, pet
 
     daily_params = results['daily_params']
     jd_days = list(daily_params.keys())
-    m_star = results.get('global_params', {}).get('M_star', 1.0)
+    m_star = _stellar_mass_solar(results)
     mdot_values = [m_star * (10**(daily_params[jd]['logMdot']) / M_sun * year) for jd in jd_days]
     logmdot_values = [daily_params[jd]['logMdot'] for jd in jd_days]
     mdot_errors = [m_star * daily_params[jd]['Mdot_err'] for jd in jd_days]
@@ -311,7 +343,7 @@ def plot_parameter_evolution(results, df, save_path=None, show=True):
     daily_params = results['daily_params']
     global_params = results['global_params']
     jd_days = sorted(daily_params.keys())
-    m_star = global_params.get('M_star', 1.0)
+    m_star = _stellar_mass_solar(results)
     mdot_values = [m_star * daily_params[jd]['Mdot'] for jd in jd_days]
     mdot_errors = [m_star * daily_params[jd]['Mdot_err'] for jd in jd_days]
     av_values = [daily_params[jd]['Av'] for jd in jd_days]
@@ -622,10 +654,158 @@ def comprehensive_results_visualization(results, df, accretion_model, save_dir="
 
 
 def plot_ar_surface(results, folder_name):
-    """Plot 3D parameter surfaces for AR mode with chi-squared coloring using Plotly"""
+    """Plot the AR 3-D MCMC posterior, with legacy grid-result support."""
+
+    if 'AR_mcmc_data' in results:
+        mcmc_data = results['AR_mcmc_data']
+        output_prefix = os.path.splitext(os.path.basename(str(folder_name).rstrip('/\\')))[0] or 'ar_mcmc'
+        output_dir = _generated_output_dir()
+        print(f"Saving AR MCMC plots to {output_dir}/")
+
+        for jd_day, data in mcmc_data.items():
+            samples = np.asarray(data['samples'], dtype=float)
+            power = np.asarray(data['relative_power'], dtype=float)
+            reduced_chi_squared = np.asarray(data['reduced_chi_squared'], dtype=float)
+            valid = (
+                np.all(np.isfinite(samples), axis=1)
+                & np.isfinite(power)
+                & np.isfinite(reduced_chi_squared)
+            )
+            if not np.any(valid):
+                print(f"Warning: No valid AR MCMC samples for day {jd_day}")
+                continue
+
+            samples = samples[valid]
+            power = power[valid]
+            reduced_chi_squared = reduced_chi_squared[valid]
+            mdot_solar_scaled = (10.0 ** samples[:, 2] / M_sun * year) * 1e4
+            bp = data['best_params']
+            posterior = data.get('posterior', {})
+            acceptance = np.asarray(data.get('acceptance_rates', []), dtype=float)
+            r_hat = np.asarray(data.get('r_hat', []), dtype=float)
+
+            customdata = np.column_stack((power, reduced_chi_squared))
+            fig = go.Figure()
+            fig.add_trace(go.Scatter3d(
+                x=samples[:, 0],
+                y=samples[:, 1],
+                z=mdot_solar_scaled,
+                mode='markers',
+                marker=dict(
+                    size=3,
+                    color=power,
+                    colorscale='Inferno_r',
+                    cmin=0.0,
+                    cmax=1.0,
+                    opacity=0.45,
+                    colorbar=dict(
+                        title=dict(text=r"$\exp(-\Delta\chi^2/2)$", font=dict(size=18), side='right'),
+                        len=0.7,
+                        thickness=30,
+                        tickfont=dict(size=16),
+                        x=0.98,
+                        xanchor='left',
+                        yanchor='middle',
+                        y=0.5,
+                    ),
+                ),
+                customdata=customdata,
+                hovertemplate=(
+                    'Av: %{x:.3f}<br>Rin: %{y:.3f} R*<br>'
+                    'Mdot: %{z:.4g} x10^-4 Msun/yr<br>'
+                    'Relative power: %{customdata[0]:.3g}<br>'
+                    'Reduced chi2: %{customdata[1]:.3g}<extra></extra>'
+                ),
+                showlegend=False,
+            ))
+
+            best_mdot_scaled = bp['Mdot_solar'] * 1e4
+            fig.add_trace(go.Scatter3d(
+                x=[bp['Av']],
+                y=[bp['Rin']],
+                z=[best_mdot_scaled],
+                mode='markers',
+                marker=dict(size=9, color='black', line=dict(color='white', width=2)),
+                hovertemplate=(
+                    f"<b>Best sample</b><br>Av: {bp['Av']:.3f}<br>"
+                    f"Rin: {bp['Rin']:.3f} R*<br>"
+                    f"Mdot: {best_mdot_scaled:.4g} x10^-4 Msun/yr<br>"
+                    f"Reduced chi2: {bp['chi_squared_red']:.3g}<extra></extra>"
+                ),
+                showlegend=False,
+            ))
+
+            median_text = ''
+            if posterior:
+                median_text = (
+                    f"<br>Posterior medians: Av={posterior['Av'][1]:.3g}, "
+                    f"Rin={posterior['Rin'][1]:.3g} R*, "
+                    f"Mdot={posterior['Mdot_solar'][1] * 1e4:.3g} x10^-4 Msun/yr"
+                )
+            acceptance_text = (
+                f"Mean acceptance: {np.nanmean(acceptance):.1%}"
+                if len(acceptance) else 'Acceptance unavailable'
+            )
+            if len(r_hat):
+                acceptance_text += f"; max R-hat: {np.nanmax(r_hat):.3f}"
+                if not data.get('converged', False):
+                    acceptance_text += ' (not converged)'
+
+            fig.update_layout(
+                title=dict(
+                    text=f"AR MCMC posterior — JD {jd_day:.2f}<br><sup>{acceptance_text}{median_text}</sup>",
+                    x=0.5,
+                ),
+                scene=dict(
+                    xaxis=dict(
+                        title=dict(text="Aᵥ (mag)", font=dict(size=20, family="Latin Modern Math, serif")),
+                        range=[AR_AV_RANGE[1], AR_AV_RANGE[0]],
+                        backgroundcolor="rgb(240, 240, 240)", gridcolor="white",
+                        showbackground=True, tickfont=dict(size=16),
+                    ),
+                    yaxis=dict(
+                        title=dict(text="Rᵢₙ (R⋆)", font=dict(size=20, family="Latin Modern Math, serif")),
+                        range=[AR_RIN_RANGE_RSTAR[1], AR_RIN_RANGE_RSTAR[0]],
+                        backgroundcolor="rgb(240, 240, 240)", gridcolor="white",
+                        showbackground=True, tickfont=dict(size=16),
+                    ),
+                    zaxis=dict(
+                        title=dict(text="Ṁ (10⁻⁴ M⊙/yr)", font=dict(size=20, family="Latin Modern Math, serif")),
+                        type='log',
+                        range=[np.log10(AR_MDOT_RANGE_SOLAR_PER_YEAR[0] * 1e4),
+                               np.log10(AR_MDOT_RANGE_SOLAR_PER_YEAR[1] * 1e4)],
+                        backgroundcolor="rgb(240, 240, 240)", gridcolor="white",
+                        showbackground=True, tickfont=dict(size=16),
+                    ),
+                    aspectmode='cube',
+                    camera=dict(eye=dict(x=1.5, y=1.5, z=1.2), center=dict(x=0, y=0, z=0)),
+                ),
+                height=900,
+                width=1000,
+                showlegend=False,
+                template='plotly_white',
+                margin=dict(l=50, r=120, t=90, b=50),
+            )
+
+            output_stem = f'{output_prefix}_JD_{jd_day:.2f}_mcmc'
+            output_preview = os.path.join(output_dir, f'{output_stem}_preview.html')
+            preview_start = time.time()
+            fig.write_html(output_preview, include_plotlyjs='cdn', auto_open=False)
+            print(
+                f"  Preview ready: {os.path.basename(output_preview)} "
+                f"({time.time() - preview_start:.1f}s)"
+            )
+
+            output_pdf = os.path.join(output_dir, f'{output_stem}.pdf')
+            pdf_start = time.time()
+            fig.write_image(output_pdf, width=1400, height=1260, scale=2)
+            print(f"  Saved: {os.path.basename(output_pdf)} ({time.time() - pdf_start:.1f}s)")
+
+        print(f"\nAll AR MCMC plots saved to {output_dir}/")
+        return
 
     if 'AR_surface_data' not in results:
-        print("No AR surface data found!")
+        print("No AR MCMC or legacy surface data found!")
         return
 
     surface_data = results['AR_surface_data']
@@ -633,36 +813,43 @@ def plot_ar_surface(results, folder_name):
     output_dir = _generated_output_dir()
     print(f"Saving plots to {output_dir}/")
 
-    for jd_day, data in surface_data.items():
-        X, Y, Z, C = data['Av_mesh'], data['Rin_mesh'], data['Mdot_surface'], data['chi_squared_surface']
+    def _make_ar_surface_figure(data, x_range, y_range, z_range):
+        X, Y, Z = data['Av_mesh'], data['Rin_mesh'], data['Mdot_surface']
+        C = data.get('power_surface')
+        if C is None:
+            C = np.exp(-0.5 * data['chi_squared_surface'])
         Z_solar = (Z / M_sun * year) * 1e4
 
-        valid_chi = C[np.isfinite(C) & (C > 0)]
-        if len(valid_chi) == 0:
-            print(f"Warning: No valid chi-squared values for day {jd_day}")
-            continue
+        valid_power = C[np.isfinite(C)]
+        if len(valid_power) == 0:
+            return None
 
-        chi_min, chi_max = np.min(valid_chi), np.max(valid_chi)
-        C_log = np.log10(np.where((C > 0) & np.isfinite(C), C, np.nan))
-        log_min, log_max = np.log10(chi_min), np.log10(chi_max)
-        n_ticks = 5
-        tick_vals = np.linspace(log_min, log_max, n_ticks)
-        tick_text = [f"{int(np.round(10**v))}" for v in tick_vals]
+        power_min, power_max = np.nanmin(valid_power), np.nanmax(valid_power)
+        if not np.isfinite(power_min) or not np.isfinite(power_max):
+            return None
+        if power_min == power_max:
+            power_max = power_min + 1e-12
+        z_axis_min = 10 ** z_range[0]
+        z_axis_max = 10 ** z_range[1]
+        default_z_ticks = np.array([0.07, 0.1, 0.2, 0.5, 1, 2, 5, 9], dtype=float)
+        z_ticks = default_z_ticks[(default_z_ticks >= z_axis_min) & (default_z_ticks <= z_axis_max)]
+        if len(z_ticks) < 2:
+            z_ticks = np.array([z_axis_min, np.sqrt(z_axis_min * z_axis_max), z_axis_max])
+        z_tick_text = [f"{value:.3g}" for value in z_ticks]
 
         fig = go.Figure()
         fig.add_trace(go.Surface(
             x=X, y=Y, z=Z_solar,
-            surfacecolor=C_log,
+            surfacecolor=np.where(np.isfinite(C), C, np.nan),
             colorscale='Inferno_r',
+            cmin=power_min,
+            cmax=power_max,
             colorbar=dict(
                 title=dict(
-                    text=r"$\log_{10}(\chi^2_{\mathrm{red}})$",
+                    text=r"$\exp(-\chi^2_{\mathrm{red}}/2)$",
                     font=dict(size=18),
                     side='right'
                 ),
-                tickmode="array",
-                tickvals=tick_vals,
-                ticktext=tick_text,
                 len=0.7,
                 thickness=30,
                 tickfont=dict(size=16),
@@ -672,21 +859,21 @@ def plot_ar_surface(results, folder_name):
                 y=0.5,
             ),
             opacity=0.75,
-            hovertemplate='Av: %{x:.2f}<br>Rin: %{y:.2f}<br>Mdot: %{z:.2e}<extra></extra>'
+            hovertemplate='Av: %{x:.2f}<br>Rin: %{y:.2f}<br>Mdot: %{z:.2e}<br>Power: %{surfacecolor:.3e}<extra></extra>'
         ))
 
         if 'best_params' in data:
             bp = data['best_params']
             if np.isfinite(bp['chi_squared_red']):
                 x_min, y_min = np.min(X), np.min(Y)
-                z_min = 8.01e-2
+                z_min = z_axis_min
                 bp_z = bp['Mdot_solar'] * 1e4
                 print(f'The best fit accretion rate is: {bp_z}:.3g')
 
                 fig.add_trace(go.Scatter3d(
                     x=[bp['Av']], y=[bp['Rin']], z=[bp_z],
                     mode='markers',
-                    marker=dict(size=6, color='black'),
+                    marker=dict(size=8, color='black', line=dict(color='white', width=2)),
                     showlegend=False,
                     hovertemplate=(f"<b>Best Fit</b><br>Av: {bp['Av']:.2f}<br>"
                                   f"Rin: {bp['Rin']:.2f}<br>chi2: {bp['chi_squared_red']:.1f}<extra></extra>")
@@ -708,12 +895,12 @@ def plot_ar_surface(results, folder_name):
                 xaxis=dict(
                     title=dict(text="Aᵥ (mag)", font=dict(size=20, family="Latin Modern Math, serif")),
                     backgroundcolor="rgb(240, 240, 240)", gridcolor="white",
-                    showbackground=True, autorange='reversed', tickfont=dict(size=16), range=[-0.1, 30.1]
+                    showbackground=True, autorange=False, tickfont=dict(size=16), range=x_range
                 ),
                 yaxis=dict(
                     title=dict(text="Rᵢₙ (R⋆)", font=dict(size=20, family="Latin Modern Math, serif")),
                     backgroundcolor="rgb(240, 240, 240)", gridcolor="white",
-                    showbackground=True, autorange='reversed', tickfont=dict(size=16), range=[-0.2, 10.1]
+                    showbackground=True, autorange=False, tickfont=dict(size=16), range=y_range
                 ),
                 zaxis=dict(
                     title=dict(text="Ṁ (10⁻⁴ M⊙/yr)", font=dict(size=20, family="Latin Modern Math, serif")),
@@ -722,10 +909,10 @@ def plot_ar_surface(results, folder_name):
                     gridcolor="white",
                     showbackground=True,
                     tickfont=dict(size=16),
-                    range=[np.log10(0.08), None],
+                    range=z_range,
                     tickmode='array',
-                    tickvals=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                    ticktext=['0.1', '', '', '', '0.5', '', '', '', '', '1', '', '', '', '5', '', '', '', '', '10']
+                    tickvals=z_ticks,
+                    ticktext=z_tick_text
                 ),
                 aspectmode='cube',
                 camera=dict(eye=dict(x=1.5, y=1.5, z=1.2), center=dict(x=0, y=0, z=0))
@@ -735,10 +922,52 @@ def plot_ar_surface(results, folder_name):
             template='plotly_white',
             margin=dict(l=50, r=120, t=50, b=50)
         )
+        return fig
 
-        output_pdf = os.path.join(output_dir, f'{output_prefix}_JD_{jd_day:.2f}.pdf')
+    def _write_surface_figure(fig, output_stem):
+        output_preview = os.path.join(output_dir, f'{output_stem}_preview.html')
+        preview_start = time.time()
+        fig.write_html(output_preview, include_plotlyjs='cdn', auto_open=False)
+        print(
+            f"  Preview ready: {os.path.basename(output_preview)} "
+            f"({time.time() - preview_start:.1f}s)"
+        )
+
+        output_pdf = os.path.join(output_dir, f'{output_stem}.pdf')
+        pdf_start = time.time()
         fig.write_image(output_pdf, width=1400, height=1260, scale=2)
-        print(f"  Saved: {os.path.basename(output_pdf)}")
+        print(f"  Saved: {os.path.basename(output_pdf)} ({time.time() - pdf_start:.1f}s)")
+
+    for jd_day, data in surface_data.items():
+        fig = _make_ar_surface_figure(
+            data,
+            x_range=[30.1, -0.1],
+            y_range=[100.1, -0.1],
+            z_range=[np.log10(0.07), np.log10(9.0)],
+        )
+        if fig is None:
+            print(f"Warning: No valid power values for day {jd_day}")
+            continue
+        _write_surface_figure(fig, f'{output_prefix}_JD_{jd_day:.2f}')
+
+        zoom_surface = data.get('zoom_surface')
+        if zoom_surface:
+            zoom_data = dict(zoom_surface)
+            zoom_data['best_params'] = data.get('best_params', {})
+            zoom_X = zoom_data['Av_mesh']
+            zoom_Y = zoom_data['Rin_mesh']
+            mdot_bounds = zoom_data.get('mdot_axis_range_solar_per_year')
+            if mdot_bounds is None:
+                zoom_Z_solar = zoom_data['Mdot_surface'] / M_sun * year
+                mdot_bounds = (np.nanmin(zoom_Z_solar), np.nanmax(zoom_Z_solar))
+            zoom_fig = _make_ar_surface_figure(
+                zoom_data,
+                x_range=[np.nanmax(zoom_X), np.nanmin(zoom_X)],
+                y_range=[np.nanmax(zoom_Y), np.nanmin(zoom_Y)],
+                z_range=[np.log10(mdot_bounds[0] * 1e4), np.log10(mdot_bounds[1] * 1e4)],
+            )
+            if zoom_fig is not None:
+                _write_surface_figure(zoom_fig, f'{output_prefix}_JD_{jd_day:.2f}_zoom')
 
     print(f"\nAll plots saved to {output_dir}/")
 
@@ -758,7 +987,7 @@ def plot_red_excess_results(results, filename):
     mdot_errors = []
     avs = []
     av_errors = []
-    m_star = results.get('global_params', {}).get('M_star', 1.0)
+    m_star = _stellar_mass_solar(results)
 
     for jd_day, params in results['daily_params'].items():
         times.append(jd_day)
@@ -984,11 +1213,31 @@ def plot_spectral_fit_day(results, jd_day, ax=None, ax_residual=None, show=True,
         ) if results.get('fit_info', {}).get('red_excess_mode') else (None, bb_flux, None)
         plot_model_flux = model_flux
 
-    ax.plot(lambda_um, flux, color='tab:blue', linewidth=1.2, alpha=0.85, label='Observed spectrum')
+    # Masked telluric bands create real wavelength gaps.  Insert NaNs at those
+    # boundaries so matplotlib does not draw misleading diagonal bridges.
+    positive_steps = np.diff(lambda_um)
+    positive_steps = positive_steps[np.isfinite(positive_steps) & (positive_steps > 0)]
+    typical_step = np.median(positive_steps) if len(positive_steps) else np.nan
+    gap_threshold = max(0.01, 20.0 * typical_step) if np.isfinite(typical_step) else 0.01
+    gap_indices = np.flatnonzero(np.diff(lambda_um) > gap_threshold) + 1
+
+    def with_gap_breaks(values):
+        return np.insert(np.asarray(values, dtype=float), gap_indices, np.nan)
+
+    lambda_um_broken = with_gap_breaks(lambda_um)
+    flux_broken = with_gap_breaks(flux)
+    ax.plot(lambda_um_broken, flux_broken, color='tab:blue', linewidth=1.2, alpha=0.85, label='Observed spectrum')
     if np.any(np.isfinite(fluxerr)):
         lower = np.clip(flux - np.nan_to_num(fluxerr, nan=0.0), 1e-30, None)
         upper = np.clip(flux + np.nan_to_num(fluxerr, nan=0.0), 1e-30, None)
-        ax.fill_between(lambda_um, lower, upper, color='tab:blue', alpha=0.18, linewidth=0)
+        ax.fill_between(
+            lambda_um_broken,
+            with_gap_breaks(lower),
+            with_gap_breaks(upper),
+            color='tab:blue',
+            alpha=0.18,
+            linewidth=0,
+        )
     if results.get('fit_info', {}).get('red_excess_mode'):
         ax.plot(plot_lambda_um, plot_acc_flux, color='tab:orange', linewidth=1.7, linestyle='--', label='Accretion model')
         bb_plot = np.asarray(plot_bb_flux, dtype=float)
@@ -1020,16 +1269,16 @@ def plot_spectral_fit_day(results, jd_day, ax=None, ax_residual=None, show=True,
 
     if ax_residual is not None:
         ax_residual.plot(
-            lambda_um,
-            residual_flux,
+            lambda_um_broken,
+            with_gap_breaks(residual_flux),
             color='tab:green',
             linewidth=0.9,
             alpha=0.65,
             label='Residual (model - data)'
         )
         ax_residual.plot(
-            lambda_um,
-            residual_running,
+            lambda_um_broken,
+            with_gap_breaks(residual_running),
             color='tab:red',
             linewidth=1.6,
             alpha=0.95,
@@ -1109,7 +1358,11 @@ def plot_spectral_fit_grid(results, save_dir='results/generated/pictures/spectra
         )
 
     plt.tight_layout()
-    output_path = _generated_figure_path(f'{output_prefix}_{filename}')
+    if os.path.isabs(str(save_dir)):
+        os.makedirs(save_dir, exist_ok=True)
+        output_path = os.path.join(save_dir, filename)
+    else:
+        output_path = _generated_figure_path(f'{output_prefix}_{filename}')
     fig.savefig(output_path, dpi=200, bbox_inches='tight')
 
     if show_individual:
@@ -1122,10 +1375,15 @@ def plot_spectral_fit_grid(results, save_dir='results/generated/pictures/spectra
 def visualize_spectral_results(results, df=None, save_dir='results/generated/pictures/spectral_mode', show_parameter_evolution=True,
                                show_individual=True, residual_window=51, show_range=None):
     output_prefix = os.path.basename(str(save_dir).rstrip('/\\')) or 'spectral_mode'
+    parameter_path = (
+        os.path.join(save_dir, 'parameter_evolution.pdf')
+        if os.path.isabs(str(save_dir))
+        else f'{output_prefix}_parameter_evolution.pdf'
+    )
     plot_parameter_evolution(
         results,
         df,
-        save_path=f'{output_prefix}_parameter_evolution.pdf',
+        save_path=parameter_path,
         show=show_parameter_evolution,
     )
     return plot_spectral_fit_grid(
@@ -1141,6 +1399,8 @@ def visualize_results(results, df, filename):
     """Main visualization function for different modes"""
 
     if results.get('fit_info', {}).get('data_mode') == 'spectral':
+        if results['fit_info']['AR_mode']:
+            plot_ar_surface(results, filename)
         return visualize_spectral_results(results, df, save_dir=filename if filename else 'results/generated/pictures/spectral_mode')
 
     if results['fit_info']['AR_mode']:
@@ -1162,7 +1422,7 @@ def plot_standard_results(results):
     mdot_errors = []
     avs = []
     av_errors = []
-    m_star = results.get('global_params', {}).get('M_star', 1.0)
+    m_star = _stellar_mass_solar(results)
 
     for jd_day, params in results['daily_params'].items():
         times.append(jd_day)
@@ -1212,7 +1472,7 @@ def example_visualization(df, accretion_model, fitting_results):
 def _extract_regularized_series(results):
     daily_params = results['daily_params']
     jd_days = np.array(sorted(daily_params.keys()), dtype=float)
-    m_star = results.get('global_params', {}).get('M_star', 1.0)
+    m_star = _stellar_mass_solar(results)
 
     mdot_values = np.array([
         m_star * (10 ** (daily_params[jd]['logMdot']) / M_sun * year)

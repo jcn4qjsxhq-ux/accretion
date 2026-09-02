@@ -53,7 +53,7 @@ def main() -> int:
     parser.add_argument(
         "--mode",
         default="basic",
-        choices=("basic", "allparams", "ar", "red-excess", "spectral", "spectral-red-excess"),
+        choices=("basic", "allparams", "ar", "red-excess", "spectral", "spectral-ar", "spectral-red-excess"),
         help="Fitting mode to run.",
     )
     parser.add_argument("--lambda-reg", type=float, default=0.0, help="Regularization strength.")
@@ -81,6 +81,10 @@ def main() -> int:
     elif args.mode == "spectral":
         results = spectral_fitting(df, lambda_reg=args.lambda_reg, debug=args.debug,
                                    save_dir="results/generated/pictures/spectral", rede=False)
+    elif args.mode == "spectral-ar":
+        results = spectral_fitting(df, lambda_reg=args.lambda_reg, debug=args.debug,
+                                   save_dir="results/generated/pictures/spectral_ar", rede=False,
+                                   ar_mode=True)
     else:
         results = spectral_fitting(df, lambda_reg=args.lambda_reg, debug=args.debug,
                                    save_dir="results/generated/pictures/spectral_red_excess", rede=True)
