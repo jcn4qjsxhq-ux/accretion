@@ -19,9 +19,21 @@ except ImportError:
 
 
 def basic_fitting(df, lambda_reg=0, debug=False, required_filters=('J', 'H', 'K'),
-        fit_filters=('J', 'H', 'K')):
+        fit_filters=('J', 'H', 'K'), initial_params=None, evaluate_only=False,
+        mdot_bounds_msun_per_year=(1e-7, 0.8e-3), av_bounds=(0.1, 40.0)):
+    """Fit daily parameters with optional fixed model-parameter overrides.
 
-    print(f'\n=== Optimized Regularized Fitting (λ={lambda_reg}) ===')
+    ``initial_params`` supplies starting/fixed model values such as ``R_star``
+    and ``R_in`` while the daily ``Mdot`` and ``Av`` values remain fitted.
+    Set ``evaluate_only=True`` explicitly to evaluate all supplied values
+    without calling an optimizer. ``Mdot`` uses SI units (kg/s), consistently
+    with :func:`ultimate_fitting_regularized`.
+    """
+
+    if not evaluate_only:
+        print(f'\n=== Optimized Regularized Fitting (λ={lambda_reg}) ===')
+    else:
+        print('\n=== Fixed-Parameter Model Evaluation ===')
 
     start_time = time.time()
 
@@ -33,7 +45,11 @@ def basic_fitting(df, lambda_reg=0, debug=False, required_filters=('J', 'H', 'K'
         df=df,
         debug=debug,
         lambda_reg=lambda_reg,
-        regularize_params=['logMdot', 'Av']
+        regularize_params=['logMdot', 'Av'],
+        initial_params=initial_params,
+        evaluate_only=evaluate_only,
+        mdot_bounds_msun_per_year=mdot_bounds_msun_per_year,
+        av_bounds=av_bounds,
     )
 
     end_time = time.time()
@@ -130,7 +146,9 @@ def rede_fitting(df, required_filters, fit_filters, filename, debug=False, lambd
 
 def spectral_fitting(df, lambda_reg=0, debug=False, save_dir='results/generated/pictures/spectral_mode', rede=False,
                      joint_refine=True, max_blue_bb_fraction=SPECTRAL_REDE_MAX_BLUE_BB_FRACTION,
-                     ar_mode=False):
+                     ar_mode=False, initial_params=None, av_bounds=(0.1, 40.0),
+                     mdot_bounds_msun_per_year=(1e-7, 0.8e-3),
+                     make_plots=True):
     mode_label = 'Spectral Red-Excess Accretion + BB Fitting' if rede else 'Spectral Accretion Fitting'
     if ar_mode:
         mode_label += ' + AR MCMC'
@@ -149,13 +167,16 @@ def spectral_fitting(df, lambda_reg=0, debug=False, save_dir='results/generated/
         data_mode='spectral',
         spectral_rede_joint_refine=joint_refine,
         spectral_rede_max_blue_bb_fraction=max_blue_bb_fraction,
+        initial_params=initial_params,
+        mdot_bounds_msun_per_year=mdot_bounds_msun_per_year,
+        av_bounds=av_bounds,
     )
 
     end_time = time.time()
     execution_time = end_time - start_time
     print(f"\nTotal execution time: {execution_time:.1f} seconds")
 
-    if results and results['success']:
+    if results and results['success'] and make_plots:
         if ar_mode:
             plot_ar_surface(results, save_dir)
         visualize_spectral_results(results, df, save_dir=save_dir)

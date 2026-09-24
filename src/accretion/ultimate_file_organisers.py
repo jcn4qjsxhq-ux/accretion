@@ -767,9 +767,10 @@ def load_database_new(filepath):
             3.353: 'L',
             3.452: 'L',
             3.5: 'L', 3.60: 'L',
-            3.80: 'L', 4.6: 'W2',
-            4.603: 'W2',
-            4.80: 'M'
+            3.77: 'L', 3.80: 'L', 
+            4.6: 'W2', 4.603: 'W2',
+            4.80: 'M', 10.1: 'N',
+            20.0:'Q'
         }
 
         filter_name = filter_mapping.get(lambda_val, f'λ{lambda_val}')

@@ -683,7 +683,6 @@ def _colourbar(fig, axes, jds, data_year_colours, fit_year_colours, show_fit=Tru
 
 def _plot_one(ax, spec, matches, model_matches, data_colours, fit_colours, show_fit=True):
     if matches.empty:
-        ax.set_title(spec['title'])
         ax.text(0.5, 0.5, 'No matched raw data', transform=ax.transAxes, ha='center', va='center')
         return
 
@@ -713,7 +712,6 @@ def _plot_one(ax, spec, matches, model_matches, data_colours, fit_colours, show_
             model_matches = model_matches[plottable].reset_index(drop=True)
             fit_colours = np.array(fit_colours, dtype=object)[plottable].tolist()
         if matches.empty:
-            ax.set_title(spec['title'])
             ax.text(0.5, 0.5, 'No plottable matched raw data', transform=ax.transAxes, ha='center', va='center')
             return
 
@@ -745,7 +743,6 @@ def _plot_one(ax, spec, matches, model_matches, data_colours, fit_colours, show_
         if np.any(interpolated):
             ax.scatter(x_fit[interpolated], y_fit[interpolated], marker='x', s=52, c=fit_colours[interpolated].tolist(), alpha=0.8, zorder=4, label='Fit interpolated')
 
-    ax.set_title(spec['title'])
     ax.set_xlabel(spec['xlabel'])
     ax.set_ylabel(spec['ylabel'])
     ax.grid(True, alpha=0.25)
@@ -820,10 +817,7 @@ def plot_final_panel_colour_grid(
             )
         _plot_one(ax, spec, matches, model_matches, data_colours, fit_colours, show_fit=show_fit)
 
-    handles, labels = plot_axes[0].get_legend_handles_labels()
-    if handles:
-        fig.legend(handles, labels, loc='upper center', ncol=min(len(handles), 4), frameon=False)
-    fig.tight_layout(rect=[0.0, 0.02, 0.82, 0.92])
+    fig.tight_layout(rect=[0.0, 0.02, 0.82, 0.98], h_pad=-8, w_pad=3.0)
     _colourbar(fig, plot_axes, all_jds, data_year_colours, fit_year_colours, show_fit=show_fit)
 
     if save_path:

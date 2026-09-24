@@ -499,7 +499,13 @@ def _apply_final_panel_style():
     mpl.rcParams.update(FINAL_PANEL_STYLE)
 
 
-def prepare_final_panel_residuals(df, results, fit_filters, residual_filter_groups=('I', 'J', 'H', 'K', 'L+W1')):
+def prepare_final_panel_residuals(
+    df,
+    results,
+    fit_filters,
+    residual_filter_groups=('I', 'J', 'H', 'K', 'L+W1'),
+    exclude_interpolated=False,
+):
     """Create grouped magnitude and flux residual tables for panels 3 and 4."""
     group_keys, group_map, residual_filters = _parse_filter_groups(residual_filter_groups)
     filter_to_group = {
@@ -510,8 +516,12 @@ def prepare_final_panel_residuals(df, results, fit_filters, residual_filter_grou
 
     daily_data_sel = get_daily_data(df, fit_filters)
     allowed_days = sorted(daily_data_sel.keys()) if daily_data_sel else []
-    synthetic_df = generate_synthetic_data(results, df, noise_level=0.0, random_seed=None)
-    original_avg = average_daily_measurements(df)
+    residual_df = df
+    if exclude_interpolated and 'Interpolated' in df.columns:
+        interpolated = df['Interpolated'].astype(str).str.strip().str.lower()
+        residual_df = df[interpolated.eq('no')].copy()
+    synthetic_df = generate_synthetic_data(results, residual_df, noise_level=0.0, random_seed=None)
+    original_avg = average_daily_measurements(residual_df)
     synthetic_avg = average_daily_measurements(synthetic_df)
 
     original_avg['Mag_model_space'] = _mag_from_flux(original_avg)
@@ -565,6 +575,7 @@ def plot_final_panels_0_to_4(
     selected_filters=('J', 'H', 'K'),
     photometric_fit_filters=None,
     residual_filter_groups=('I', 'J', 'H', 'K', 'L+W1'),
+    exclude_interpolated_residuals=False,
     plot_panel0_fits=True,
     filter_diff=True,
     show_panel3=True,
@@ -572,6 +583,7 @@ def plot_final_panels_0_to_4(
     flux_residual_log_scale=False,
     save_path=None,
     show=True,
+    _close_when_hidden=True,
 ):
     """Create the stacked final panels 0-4 figure."""
     _apply_final_panel_style()
@@ -611,6 +623,7 @@ def plot_final_panels_0_to_4(
         photometric_results,
         photometric_fit_filters,
         residual_filter_groups=residual_filter_groups,
+        exclude_interpolated=exclude_interpolated_residuals,
     )
     print('Max |flux residual| by filter (Jy):')
     print(residuals['flux_max_by_filter'].to_string())
@@ -917,7 +930,7 @@ def plot_final_panels_0_to_4(
         fig.savefig(_generated_figure_path(save_path), dpi=300, bbox_inches='tight')
     if show:
         plt.show()
-    else:
+    elif _close_when_hidden:
         plt.close(fig)
     return fig, axes, residuals
 
@@ -930,6 +943,7 @@ def plot_final_panels_0_to_4_layouts(
     selected_filters=('J', 'H', 'K'),
     photometric_fit_filters=None,
     residual_filter_groups=('I', 'J', 'H', 'K', 'L+W1'),
+    exclude_interpolated_residuals=False,
     plot_panel0_fits=True,
     filter_diff=True,
     show_panel3=True,
@@ -944,9 +958,11 @@ def plot_final_panels_0_to_4_layouts(
 
     The one-column version contains only the complete time baseline.  The
     two-column version places that same baseline on the left and a matching
-    end-of-timeline zoom on the right.  The comparison canvas embeds
+    end-of-timeline zoom on the right.  The saved comparison embeds
     high-resolution renders of the two otherwise identical panel stacks so
-    their rows remain perfectly aligned.
+    their rows remain perfectly aligned.  On an interactive widget backend,
+    the two original canvases are displayed side by side instead, because an
+    image-only comparison canvas cannot provide data-aware pan/zoom.
     """
     common_kwargs = {
         'spectral_results': spectral_results,
@@ -954,26 +970,33 @@ def plot_final_panels_0_to_4_layouts(
         'selected_filters': selected_filters,
         'photometric_fit_filters': photometric_fit_filters,
         'residual_filter_groups': residual_filter_groups,
+        'exclude_interpolated_residuals': exclude_interpolated_residuals,
         'plot_panel0_fits': plot_panel0_fits,
         'filter_diff': filter_diff,
         'show_panel3': show_panel3,
         'flux_residual_log_scale': flux_residual_log_scale,
         'show': False,
+        # The widget layout below needs live canvas communication channels.
+        # Closing an ipympl figure destroys those channels.
+        '_close_when_hidden': False,
     }
-    full_fig, full_axes, residuals = plot_final_panels_0_to_4(
-        df,
-        photometric_results,
-        date_range=None,
-        save_path=one_column_save_path,
-        **common_kwargs,
-    )
-    zoom_fig, zoom_axes, _ = plot_final_panels_0_to_4(
-        df,
-        photometric_results,
-        date_range=end_zoom_range,
-        save_path=None,
-        **common_kwargs,
-    )
+    # Suppress the backend's automatic standalone display; these canvases are
+    # explicitly arranged below when interactive output is requested.
+    with plt.ioff():
+        full_fig, full_axes, residuals = plot_final_panels_0_to_4(
+            df,
+            photometric_results,
+            date_range=None,
+            save_path=one_column_save_path,
+            **common_kwargs,
+        )
+        zoom_fig, zoom_axes, _ = plot_final_panels_0_to_4(
+            df,
+            photometric_results,
+            date_range=end_zoom_range,
+            save_path=None,
+            **common_kwargs,
+        )
 
     def _render_figure(figure):
         buffer = io.BytesIO()
@@ -1000,8 +1023,35 @@ def plot_final_panels_0_to_4_layouts(
             pad_inches=0.02,
         )
     if show:
-        plt.show()
+        backend = str(plt.get_backend()).lower()
+        is_widget_backend = 'widget' in backend or 'ipympl' in backend or 'nbagg' in backend
+        if is_widget_backend:
+            try:
+                from IPython.display import display
+                from ipywidgets import HBox, Layout
+
+                # ``comparison_fig`` contains two PNG artists for exact PDF
+                # alignment.  Displaying the live source canvases preserves
+                # Matplotlib's toolbar navigation and coordinate transforms.
+                plt.close(comparison_fig)
+                full_fig.canvas.layout = Layout(width='50%')
+                zoom_fig.canvas.layout = Layout(width='50%')
+                with plt.ioff():
+                    display(HBox([full_fig.canvas, zoom_fig.canvas], layout=Layout(width='100%')))
+            except (ImportError, AttributeError, TypeError):
+                # Non-widget notebook configurations still get a useful
+                # display, albeit without a side-by-side widget container.
+                from IPython.display import display
+
+                display(full_fig)
+                display(zoom_fig)
+        else:
+            plt.close(full_fig)
+            plt.close(zoom_fig)
+            plt.show()
     else:
+        plt.close(full_fig)
+        plt.close(zoom_fig)
         plt.close(comparison_fig)
     return full_fig, comparison_fig, residuals
 

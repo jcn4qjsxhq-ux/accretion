@@ -5,7 +5,9 @@ import pandas as pd
 from scipy import constants
 
 from accretion import calibrate_spectra_to_photometry, load_xshooter_nir_spectra
+import accretion.ultimate_fitting as fitting
 from accretion.ultimate_common import M_sun
+from accretion.ultimate_common import year
 from accretion.final_panels import _spectral_source
 from accretion.ultimate_visualisation import _stellar_mass_solar
 
@@ -92,3 +94,84 @@ def test_spectral_plot_source_uses_saved_provenance():
     results = {"daily_data": {1.0: xshooter, 2.0: irtf}}
     assert _spectral_source(results, 1.0) == "XSHOOTER"
     assert _spectral_source(results, 2.0) == "IRTF/SpeX"
+
+
+def test_spectral_red_excess_joint_refine_is_independent_per_day(monkeypatch):
+    reference_mdot = 1e-4 * M_sun / year
+    reference_radius = 2.0 * constants.au
+
+    def fake_accretion_model(frequencies, mdot, _mass, _rstar, _rout, _rin,
+                             _distance, av):
+        wavelength = constants.c / np.asarray(frequencies) * 1e6
+        flux = (
+            (mdot / reference_mdot)
+            * (wavelength / 2.0) ** -1.2
+            * np.exp(-0.04 * av / wavelength)
+        )
+        return np.log(flux)
+
+    def fake_planck_model(frequencies, temperature, _distance, av=0.0,
+                          R_bb=reference_radius):
+        wavelength = constants.c / np.asarray(frequencies) * 1e6
+        flux = (
+            0.35
+            * (temperature / 1500.0) ** 2
+            * (R_bb / reference_radius) ** 2
+            * (wavelength / 3.0) ** 4
+            * np.exp(-0.04 * av / wavelength)
+        )
+        return np.log(flux)
+
+    monkeypatch.setattr(fitting, "accretion_model", fake_accretion_model)
+    monkeypatch.setattr(fitting, "planck_model_custom", fake_planck_model)
+
+    def fail_global_minimize(*_args, **_kwargs):
+        raise AssertionError("The global optimizer must not run for uncoupled spectral days")
+
+    monkeypatch.setattr(fitting, "minimize", fail_global_minimize)
+
+    wavelengths = np.array([1.0, 1.3, 1.6, 1.9, 2.2, 2.8, 3.5, 4.5])
+    frequencies = constants.c / (wavelengths * 1e-6)
+    rows = []
+    for jd, mdot_scale, av, temperature, radius_scale in (
+        (2450000.5, 0.8, 12.0, 1300.0, 1.1),
+        (2450001.5, 1.3, 18.0, 1700.0, 0.8),
+    ):
+        acc = np.exp(fake_accretion_model(
+            frequencies, mdot_scale * reference_mdot, None, None, None, None, None, av
+        ))
+        bb = np.exp(fake_planck_model(
+            frequencies, temperature, None, av=av, R_bb=radius_scale * reference_radius
+        ))
+        flux = acc + bb
+        for wavelength, frequency, flux_value in zip(wavelengths, frequencies, flux):
+            rows.append({
+                "JD": jd,
+                "JD_day": jd,
+                "Lambda_m": wavelength * 1e-6,
+                "Frequency": frequency,
+                "Flux": flux_value,
+                "Fluxerr": 0.03 * flux_value,
+                "Filter": "spectral",
+            })
+
+    results = fitting.ultimate_fitting_regularized(
+        (),
+        (),
+        df=pd.DataFrame(rows),
+        data_mode="spectral",
+        red_excess_mode=True,
+        lambda_reg=0,
+        spectral_rede_joint_refine=True,
+        spectral_rede_max_blue_bb_fraction=0,
+        local_solver_max_nfev=500,
+    )
+
+    assert results["success"]
+    assert results["fit_info"]["spectral_rede_independent_joint_refine"]
+    assert results["fit_info"]["optimizer_method"] == (
+        "independent per-day four-parameter least-squares"
+    )
+    diagnostics = results["fit_info"]["spectral_rede_independent_diagnostics"]
+    assert len(diagnostics) == 2
+    assert all(item["success"] for item in diagnostics)

@@ -39,6 +39,22 @@ Use this mode when you want a stable first pass through a photometric data set.
 The `required_filters` decide which days are included; the `fit_filters` decide
 which filters contribute to the objective function.
 
+To evaluate the model at exact parameter values without fitting, pass
+`initial_params`. The same fixed `Mdot` and `Av` are used for every selected
+day, and the result records zero optimizer evaluations:
+
+```python
+from accretion import M_sun, year
+
+results = basic_fitting(
+    df,
+    initial_params={
+        "Mdot": 1e-4 * M_sun / year,  # kg/s
+        "Av": 15.0,
+    },
+)
+```
+
 ## 3. Regularization
 
 Most fitting modes accept `lambda_reg`. This penalizes rapid day-to-day changes
