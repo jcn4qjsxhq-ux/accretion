@@ -1,0 +1,57 @@
+Number of spectral days available: 3
+Total spectral samples in selected days: 276
+Number of spectral days available: 1
+Total spectral samples in selected days: 92
+
+Found 1 days with required filters
+Fitting 92 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Iteration 10, elapsed: 0.0s
+Iteration 15, elapsed: 0.0s
+Optimization completed in 0.0s after 186 function evaluations
+✓ Converged successfully: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+Final objective value: 34.453
+Function evaluations: 186
+Iterations: 18
+Optimized fit completed in 186 function evaluations!
+Chi-squared: 34.45
+Reduced chi-squared: 0.38
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2457209.599, 'seconds': 0.044550999999046326, 'rows': 92}
+Number of spectral days available: 1
+Total spectral samples in selected days: 92
+
+Found 1 days with required filters
+Fitting 92 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Iteration 10, elapsed: 0.0s
+Optimization completed in 0.0s after 66 function evaluations
+✓ Converged successfully: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+Final objective value: 18.830
+Function evaluations: 66
+Iterations: 11
+Optimized fit completed in 66 function evaluations!
+Chi-squared: 18.83
+Reduced chi-squared: 0.21
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2460364.85, 'seconds': 0.017589416995178908, 'rows': 92}
+Number of spectral days available: 1
+Total spectral samples in selected days: 92
+
+Found 1 days with required filters
+Fitting 92 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Iteration 10, elapsed: 0.0s
+Optimization completed in 0.0s after 63 function evaluations
+✓ Converged successfully: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+Final objective value: 19.743
+Function evaluations: 63
+Iterations: 12
+Optimized fit completed in 63 function evaluations!
+Chi-squared: 19.74
+Reduced chi-squared: 0.22
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2460594.478, 'seconds': 0.016778625002189074, 'rows': 92}

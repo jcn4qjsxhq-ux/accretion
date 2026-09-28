@@ -1,0 +1,19 @@
+After averaging: 1267 data points (reduced from 1268)
+Number of days having all required filters ('J', 'H'): 84
+Total measurements in selected days: 354
+
+Found 84 days with required filters
+Photometric wavelength source: 84/84 days use row Lambda (168 measurements); 0/84 days use fallback filter Lambda (0 measurements)
+Fitting 168 data points across 84 days
+Starting direct two-filter root solve...
+Direct two-filter root solve handled 84/84 day(s)
+Optimization completed in 1.2s after 0 function evaluations
+✓ Converged successfully: Direct two-filter root/least-squares solve completed for 84/84 day(s).
+Final objective value: 0.000
+Function evaluations: 0
+Iterations: 0
+Optimized fit completed in 0 function evaluations!
+Chi-squared: 0.00
+Reduced chi-squared: inf
+Regularization term: 33.35
+EPOCH_TIMING {'JD': 0, 'seconds': 2.4619750839992776, 'rows': 1268}

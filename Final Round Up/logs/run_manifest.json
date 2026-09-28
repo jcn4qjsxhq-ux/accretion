@@ -1,0 +1,1482 @@
+{
+  "database": "/Users/muki/VS/Accretion/_private/data/raw/photometry/database_daily_2609.txt",
+  "inputs": {
+    "_private/data/raw/photometry/database_daily_2609.txt": "20751bb0458ddbaf913634fa898740dc56c73dd93604cdb75dd363581b0e86ce",
+    "_private/data/raw/IRTF/merged_v346nor_lxd_20150722.txt": "013e6b3d807c7a4b860c73d4b949d4d4ae886e8a3c287fae6f5b22443124b7e3",
+    "_private/data/raw/IRTF/merged_v346nor_lxd_20230722.txt": "4870a72c5519a9dd163020b3e676d95ab834a05c4df3f0845fb71ac77c120f0f",
+    "_private/data/raw/IRTF/merged_v346nor_lxd_20250331.txt": "74a006cc1e600b10959cba1c3066799e7fa444e4b19b71c2ac5abcb816d73c79",
+    "_private/data/raw/IRTF/merged_v346nor_lxd_20250415.txt": "70fd5f997cf9c8f18090259908e93a8a74f4264750f03aec38b60edf93609808",
+    "_private/data/raw/IRTF/merged_v346nor_lxd_20250621.txt": "e7ba403561f16ecdd98cad2022fc14bdd1ecab51fb2130586700df7877da2c10",
+    "_private/data/raw/IRTF/merged_v346nor_lxd_20260704.txt": "5afa6d8811875e74f04edb73a20dc5aa7a10be2f5624ad7bbf626762fb8a5549",
+    "_private/data/raw/IRTF/merged_v346nor_sxd_20150722.txt": "721d5a78b511d72570e17bff90eb2582c8f3affc256284577a9d3335cacfd0f1",
+    "_private/data/raw/IRTF/merged_v346nor_sxd_20230722.txt": "90f3028fddd98e15225f8f6748fcc25fd251d6f47601e1ad3cde25fd74f2cb1e",
+    "_private/data/raw/IRTF/merged_v346nor_sxd_20240912.txt": "74f5905e6883a68201f4aa636798c626282041dd5c9814c7be38278b1f93441b",
+    "_private/data/raw/IRTF/merged_v346nor_sxd_20250331.txt": "0a0a69952cab435660b0afaab627a4cc364e212882dc4cf811b55fcda95103ee",
+    "_private/data/raw/IRTF/merged_v346nor_sxd_20250415.txt": "1a51b28add10e6d8c0ae3f9ac67c15882c6261446993a0d9fbb3ecf43dbde986",
+    "_private/data/raw/IRTF/merged_v346nor_sxd_20250621.txt": "bf05d2a009fe889cae5ea90631a69e58830401e6b0a06472d49c2417049d7c9b",
+    "_private/data/raw/IRTF/merged_v346nor_sxd_20250705.txt": "7544438e3fa32335fa3e37a57d29ce21256560adecfd85ba67d762155d5e1c87",
+    "_private/data/raw/IRTF/merged_v346nor_sxd_20260704.txt": "795fbbfc5db0232743049fb946a2d8f233c1271ac229b2f7ef6a55ec8f77c42a",
+    "_private/data/raw/Xshooter/.ipynb_checkpoints/final_nir_201506-checkpoint.txt": "bd63b80083e5e4b96df490752e1ea756c96d2b691f1cab99ea0fef9c43f76776",
+    "_private/data/raw/Xshooter/.ipynb_checkpoints/final_vis_201506-checkpoint.txt": "f838a28e2c2849f40c4686f53dd07cb91621e537679d8c13472746ee94f24da0",
+    "_private/data/raw/Xshooter/.ipynb_checkpoints/final_vis_202410-checkpoint.txt": "1d4c51a5f70d64aab4332384b06ef374946e9f255228c3c7b4f77bac6fca3e95",
+    "_private/data/raw/Xshooter/final_nir_201506.txt": "bd63b80083e5e4b96df490752e1ea756c96d2b691f1cab99ea0fef9c43f76776",
+    "_private/data/raw/Xshooter/final_nir_202402.txt": "911ec0255d176a1d21af2b925035aecf2ad7353d4f75be7eaa5c65152d23155a",
+    "_private/data/raw/Xshooter/final_nir_202410.txt": "b8a4a6bb6b977e1646c48e50d27627242db495123babd2e4005be1ba37f3dfe1",
+    "_private/data/raw/Xshooter/final_uvb_201506.txt": "a94f8554ca2095614c58222931fd92ecc25bd5d3aa2b87d92a8844af3b04eddc",
+    "_private/data/raw/Xshooter/final_uvb_202402.txt": "4e7c3ab879221c02ef202eb4e70c444d2a580db33cd01bd74bcc086473d79dea",
+    "_private/data/raw/Xshooter/final_vis_201506.txt": "f838a28e2c2849f40c4686f53dd07cb91621e537679d8c13472746ee94f24da0",
+    "_private/data/raw/Xshooter/final_vis_202402.txt": "c3262d28665b5433877762da8bcf564dc787b84b14d6a46ff77e97b30b3c7350",
+    "_private/data/raw/Xshooter/final_vis_202410.txt": "1d4c51a5f70d64aab4332384b06ef374946e9f255228c3c7b4f77bac6fca3e95"
+  },
+  "raw_photometry_rows": 1268,
+  "all_photometry_rows": 1887,
+  "irtf_normalization_divisors": {
+    "20260704": {
+      "SXD": 0.653625,
+      "LXD": 0.659931
+    }
+  },
+  "baseline_radius": 3,
+  "runs": {
+    "basic_JH_3R_newdf": {
+      "status": "complete",
+      "seconds": 3.909626708002179,
+      "epochs": 84,
+      "timings": [
+        {
+          "JD": 0,
+          "seconds": 2.4619750839992776,
+          "rows": 1268
+        }
+      ],
+      "options": {
+        "required_filters": [
+          "J",
+          "H"
+        ],
+        "fit_filters": [
+          "J",
+          "H"
+        ],
+        "data_mode": "photometry",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 2086500000.0,
+          "R_in": 2086500000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": false,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1,
+        "mdot_bounds_msun_per_year": [
+          1e-09,
+          0.002
+        ],
+        "av_bounds": [
+          0.1,
+          40
+        ],
+        "optimizer_maxiter": 1000000,
+        "optimizer_maxfun": 1000000,
+        "optimizer_ftol": 1e-15,
+        "optimizer_gtol": 1e-10,
+        "local_solver_max_nfev": 100000,
+        "local_solver_ftol": 1e-14,
+        "local_solver_gtol": 1e-14
+      }
+    },
+    "irtf_JH_3R": {
+      "status": "complete",
+      "seconds": 2.2866720000019995,
+      "epochs": 8,
+      "timings": [
+        {
+          "JD": 2457225.7462704,
+          "seconds": 0.11608408299798612,
+          "rows": 1189
+        },
+        {
+          "JD": 2460147.7922115,
+          "seconds": 0.12806741699751,
+          "rows": 1168
+        },
+        {
+          "JD": 2460565.7374397,
+          "seconds": 0.10007991599559318,
+          "rows": 1167
+        },
+        {
+          "JD": 2460766.1298276,
+          "seconds": 0.09846662500058301,
+          "rows": 1168
+        },
+        {
+          "JD": 2460781.0366671,
+          "seconds": 0.09409179200156359,
+          "rows": 1169
+        },
+        {
+          "JD": 2460847.8498597,
+          "seconds": 0.09621850000257837,
+          "rows": 1168
+        },
+        {
+          "JD": 2460861.8192732,
+          "seconds": 0.159179000002041,
+          "rows": 1168
+        },
+        {
+          "JD": 2461225.8110455,
+          "seconds": 0.11428662500111386,
+          "rows": 1168
+        }
+      ],
+      "options": {
+        "required_filters": [],
+        "fit_filters": [],
+        "data_mode": "spectral",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 2086500000.0,
+          "R_in": 2086500000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": false,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1,
+        "mdot_bounds_msun_per_year": [
+          1e-09,
+          0.002
+        ],
+        "av_bounds": [
+          0.1,
+          40
+        ],
+        "optimizer_maxiter": 1000000,
+        "optimizer_maxfun": 1000000,
+        "optimizer_ftol": 1e-15,
+        "optimizer_gtol": 1e-10,
+        "local_solver_max_nfev": 100000,
+        "local_solver_ftol": 1e-14,
+        "local_solver_gtol": 1e-14
+      }
+    },
+    "xshooter_JH_3R": {
+      "status": "complete",
+      "seconds": 1.3643910840037279,
+      "epochs": 3,
+      "timings": [
+        {
+          "JD": 2457209.599,
+          "seconds": 0.044550999999046326,
+          "rows": 92
+        },
+        {
+          "JD": 2460364.85,
+          "seconds": 0.017589416995178908,
+          "rows": 92
+        },
+        {
+          "JD": 2460594.478,
+          "seconds": 0.016778625002189074,
+          "rows": 92
+        }
+      ],
+      "options": {
+        "required_filters": [],
+        "fit_filters": [],
+        "data_mode": "spectral",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 2086500000.0,
+          "R_in": 2086500000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": false,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1,
+        "mdot_bounds_msun_per_year": [
+          1e-09,
+          0.002
+        ],
+        "av_bounds": [
+          0.1,
+          40
+        ],
+        "optimizer_maxiter": 1000000,
+        "optimizer_maxfun": 1000000,
+        "optimizer_ftol": 1e-15,
+        "optimizer_gtol": 1e-10,
+        "local_solver_max_nfev": 100000,
+        "local_solver_ftol": 1e-14,
+        "local_solver_gtol": 1e-14
+      }
+    },
+    "basic_JH_2R_newdf": {
+      "status": "complete",
+      "seconds": 3.652833416002977,
+      "epochs": 84,
+      "timings": [
+        {
+          "JD": 0,
+          "seconds": 2.3924197079977603,
+          "rows": 1268
+        }
+      ],
+      "options": {
+        "required_filters": [
+          "J",
+          "H"
+        ],
+        "fit_filters": [
+          "J",
+          "H"
+        ],
+        "data_mode": "photometry",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 1391000000.0,
+          "R_in": 1391000000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": false,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1,
+        "mdot_bounds_msun_per_year": [
+          1e-09,
+          0.002
+        ],
+        "av_bounds": [
+          0.1,
+          40
+        ],
+        "optimizer_maxiter": 1000000,
+        "optimizer_maxfun": 1000000,
+        "optimizer_ftol": 1e-15,
+        "optimizer_gtol": 1e-10,
+        "local_solver_max_nfev": 100000,
+        "local_solver_ftol": 1e-14,
+        "local_solver_gtol": 1e-14
+      }
+    },
+    "irtf_JH_2R": {
+      "status": "complete",
+      "seconds": 2.23407962499914,
+      "epochs": 8,
+      "timings": [
+        {
+          "JD": 2457225.7462704,
+          "seconds": 0.1476482500002021,
+          "rows": 1189
+        },
+        {
+          "JD": 2460147.7922115,
+          "seconds": 0.13239529199927347,
+          "rows": 1168
+        },
+        {
+          "JD": 2460565.7374397,
+          "seconds": 0.09508799999457551,
+          "rows": 1167
+        },
+        {
+          "JD": 2460766.1298276,
+          "seconds": 0.12066545799461892,
+          "rows": 1168
+        },
+        {
+          "JD": 2460781.0366671,
+          "seconds": 0.1501475409968407,
+          "rows": 1169
+        },
+        {
+          "JD": 2460847.8498597,
+          "seconds": 0.1056174999976065,
+          "rows": 1168
+        },
+        {
+          "JD": 2460861.8192732,
+          "seconds": 0.12165629200171679,
+          "rows": 1168
+        },
+        {
+          "JD": 2461225.8110455,
+          "seconds": 0.0955842080002185,
+          "rows": 1168
+        }
+      ],
+      "options": {
+        "required_filters": [],
+        "fit_filters": [],
+        "data_mode": "spectral",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 1391000000.0,
+          "R_in": 1391000000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": false,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1,
+        "mdot_bounds_msun_per_year": [
+          1e-09,
+          0.002
+        ],
+        "av_bounds": [
+          0.1,
+          40
+        ],
+        "optimizer_maxiter": 1000000,
+        "optimizer_maxfun": 1000000,
+        "optimizer_ftol": 1e-15,
+        "optimizer_gtol": 1e-10,
+        "local_solver_max_nfev": 100000,
+        "local_solver_ftol": 1e-14,
+        "local_solver_gtol": 1e-14
+      }
+    },
+    "xshooter_JH_2R": {
+      "status": "complete",
+      "seconds": 1.3207428330060793,
+      "epochs": 3,
+      "timings": [
+        {
+          "JD": 2457209.599,
+          "seconds": 0.018902333998994436,
+          "rows": 92
+        },
+        {
+          "JD": 2460364.85,
+          "seconds": 0.02073762500367593,
+          "rows": 92
+        },
+        {
+          "JD": 2460594.478,
+          "seconds": 0.015831541997613385,
+          "rows": 92
+        }
+      ],
+      "options": {
+        "required_filters": [],
+        "fit_filters": [],
+        "data_mode": "spectral",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 1391000000.0,
+          "R_in": 1391000000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": false,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1,
+        "mdot_bounds_msun_per_year": [
+          1e-09,
+          0.002
+        ],
+        "av_bounds": [
+          0.1,
+          40
+        ],
+        "optimizer_maxiter": 1000000,
+        "optimizer_maxfun": 1000000,
+        "optimizer_ftol": 1e-15,
+        "optimizer_gtol": 1e-10,
+        "local_solver_max_nfev": 100000,
+        "local_solver_ftol": 1e-14,
+        "local_solver_gtol": 1e-14
+      }
+    },
+    "basic_JH_4R_newdf": {
+      "status": "complete",
+      "seconds": 3.672524000001431,
+      "epochs": 84,
+      "timings": [
+        {
+          "JD": 0,
+          "seconds": 2.3252936669960036,
+          "rows": 1268
+        }
+      ],
+      "options": {
+        "required_filters": [
+          "J",
+          "H"
+        ],
+        "fit_filters": [
+          "J",
+          "H"
+        ],
+        "data_mode": "photometry",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 2782000000.0,
+          "R_in": 2782000000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": false,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1,
+        "mdot_bounds_msun_per_year": [
+          1e-09,
+          0.002
+        ],
+        "av_bounds": [
+          0.1,
+          40
+        ],
+        "optimizer_maxiter": 1000000,
+        "optimizer_maxfun": 1000000,
+        "optimizer_ftol": 1e-15,
+        "optimizer_gtol": 1e-10,
+        "local_solver_max_nfev": 100000,
+        "local_solver_ftol": 1e-14,
+        "local_solver_gtol": 1e-14
+      }
+    },
+    "irtf_JH_4R": {
+      "status": "complete",
+      "seconds": 2.241595082996355,
+      "epochs": 8,
+      "timings": [
+        {
+          "JD": 2457225.7462704,
+          "seconds": 0.12961424999957671,
+          "rows": 1189
+        },
+        {
+          "JD": 2460147.7922115,
+          "seconds": 0.10272704199451255,
+          "rows": 1168
+        },
+        {
+          "JD": 2460565.7374397,
+          "seconds": 0.10784483300085412,
+          "rows": 1167
+        },
+        {
+          "JD": 2460766.1298276,
+          "seconds": 0.0962599579943344,
+          "rows": 1168
+        },
+        {
+          "JD": 2460781.0366671,
+          "seconds": 0.2020003750003525,
+          "rows": 1169
+        },
+        {
+          "JD": 2460847.8498597,
+          "seconds": 0.08975129100144841,
+          "rows": 1168
+        },
+        {
+          "JD": 2460861.8192732,
+          "seconds": 0.09129091599606909,
+          "rows": 1168
+        },
+        {
+          "JD": 2461225.8110455,
+          "seconds": 0.0834381669992581,
+          "rows": 1168
+        }
+      ],
+      "options": {
+        "required_filters": [],
+        "fit_filters": [],
+        "data_mode": "spectral",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 2782000000.0,
+          "R_in": 2782000000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": false,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1,
+        "mdot_bounds_msun_per_year": [
+          1e-09,
+          0.002
+        ],
+        "av_bounds": [
+          0.1,
+          40
+        ],
+        "optimizer_maxiter": 1000000,
+        "optimizer_maxfun": 1000000,
+        "optimizer_ftol": 1e-15,
+        "optimizer_gtol": 1e-10,
+        "local_solver_max_nfev": 100000,
+        "local_solver_ftol": 1e-14,
+        "local_solver_gtol": 1e-14
+      }
+    },
+    "xshooter_JH_4R": {
+      "status": "complete",
+      "seconds": 1.3184601249959087,
+      "epochs": 3,
+      "timings": [
+        {
+          "JD": 2457209.599,
+          "seconds": 0.028534582997963298,
+          "rows": 92
+        },
+        {
+          "JD": 2460364.85,
+          "seconds": 0.04424516599829076,
+          "rows": 92
+        },
+        {
+          "JD": 2460594.478,
+          "seconds": 0.0176782499984256,
+          "rows": 92
+        }
+      ],
+      "options": {
+        "required_filters": [],
+        "fit_filters": [],
+        "data_mode": "spectral",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 2782000000.0,
+          "R_in": 2782000000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": false,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1,
+        "mdot_bounds_msun_per_year": [
+          1e-09,
+          0.002
+        ],
+        "av_bounds": [
+          0.1,
+          40
+        ],
+        "optimizer_maxiter": 1000000,
+        "optimizer_maxfun": 1000000,
+        "optimizer_ftol": 1e-15,
+        "optimizer_gtol": 1e-10,
+        "local_solver_max_nfev": 100000,
+        "local_solver_ftol": 1e-14,
+        "local_solver_gtol": 1e-14
+      }
+    },
+    "benchmark_red_photo": {
+      "status": "complete",
+      "seconds": 1.576968458997726,
+      "epochs": 3,
+      "timings": [
+        {
+          "JD": 2444098.5,
+          "seconds": 0.035535082999558654,
+          "rows": 4
+        },
+        {
+          "JD": 2460766.5,
+          "seconds": 0.03463550000014948,
+          "rows": 8
+        },
+        {
+          "JD": 2461165.5,
+          "seconds": 0.05453537499852246,
+          "rows": 4
+        }
+      ],
+      "options": {
+        "required_filters": [
+          "J",
+          "H",
+          "K",
+          "L"
+        ],
+        "fit_filters": [
+          "J",
+          "H",
+          "K",
+          "L"
+        ],
+        "data_mode": "photometry",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 2086500000.0,
+          "R_in": 2086500000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": true,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1
+      }
+    },
+    "benchmark_red_spectral": {
+      "status": "complete",
+      "seconds": 2.6872651250014314,
+      "epochs": 3,
+      "timings": [
+        {
+          "JD": 2457209.599,
+          "seconds": 0.07029570799932117,
+          "rows": 92
+        },
+        {
+          "JD": 2460766.1298276,
+          "seconds": 0.7048077919971547,
+          "rows": 9790
+        },
+        {
+          "JD": 2461225.8110455,
+          "seconds": 0.5947658340010094,
+          "rows": 9433
+        }
+      ],
+      "options": {
+        "required_filters": [],
+        "fit_filters": [],
+        "data_mode": "spectral",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 2086500000.0,
+          "R_in": 2086500000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": true,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1
+      }
+    },
+    "rede_4L_T": {
+      "status": "complete",
+      "seconds": 2.522519791004015,
+      "epochs": 28,
+      "timings": [
+        {
+          "JD": 2444098.5,
+          "seconds": 0.03978016700420994,
+          "rows": 4
+        },
+        {
+          "JD": 2445450.5,
+          "seconds": 0.04163229199912166,
+          "rows": 5
+        },
+        {
+          "JD": 2445599.5,
+          "seconds": 0.08006070799456211,
+          "rows": 4
+        },
+        {
+          "JD": 2445631.5,
+          "seconds": 0.02863400000205729,
+          "rows": 4
+        },
+        {
+          "JD": 2446081.5,
+          "seconds": 0.06788916699588299,
+          "rows": 6
+        },
+        {
+          "JD": 2446098.5,
+          "seconds": 0.04208600000129081,
+          "rows": 5
+        },
+        {
+          "JD": 2446201.5,
+          "seconds": 0.06882250000489876,
+          "rows": 4
+        },
+        {
+          "JD": 2446481.5,
+          "seconds": 0.06602570800168905,
+          "rows": 5
+        },
+        {
+          "JD": 2447286.5,
+          "seconds": 0.0676662089972524,
+          "rows": 5
+        },
+        {
+          "JD": 2447328.5,
+          "seconds": 0.033892084000399336,
+          "rows": 6
+        },
+        {
+          "JD": 2447576.5,
+          "seconds": 0.04255604200443486,
+          "rows": 5
+        },
+        {
+          "JD": 2447616.5,
+          "seconds": 0.048399540995887946,
+          "rows": 5
+        },
+        {
+          "JD": 2447630.5,
+          "seconds": 0.04067054200277198,
+          "rows": 5
+        },
+        {
+          "JD": 2448284.5,
+          "seconds": 0.045399707996693905,
+          "rows": 5
+        },
+        {
+          "JD": 2448309.5,
+          "seconds": 0.03497712499665795,
+          "rows": 5
+        },
+        {
+          "JD": 2448310.5,
+          "seconds": 0.04504845799965551,
+          "rows": 5
+        },
+        {
+          "JD": 2448314.5,
+          "seconds": 0.040440625001792796,
+          "rows": 5
+        },
+        {
+          "JD": 2448518.5,
+          "seconds": 0.04485058400314301,
+          "rows": 5
+        },
+        {
+          "JD": 2448642.5,
+          "seconds": 0.04779237499315059,
+          "rows": 5
+        },
+        {
+          "JD": 2448881.5,
+          "seconds": 0.04003099999681581,
+          "rows": 5
+        },
+        {
+          "JD": 2449182.5,
+          "seconds": 0.04762425000080839,
+          "rows": 5
+        },
+        {
+          "JD": 2457226.5,
+          "seconds": 0.04065937500126893,
+          "rows": 4
+        },
+        {
+          "JD": 2460147.5,
+          "seconds": 0.04476241699740058,
+          "rows": 5
+        },
+        {
+          "JD": 2460766.5,
+          "seconds": 0.03256425000290619,
+          "rows": 8
+        },
+        {
+          "JD": 2460781.5,
+          "seconds": 0.04191854099917691,
+          "rows": 6
+        },
+        {
+          "JD": 2460816.5,
+          "seconds": 0.04712304099666653,
+          "rows": 5
+        },
+        {
+          "JD": 2460856.5,
+          "seconds": 0.0461098329978995,
+          "rows": 5
+        },
+        {
+          "JD": 2461165.5,
+          "seconds": 0.051658291995408945,
+          "rows": 4
+        }
+      ],
+      "options": {
+        "required_filters": [
+          "J",
+          "H",
+          "K",
+          "L"
+        ],
+        "fit_filters": [
+          "J",
+          "H",
+          "K",
+          "L"
+        ],
+        "data_mode": "photometry",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 2086500000.0,
+          "R_in": 2086500000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": true,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1
+      }
+    },
+    "spectral_combined_rede": {
+      "status": "complete",
+      "seconds": 6.443706749996636,
+      "epochs": 11,
+      "timings": [
+        {
+          "JD": 2457209.599,
+          "seconds": 0.06401775000267662,
+          "rows": 92
+        },
+        {
+          "JD": 2457225.7462704,
+          "seconds": 0.7046649159965455,
+          "rows": 6388
+        },
+        {
+          "JD": 2460147.7922115,
+          "seconds": 0.5230943749993457,
+          "rows": 8446
+        },
+        {
+          "JD": 2460364.85,
+          "seconds": 0.0637212500005262,
+          "rows": 92
+        },
+        {
+          "JD": 2460565.7374397,
+          "seconds": 0.6416367500060005,
+          "rows": 5474
+        },
+        {
+          "JD": 2460594.478,
+          "seconds": 0.07411320800019894,
+          "rows": 92
+        },
+        {
+          "JD": 2460766.1298276,
+          "seconds": 0.6706262090010568,
+          "rows": 9790
+        },
+        {
+          "JD": 2460781.0366671,
+          "seconds": 0.6508353339959285,
+          "rows": 9779
+        },
+        {
+          "JD": 2460847.8498597,
+          "seconds": 0.6381634589997702,
+          "rows": 9213
+        },
+        {
+          "JD": 2460861.8192732,
+          "seconds": 0.5988331250046031,
+          "rows": 5997
+        },
+        {
+          "JD": 2461225.8110455,
+          "seconds": 0.581734833001974,
+          "rows": 9433
+        }
+      ],
+      "options": {
+        "required_filters": [],
+        "fit_filters": [],
+        "data_mode": "spectral",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 2086500000.0,
+          "R_in": 2086500000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": true,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1
+      }
+    },
+    "table2_irtf_JHK_3R": {
+      "status": "complete",
+      "seconds": 2.892141292002634,
+      "epochs": 7,
+      "timings": [
+        {
+          "JD": 2460147.7922115,
+          "seconds": 0.18094166700029746,
+          "rows": 2686
+        },
+        {
+          "JD": 2460565.7374397,
+          "seconds": 0.15679370800353354,
+          "rows": 2684
+        },
+        {
+          "JD": 2460766.1298276,
+          "seconds": 0.24106308299815282,
+          "rows": 2684
+        },
+        {
+          "JD": 2460781.0366671,
+          "seconds": 0.18470383300154936,
+          "rows": 2685
+        },
+        {
+          "JD": 2460847.8498597,
+          "seconds": 0.3073172500007786,
+          "rows": 2685
+        },
+        {
+          "JD": 2460861.8192732,
+          "seconds": 0.173666458002117,
+          "rows": 2684
+        },
+        {
+          "JD": 2461225.8110455,
+          "seconds": 0.1557769589999225,
+          "rows": 2686
+        }
+      ],
+      "options": {
+        "required_filters": [],
+        "fit_filters": [],
+        "data_mode": "spectral",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 2086500000.0,
+          "R_in": 2086500000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": false,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1
+      }
+    },
+    "table2_2015_unscaled_SXD_LXD_JHK": {
+      "status": "complete",
+      "seconds": 1.7031182920036372,
+      "epochs": 1,
+      "timings": [
+        {
+          "JD": 2457225.7462704,
+          "seconds": 0.2544703749954351,
+          "rows": 4280
+        }
+      ],
+      "options": {
+        "required_filters": [],
+        "fit_filters": [],
+        "data_mode": "spectral",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 2086500000.0,
+          "R_in": 2086500000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": false,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1
+      }
+    },
+    "table2_2026_JHK": {
+      "status": "complete",
+      "seconds": 1.445196874999965,
+      "epochs": 4,
+      "timings": [
+        {
+          "JD": 2461102.5,
+          "seconds": 0.00786333299765829,
+          "rows": 4
+        },
+        {
+          "JD": 2461165.5,
+          "seconds": 0.007724832998064812,
+          "rows": 4
+        },
+        {
+          "JD": 2461222.5,
+          "seconds": 0.007653415996173862,
+          "rows": 3
+        },
+        {
+          "JD": 2461225.5,
+          "seconds": 0.010336540995922405,
+          "rows": 3
+        }
+      ],
+      "options": {
+        "required_filters": [
+          "J",
+          "H",
+          "K"
+        ],
+        "fit_filters": [
+          "J",
+          "H",
+          "K"
+        ],
+        "data_mode": "photometry",
+        "lambda_reg": 0,
+        "initial_params": {
+          "M": 9.945e+29,
+          "R_star": 2086500000.0,
+          "R_in": 2086500000.0,
+          "R_out": 299195741400.0,
+          "distance": 2.159974307043957e+19
+        },
+        "red_excess_mode": false,
+        "red_excess_fit_param": "T_bb",
+        "fixed_R_bb": 299195741400.0,
+        "spectral_rede_joint_refine": true,
+        "spectral_rede_max_blue_bb_fraction": 0.1
+      }
+    }
+  },
+  "runtime_gates": {
+    "photo": {
+      "status": "pass",
+      "epochs": 28,
+      "sampled_epochs": [
+        2444098.5,
+        2460766.5,
+        2461165.5
+      ],
+      "conservative_seconds": 25.95850600191625,
+      "hard_timeout_seconds": 600
+    },
+    "spectral": {
+      "status": "pass",
+      "epochs": 11,
+      "sampled_epochs": [
+        2457209.599,
+        2460766.1298276,
+        2461225.8110455
+      ],
+      "conservative_seconds": 38.140563005945296,
+      "hard_timeout_seconds": 600
+    }
+  },
+  "notes": [
+    "All photometric fits exclude interpolated rows.",
+    "Existing fitter uncertainties with debug=False are fixed placeholders (0.1 in internal parameter units), not statistically estimated confidence intervals. Propagated mass errors inherit this limitation.",
+    "The inherited 10% blue-BB setting is a soft penalty, not a hard upper bound. Actual blue fractions are exported in fit_bound_and_coverage_diagnostics.csv.",
+    "XSHOOTER JH-only spectra do not directly constrain the long-wavelength BB component; retain their fits for consistency but inspect wavelength coverage and bound diagnostics."
+  ],
+  "photometric_objective_additivity": [
+    {
+      "T_bb": 1000.0,
+      "joint": 1449.8281662583927,
+      "sum_of_epochs": 1449.8281662583927
+    },
+    {
+      "T_bb": 1500.0,
+      "joint": 2335.6852873299586,
+      "sum_of_epochs": 2335.6852873299586
+    }
+  ],
+  "validation": [
+    {
+      "radius": 2,
+      "interpolated_L_W1_points": 149,
+      "raw_fit_epochs": 84,
+      "spectral_epochs": 11
+    },
+    {
+      "radius": 3,
+      "interpolated_L_W1_points": 149,
+      "raw_fit_epochs": 84,
+      "spectral_epochs": 11
+    },
+    {
+      "radius": 4,
+      "interpolated_L_W1_points": 149,
+      "raw_fit_epochs": 84,
+      "spectral_epochs": 11
+    }
+  ],
+  "outputs": [
+    "figures/0-4_JH_2R.pdf",
+    "figures/0-4_JH_3R.pdf",
+    "figures/0-4_JH_4R.pdf",
+    "figures/6_colour_grid_JH.pdf",
+    "figures/6_colour_grid_JK.pdf",
+    "figures/Panels_spectral_fit_overview.pdf",
+    "figures/rede4L_T.pdf",
+    "figures/rede4L_T_evolution.pdf",
+    "figures/spectral_red_excess_parameter_evolution.pdf",
+    "tables/JH_2R_excess_residuals.csv",
+    "tables/JH_3R_excess_residuals.csv",
+    "tables/JH_4R_excess_residuals.csv",
+    "tables/JH_radius_differences_from_3R.csv",
+    "tables/JH_radius_fit_comparison.tex",
+    "tables/JH_radius_fit_parameter_comparison.csv",
+    "tables/JH_radius_fit_summary.csv",
+    "tables/JH_radius_integrated_mass.csv",
+    "tables/JH_radius_integrated_mass.json",
+    "tables/JH_radius_integrated_mass.tex",
+    "tables/Table_2.csv",
+    "tables/Table_2.tex",
+    "tables/colour_JH_I vs I-J.csv",
+    "tables/colour_JH_J vs J-H.csv",
+    "tables/colour_JH_J-H vs H-K.csv",
+    "tables/colour_JH_K vs H-K.csv",
+    "tables/colour_JK_I vs I-J.csv",
+    "tables/colour_JK_J vs J-K.csv",
+    "tables/colour_JK_J-H vs H-K.csv",
+    "tables/colour_JK_K vs H-K.csv",
+    "tables/fit_bound_and_coverage_diagnostics.csv",
+    "tables/photo_red_fit_validation.csv",
+    "tables/rede4L_T_parameters.csv",
+    "tables/spectral_red_excess_parameters.csv",
+    "tables/spectral_red_fit_validation.csv",
+    "fits/basic_JH_2R_newdf.pkl",
+    "fits/basic_JH_2R_newdf_daily_data.csv",
+    "fits/basic_JH_2R_newdf_daily_params.csv",
+    "fits/basic_JH_2R_newdf_fit_info.csv",
+    "fits/basic_JH_2R_newdf_global_params.csv",
+    "fits/basic_JH_3R_newdf.pkl",
+    "fits/basic_JH_3R_newdf_daily_data.csv",
+    "fits/basic_JH_3R_newdf_daily_params.csv",
+    "fits/basic_JH_3R_newdf_fit_info.csv",
+    "fits/basic_JH_3R_newdf_global_params.csv",
+    "fits/basic_JH_4R_newdf.pkl",
+    "fits/basic_JH_4R_newdf_daily_data.csv",
+    "fits/basic_JH_4R_newdf_daily_params.csv",
+    "fits/basic_JH_4R_newdf_fit_info.csv",
+    "fits/basic_JH_4R_newdf_global_params.csv",
+    "fits/irtf_JH_2R.pkl",
+    "fits/irtf_JH_2R_daily_data.csv",
+    "fits/irtf_JH_2R_daily_params.csv",
+    "fits/irtf_JH_2R_fit_info.csv",
+    "fits/irtf_JH_2R_global_params.csv",
+    "fits/irtf_JH_3R.pkl",
+    "fits/irtf_JH_3R_daily_data.csv",
+    "fits/irtf_JH_3R_daily_params.csv",
+    "fits/irtf_JH_3R_fit_info.csv",
+    "fits/irtf_JH_3R_global_params.csv",
+    "fits/irtf_JH_4R.pkl",
+    "fits/irtf_JH_4R_daily_data.csv",
+    "fits/irtf_JH_4R_daily_params.csv",
+    "fits/irtf_JH_4R_fit_info.csv",
+    "fits/irtf_JH_4R_global_params.csv",
+    "fits/rede_4L_T.pkl",
+    "fits/rede_4L_T_daily_data.csv",
+    "fits/rede_4L_T_daily_params.csv",
+    "fits/rede_4L_T_fit_info.csv",
+    "fits/rede_4L_T_global_params.csv",
+    "fits/spectral_JH_2R.pkl",
+    "fits/spectral_JH_2R_daily_data.csv",
+    "fits/spectral_JH_2R_daily_params.csv",
+    "fits/spectral_JH_2R_fit_info.csv",
+    "fits/spectral_JH_2R_global_params.csv",
+    "fits/spectral_JH_3R.pkl",
+    "fits/spectral_JH_3R_daily_data.csv",
+    "fits/spectral_JH_3R_daily_params.csv",
+    "fits/spectral_JH_3R_fit_info.csv",
+    "fits/spectral_JH_3R_global_params.csv",
+    "fits/spectral_JH_4R.pkl",
+    "fits/spectral_JH_4R_daily_data.csv",
+    "fits/spectral_JH_4R_daily_params.csv",
+    "fits/spectral_JH_4R_fit_info.csv",
+    "fits/spectral_JH_4R_global_params.csv",
+    "fits/spectral_combined_rede.pkl",
+    "fits/spectral_combined_rede_daily_data.csv",
+    "fits/spectral_combined_rede_daily_params.csv",
+    "fits/spectral_combined_rede_fit_info.csv",
+    "fits/spectral_combined_rede_global_params.csv",
+    "fits/table2_2015_unscaled_SXD_LXD_JHK.pkl",
+    "fits/table2_2015_unscaled_SXD_LXD_JHK_daily_data.csv",
+    "fits/table2_2015_unscaled_SXD_LXD_JHK_daily_params.csv",
+    "fits/table2_2015_unscaled_SXD_LXD_JHK_fit_info.csv",
+    "fits/table2_2015_unscaled_SXD_LXD_JHK_global_params.csv",
+    "fits/table2_2026_JHK.pkl",
+    "fits/table2_2026_JHK_daily_data.csv",
+    "fits/table2_2026_JHK_daily_params.csv",
+    "fits/table2_2026_JHK_fit_info.csv",
+    "fits/table2_2026_JHK_global_params.csv",
+    "fits/table2_irtf_JHK_3R.pkl",
+    "fits/table2_irtf_JHK_3R_daily_data.csv",
+    "fits/table2_irtf_JHK_3R_daily_params.csv",
+    "fits/table2_irtf_JHK_3R_fit_info.csv",
+    "fits/table2_irtf_JHK_3R_global_params.csv",
+    "fits/xshooter_JH_2R.pkl",
+    "fits/xshooter_JH_2R_daily_data.csv",
+    "fits/xshooter_JH_2R_daily_params.csv",
+    "fits/xshooter_JH_2R_fit_info.csv",
+    "fits/xshooter_JH_2R_global_params.csv",
+    "fits/xshooter_JH_3R.pkl",
+    "fits/xshooter_JH_3R_daily_data.csv",
+    "fits/xshooter_JH_3R_daily_params.csv",
+    "fits/xshooter_JH_3R_fit_info.csv",
+    "fits/xshooter_JH_3R_global_params.csv",
+    "fits/xshooter_JH_4R.pkl",
+    "fits/xshooter_JH_4R_daily_data.csv",
+    "fits/xshooter_JH_4R_daily_params.csv",
+    "fits/xshooter_JH_4R_fit_info.csv",
+    "fits/xshooter_JH_4R_global_params.csv"
+  ],
+  "withheld": [],
+  "bound_hits": [
+    {
+      "fit": "red_photo",
+      "JD": 2444098.5,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.25,
+      "wavelength_max_um": 3.6,
+      "max_blue_BB_over_disk": NaN,
+      "no_coverage_beyond_2_2um": NaN
+    },
+    {
+      "fit": "red_photo",
+      "JD": 2445450.5,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.25,
+      "wavelength_max_um": 4.8,
+      "max_blue_BB_over_disk": NaN,
+      "no_coverage_beyond_2_2um": NaN
+    },
+    {
+      "fit": "red_photo",
+      "JD": 2445599.5,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.25,
+      "wavelength_max_um": 3.5,
+      "max_blue_BB_over_disk": NaN,
+      "no_coverage_beyond_2_2um": NaN
+    },
+    {
+      "fit": "red_photo",
+      "JD": 2445631.5,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.25,
+      "wavelength_max_um": 3.5,
+      "max_blue_BB_over_disk": NaN,
+      "no_coverage_beyond_2_2um": NaN
+    },
+    {
+      "fit": "red_photo",
+      "JD": 2446081.5,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.25,
+      "wavelength_max_um": 20.0,
+      "max_blue_BB_over_disk": NaN,
+      "no_coverage_beyond_2_2um": NaN
+    },
+    {
+      "fit": "red_photo",
+      "JD": 2446098.5,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.25,
+      "wavelength_max_um": 4.8,
+      "max_blue_BB_over_disk": NaN,
+      "no_coverage_beyond_2_2um": NaN
+    },
+    {
+      "fit": "red_photo",
+      "JD": 2446201.5,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.25,
+      "wavelength_max_um": 3.5,
+      "max_blue_BB_over_disk": NaN,
+      "no_coverage_beyond_2_2um": NaN
+    },
+    {
+      "fit": "red_photo",
+      "JD": 2446481.5,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.25,
+      "wavelength_max_um": 4.8,
+      "max_blue_BB_over_disk": NaN,
+      "no_coverage_beyond_2_2um": NaN
+    },
+    {
+      "fit": "red_photo",
+      "JD": 2447286.5,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.25,
+      "wavelength_max_um": 4.8,
+      "max_blue_BB_over_disk": NaN,
+      "no_coverage_beyond_2_2um": NaN
+    },
+    {
+      "fit": "red_photo",
+      "JD": 2447328.5,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 0.55,
+      "wavelength_max_um": 10.1,
+      "max_blue_BB_over_disk": NaN,
+      "no_coverage_beyond_2_2um": NaN
+    },
+    {
+      "fit": "red_photo",
+      "JD": 2447576.5,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.25,
+      "wavelength_max_um": 4.8,
+      "max_blue_BB_over_disk": NaN,
+      "no_coverage_beyond_2_2um": NaN
+    },
+    {
+      "fit": "red_photo",
+      "JD": 2457226.5,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.235,
+      "wavelength_max_um": 3.353,
+      "max_blue_BB_over_disk": NaN,
+      "no_coverage_beyond_2_2um": NaN
+    },
+    {
+      "fit": "red_spectral",
+      "JD": 2457209.599,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.1524839546455035,
+      "wavelength_max_um": 1.7474639932038054,
+      "max_blue_BB_over_disk": 0.1065789940251876,
+      "no_coverage_beyond_2_2um": true
+    },
+    {
+      "fit": "red_spectral",
+      "JD": 2457225.7462704,
+      "bound_hits": "T_bb:lower",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.0997602,
+      "wavelength_max_um": 4.1495442,
+      "max_blue_BB_over_disk": 0.1973802009477193,
+      "no_coverage_beyond_2_2um": false
+    },
+    {
+      "fit": "red_spectral",
+      "JD": 2460364.85,
+      "bound_hits": "R_bb:upper",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.152476926685365,
+      "wavelength_max_um": 1.7475423788236364,
+      "max_blue_BB_over_disk": 0.1060850651293694,
+      "no_coverage_beyond_2_2um": true
+    },
+    {
+      "fit": "red_spectral",
+      "JD": 2460594.478,
+      "bound_hits": "R_bb:upper",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 1.1524985279891677,
+      "wavelength_max_um": 1.747553228927471,
+      "max_blue_BB_over_disk": 0.1035826507333636,
+      "no_coverage_beyond_2_2um": true
+    },
+    {
+      "fit": "red_spectral",
+      "JD": 2460861.8192732,
+      "bound_hits": "R_bb:upper",
+      "Av_upper": 40.0,
+      "wavelength_min_um": 0.74001557,
+      "wavelength_max_um": 2.4499354,
+      "max_blue_BB_over_disk": 0.2195265863928939,
+      "no_coverage_beyond_2_2um": false
+    }
+  ],
+  "software": {
+    "python": "3.14.4 (v3.14.4:23116f998f6, Apr  7 2026, 09:45:22) [Clang 17.0.0 (clang-1700.6.4.2)]",
+    "numpy": "2.4.4",
+    "pandas": "3.0.2",
+    "scipy": "1.17.1",
+    "matplotlib": "3.10.8"
+  },
+  "source_checksums": {
+    "src/accretion/__init__.py": "056780d5d42af4d114c6ff8859624ca56636b65e22be817fcccd33985a8b4689",
+    "src/accretion/final_panel_colour_grid.py": "a31b92becb4c4d2cb54b91f9b857ac5d08bfa05f1ee9566fd5f0d4354d1e4980",
+    "src/accretion/final_panel_models.py": "154a279a820c7beb33d309e48397433047ada7ed0b6ea8b765f3bb455422aa44",
+    "src/accretion/final_panels.py": "74efb9a10550618623711ef199af19c8b061788122488d4de807dbfb6709c209",
+    "src/accretion/ultimate_common.py": "9fada879a7ab33af77d7c7366e6b55163709e7c14fea94073e90415bd5d4405b",
+    "src/accretion/ultimate_file_organisers.py": "1699ecde45517f732acc715ae6257738c4a029fbbb338fae9958157bb6d066c8",
+    "src/accretion/ultimate_fitting.py": "e5008725378912fa5b9f808e5641549cd3cf24cef8b4c3979df93ce8c54a22f4",
+    "src/accretion/ultimate_fitting_types.py": "553a523d9df86e2f91d0ce9fcb120b6a3207218a88cb926eed458647d2d86918",
+    "src/accretion/ultimate_functions.py": "dff7f739428f01e7d59034d84f670d4811fe587f40288eedbf6a67ffdcb5c252",
+    "src/accretion/ultimate_helpers.py": "3052aa261561910dee09c91102abfb20a8b0c8d1e3808fccfe8159c77cdab82e",
+    "src/accretion/ultimate_older_functions.py": "218ca8ccabfe7d5dd1d2b972110c4a7e93381f65002be0947c8b4b1a789ecd9e",
+    "src/accretion/ultimate_physics.py": "35cdb06147bbb0bd9a0886b74cec028899dc2fef955d0b787c635ffa6b9905c1",
+    "src/accretion/ultimate_synthetic_data.py": "a9d09a5127a465ed2d7376662ba7fe26fa73252c312f8c3e291d05e71b1d1395",
+    "src/accretion/ultimate_visualisation.py": "9266d6cca424e133af68cd48de6bd53234f2bcfd6f88faea265c033b582ab191"
+  },
+  "artifact_validation": "logs/artifact_validation.json",
+  "tests": "10 passed",
+  "visual_review": "9 PDFs inspected",
+  "table2": {
+    "method": "exact plotted JH 3R bundles",
+    "spectral_rows": 11,
+    "photometric_rows": 4,
+    "photometry_selection": "JD >= 2461000 (2026)",
+    "sources": [
+      "fits/spectral_JH_3R.pkl",
+      "fits/basic_JH_3R_newdf.pkl"
+    ],
+    "validation": "all six parameter/error columns exactly equal to source bundles; CSV round-trip checked",
+    "refits": false
+  }
+}

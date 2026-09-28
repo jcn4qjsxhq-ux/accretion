@@ -1,0 +1,138 @@
+Successfully loaded 1887 data points
+Column names: ['JD', 'Date', 'Filter', 'Lambda', 'Mag', 'Magerr', 'ZP', 'Flux', 'Fluxerr', 'Flag', 'Interpolated']
+Available filters: ['B', 'G', 'H', 'I', 'Ic', 'J', 'K', 'L', 'M', 'N', 'O', 'Q', 'R', 'V', 'W1', 'W2', 'i prime', 'y', 'λ1.635', 'λ10.49', 'λ11.6', 'λ12.0', 'λ17.65', 'λ19.5', 'λ22.1', 'λ7.78']
+Successfully loaded 43680 spectral samples from 8 IRTF SXD files
+Dates: ['20150722', '20230722', '20240912', '20250331', '20250415', '20250621', '20250705', '20260704']
+Wavelength coverage: 0.740–2.450 μm
+Successfully loaded 20840 spectral samples from 6 IRTF LXD files
+Dates: ['20150722', '20230722', '20250331', '20250415', '20250621', '20260704']
+Wavelength coverage: 2.900–5.370 μm
+Successfully loaded 276 samples from 3 XSHOOTER NIR files
+Dates: ['201506', '202402', '202410']
+Fitting wavelength coverage: 1.152–1.748 μm
+Fresh input: 1268 raw / 1887 total photometry rows; IRTF dates: ['20150722', '20230722', '20240912', '20250331', '20250415', '20250621', '20250705', '20260704']
+
+EXECUTING STAGE tables
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/table2_irtf_JHK_3R_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/table2_irtf_JHK_3R_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/table2_irtf_JHK_3R_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/table2_irtf_JHK_3R_daily_data.csv
+table2_irtf_JHK_3R: 7 epochs, 3.0 s
+Successfully loaded 44743 spectral samples from 8 IRTF SXD files
+Dates: ['20150722', '20230722', '20240912', '20250331', '20250415', '20250621', '20250705', '20260704']
+Wavelength coverage: 0.740–2.450 μm
+Successfully loaded 31199 spectral samples from 6 IRTF LXD files
+Dates: ['20150722', '20230722', '20250331', '20250415', '20250621', '20260704']
+Wavelength coverage: 1.678–5.370 μm
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/table2_2015_unscaled_SXD_LXD_JHK_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/table2_2015_unscaled_SXD_LXD_JHK_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/table2_2015_unscaled_SXD_LXD_JHK_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/table2_2015_unscaled_SXD_LXD_JHK_daily_data.csv
+table2_2015_unscaled_SXD_LXD_JHK: 1 epochs, 1.7 s
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/table2_2026_JHK_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/table2_2026_JHK_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/table2_2026_JHK_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/table2_2026_JHK_daily_data.csv
+table2_2026_JHK: 4 epochs, 1.5 s
+ radius_Rsun           method  mass_accreted_Msun  covered_years
+           2    full_interval            0.001678      47.389459
+           2 coverage_limited            0.000526      12.783025
+           3    full_interval            0.001774      47.389459
+           3 coverage_limited            0.000555      12.783025
+           4    full_interval            0.001858      47.389459
+           4 coverage_limited            0.000580      12.783025
+Table 2: 19 rows; radius comparison: 190 rows
+
+EXECUTING STAGE figures
+Max |flux residual| by filter (Jy):
+Filter
+H     0.146746
+J     0.141841
+K     0.857365
+L     5.648620
+W1    2.027015
+Max |flux residual| by filter (Jy):
+Filter
+H     0.146746
+J     0.141841
+K     0.857365
+L     5.648620
+W1    2.027015
+Max |flux residual| by filter (Jy):
+Filter
+H     0.146240
+J     0.141840
+K     0.856589
+L     5.638805
+W1    2.013773
+Max |flux residual| by filter (Jy):
+Filter
+H     0.146240
+J     0.141840
+K     0.856589
+L     5.638805
+W1    2.013773
+Max |flux residual| by filter (Jy):
+Filter
+H     0.145723
+J     0.141840
+K     0.855844
+L     5.630764
+W1    2.003039
+Max |flux residual| by filter (Jy):
+Filter
+H     0.145723
+J     0.141840
+K     0.855844
+L     5.630764
+W1    2.003039
+Red-excess plot saved to /Users/muki/VS/Accretion/Final Round Up/figures/rede4L_T.pdf
+
+=== Parameter Evolution Summary ===
+M_star*Mdot range: 1.41e-06 - 1.48e-04 M☉^2/year
+M_star*Mdot mean ± std: 3.39e-05 ± 3.63e-05 M☉^2/year
+Av range: 1.46 - 24.61 mag
+Av mean ± std: 11.37 ± 6.56 mag
+
+Global Parameters:
+  M: 994499999999999950954627596288.000
+  R_star: 2086500000.000
+  R_in: 2086500000.000
+  R_out: 299195741400.000
+  distance: 21599743070439571456.000
+
+=== Parameter Evolution Summary ===
+M_star*Mdot range: 6.91e-07 - 1.08e-04 M☉^2/year
+M_star*Mdot mean ± std: 3.77e-05 ± 2.79e-05 M☉^2/year
+Av range: 10.76 - 25.97 mag
+Av mean ± std: 17.75 ± 4.43 mag
+
+Global Parameters:
+  M: 994499999999999950954627596288.000
+  R_star: 2086500000.000
+  R_in: 2086500000.000
+  R_out: 299195741400.000
+  distance: 21599743070439571456.000
+Figures:
+0-4_JH_2R.pdf
+0-4_JH_3R.pdf
+0-4_JH_4R.pdf
+6_colour_grid_JH.pdf
+6_colour_grid_JK.pdf
+Panels_spectral_fit_overview.pdf
+rede4L_T.pdf
+rede4L_T_evolution.pdf
+spectral_red_excess_parameter_evolution.pdf
+
+EXECUTING STAGE validate
+Successfully loaded 43680 spectral samples from 8 IRTF SXD files
+Dates: ['20150722', '20230722', '20240912', '20250331', '20250415', '20250621', '20250705', '20260704']
+Wavelength coverage: 0.740–2.450 μm
+Successfully loaded 20840 spectral samples from 6 IRTF LXD files
+Dates: ['20150722', '20230722', '20250331', '20250415', '20250621', '20260704']
+Wavelength coverage: 2.900–5.370 μm
+Validation passed: [{'radius': 2, 'interpolated_L_W1_points': 149, 'raw_fit_epochs': 84, 'spectral_epochs': 11}, {'radius': 3, 'interpolated_L_W1_points': 149, 'raw_fit_epochs': 84, 'spectral_epochs': 11}, {'radius': 4, 'interpolated_L_W1_points': 149, 'raw_fit_epochs': 84, 'spectral_epochs': 11}]
+Withheld red-excess fits: []

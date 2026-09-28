@@ -1,0 +1,263 @@
+[
+  {
+    "radius_Rsun": 2,
+    "method": "full_interval",
+    "start_jd": 2443916.5,
+    "end_jd": 2461225.5,
+    "span_years": 47.389459274469544,
+    "covered_years": 47.389459274469544,
+    "mass_accreted_Msun": 0.001678486531469852,
+    "mass_accreted_err_Msun": 9.693426447463627e-05,
+    "integrated_MstarMdot_Msun2": 0.000839243265734926,
+    "interpolation": "piecewise linear between adjacent fitted epochs",
+    "max_gap_days": null,
+    "excluded_gaps": [],
+    "n_epochs": 84,
+    "n_intervals_included": 83,
+    "mass_ratio_to_3R": 0.9459537250214324,
+    "mass_percent_change_from_3R": -5.404627497856762
+  },
+  {
+    "radius_Rsun": 2,
+    "method": "coverage_limited",
+    "start_jd": 2443916.5,
+    "end_jd": 2461225.5,
+    "span_years": 47.389459274469544,
+    "covered_years": 12.78302532511978,
+    "mass_accreted_Msun": 0.0005255765952698261,
+    "mass_accreted_err_Msun": 2.5933887940841365e-05,
+    "integrated_MstarMdot_Msun2": 0.00026278829763491305,
+    "interpolation": "piecewise linear between adjacent fitted epochs",
+    "max_gap_days": 365.25,
+    "excluded_gaps": [
+      {
+        "start_jd": 2444098.5,
+        "end_jd": 2445450.5,
+        "gap_days": 1352.0
+      },
+      {
+        "start_jd": 2445631.5,
+        "end_jd": 2446081.5,
+        "gap_days": 450.0
+      },
+      {
+        "start_jd": 2446481.5,
+        "end_jd": 2447286.5,
+        "gap_days": 805.0
+      },
+      {
+        "start_jd": 2447630.5,
+        "end_jd": 2448284.5,
+        "gap_days": 654.0
+      },
+      {
+        "start_jd": 2449182.5,
+        "end_jd": 2451319.5,
+        "gap_days": 2137.0
+      },
+      {
+        "start_jd": 2451319.5,
+        "end_jd": 2454567.5,
+        "gap_days": 3248.0
+      },
+      {
+        "start_jd": 2454567.5,
+        "end_jd": 2455271.5,
+        "gap_days": 704.0
+      },
+      {
+        "start_jd": 2455271.5,
+        "end_jd": 2457209.5,
+        "gap_days": 1938.0
+      },
+      {
+        "start_jd": 2458674.5,
+        "end_jd": 2459310.5,
+        "gap_days": 636.0
+      },
+      {
+        "start_jd": 2459431.5,
+        "end_jd": 2460147.5,
+        "gap_days": 716.0
+      }
+    ],
+    "n_epochs": 84,
+    "n_intervals_included": 73,
+    "mass_ratio_to_3R": 0.9476264731841226,
+    "mass_percent_change_from_3R": -5.237352681587737
+  },
+  {
+    "radius_Rsun": 3,
+    "method": "full_interval",
+    "start_jd": 2443916.5,
+    "end_jd": 2461225.5,
+    "span_years": 47.389459274469544,
+    "covered_years": 47.389459274469544,
+    "mass_accreted_Msun": 0.001774385455728104,
+    "mass_accreted_err_Msun": 0.00010238611509761672,
+    "integrated_MstarMdot_Msun2": 0.000887192727864052,
+    "interpolation": "piecewise linear between adjacent fitted epochs",
+    "max_gap_days": null,
+    "excluded_gaps": [],
+    "n_epochs": 84,
+    "n_intervals_included": 83,
+    "mass_ratio_to_3R": 1.0,
+    "mass_percent_change_from_3R": 0.0
+  },
+  {
+    "radius_Rsun": 3,
+    "method": "coverage_limited",
+    "start_jd": 2443916.5,
+    "end_jd": 2461225.5,
+    "span_years": 47.389459274469544,
+    "covered_years": 12.78302532511978,
+    "mass_accreted_Msun": 0.0005546242218242749,
+    "mass_accreted_err_Msun": 2.730158738687618e-05,
+    "integrated_MstarMdot_Msun2": 0.00027731211091213743,
+    "interpolation": "piecewise linear between adjacent fitted epochs",
+    "max_gap_days": 365.25,
+    "excluded_gaps": [
+      {
+        "start_jd": 2444098.5,
+        "end_jd": 2445450.5,
+        "gap_days": 1352.0
+      },
+      {
+        "start_jd": 2445631.5,
+        "end_jd": 2446081.5,
+        "gap_days": 450.0
+      },
+      {
+        "start_jd": 2446481.5,
+        "end_jd": 2447286.5,
+        "gap_days": 805.0
+      },
+      {
+        "start_jd": 2447630.5,
+        "end_jd": 2448284.5,
+        "gap_days": 654.0
+      },
+      {
+        "start_jd": 2449182.5,
+        "end_jd": 2451319.5,
+        "gap_days": 2137.0
+      },
+      {
+        "start_jd": 2451319.5,
+        "end_jd": 2454567.5,
+        "gap_days": 3248.0
+      },
+      {
+        "start_jd": 2454567.5,
+        "end_jd": 2455271.5,
+        "gap_days": 704.0
+      },
+      {
+        "start_jd": 2455271.5,
+        "end_jd": 2457209.5,
+        "gap_days": 1938.0
+      },
+      {
+        "start_jd": 2458674.5,
+        "end_jd": 2459310.5,
+        "gap_days": 636.0
+      },
+      {
+        "start_jd": 2459431.5,
+        "end_jd": 2460147.5,
+        "gap_days": 716.0
+      }
+    ],
+    "n_epochs": 84,
+    "n_intervals_included": 73,
+    "mass_ratio_to_3R": 1.0,
+    "mass_percent_change_from_3R": 0.0
+  },
+  {
+    "radius_Rsun": 4,
+    "method": "full_interval",
+    "start_jd": 2443916.5,
+    "end_jd": 2461225.5,
+    "span_years": 47.389459274469544,
+    "covered_years": 47.389459274469544,
+    "mass_accreted_Msun": 0.001857863202243587,
+    "mass_accreted_err_Msun": 0.00010712111851833403,
+    "integrated_MstarMdot_Msun2": 0.0009289316011217935,
+    "interpolation": "piecewise linear between adjacent fitted epochs",
+    "max_gap_days": null,
+    "excluded_gaps": [],
+    "n_epochs": 84,
+    "n_intervals_included": 83,
+    "mass_ratio_to_3R": 1.0470460047144765,
+    "mass_percent_change_from_3R": 4.704600471447651
+  },
+  {
+    "radius_Rsun": 4,
+    "method": "coverage_limited",
+    "start_jd": 2443916.5,
+    "end_jd": 2461225.5,
+    "span_years": 47.389459274469544,
+    "covered_years": 12.78302532511978,
+    "mass_accreted_Msun": 0.0005798850248618013,
+    "mass_accreted_err_Msun": 2.8484205108944996e-05,
+    "integrated_MstarMdot_Msun2": 0.0002899425124309007,
+    "interpolation": "piecewise linear between adjacent fitted epochs",
+    "max_gap_days": 365.25,
+    "excluded_gaps": [
+      {
+        "start_jd": 2444098.5,
+        "end_jd": 2445450.5,
+        "gap_days": 1352.0
+      },
+      {
+        "start_jd": 2445631.5,
+        "end_jd": 2446081.5,
+        "gap_days": 450.0
+      },
+      {
+        "start_jd": 2446481.5,
+        "end_jd": 2447286.5,
+        "gap_days": 805.0
+      },
+      {
+        "start_jd": 2447630.5,
+        "end_jd": 2448284.5,
+        "gap_days": 654.0
+      },
+      {
+        "start_jd": 2449182.5,
+        "end_jd": 2451319.5,
+        "gap_days": 2137.0
+      },
+      {
+        "start_jd": 2451319.5,
+        "end_jd": 2454567.5,
+        "gap_days": 3248.0
+      },
+      {
+        "start_jd": 2454567.5,
+        "end_jd": 2455271.5,
+        "gap_days": 704.0
+      },
+      {
+        "start_jd": 2455271.5,
+        "end_jd": 2457209.5,
+        "gap_days": 1938.0
+      },
+      {
+        "start_jd": 2458674.5,
+        "end_jd": 2459310.5,
+        "gap_days": 636.0
+      },
+      {
+        "start_jd": 2459431.5,
+        "end_jd": 2460147.5,
+        "gap_days": 716.0
+      }
+    ],
+    "n_epochs": 84,
+    "n_intervals_included": 73,
+    "mass_ratio_to_3R": 1.0455457984767387,
+    "mass_percent_change_from_3R": 4.5545798476738675
+  }
+]

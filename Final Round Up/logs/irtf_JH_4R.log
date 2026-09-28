@@ -1,0 +1,150 @@
+Number of spectral days available: 8
+Total spectral samples in selected days: 9365
+Number of spectral days available: 1
+Total spectral samples in selected days: 1189
+
+Found 1 days with required filters
+Fitting 1189 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Iteration 10, elapsed: 0.0s
+Iteration 15, elapsed: 0.1s
+Optimization completed in 0.1s after 90 function evaluations
+✓ Converged successfully: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+Final objective value: 4588.107
+Function evaluations: 90
+Iterations: 19
+Optimized fit completed in 90 function evaluations!
+Chi-squared: 4588.11
+Reduced chi-squared: 3.87
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2457225.7462704, 'seconds': 0.12961424999957671, 'rows': 1189}
+Number of spectral days available: 1
+Total spectral samples in selected days: 1168
+
+Found 1 days with required filters
+Fitting 1168 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Iteration 10, elapsed: 0.0s
+Iteration 15, elapsed: 0.1s
+Optimization completed in 0.1s after 69 function evaluations
+✓ Converged successfully: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+Final objective value: 1500.274
+Function evaluations: 69
+Iterations: 16
+Optimized fit completed in 69 function evaluations!
+Chi-squared: 1500.27
+Reduced chi-squared: 1.29
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2460147.7922115, 'seconds': 0.10272704199451255, 'rows': 1168}
+Number of spectral days available: 1
+Total spectral samples in selected days: 1167
+
+Found 1 days with required filters
+Fitting 1167 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Iteration 10, elapsed: 0.0s
+Optimization completed in 0.1s after 75 function evaluations
+✓ Converged successfully: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+Final objective value: 2178.787
+Function evaluations: 75
+Iterations: 13
+Optimized fit completed in 75 function evaluations!
+Chi-squared: 2178.79
+Reduced chi-squared: 1.87
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2460565.7374397, 'seconds': 0.10784483300085412, 'rows': 1167}
+Number of spectral days available: 1
+Total spectral samples in selected days: 1168
+
+Found 1 days with required filters
+Fitting 1168 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Iteration 10, elapsed: 0.0s
+Iteration 15, elapsed: 0.1s
+Optimization completed in 0.1s after 66 function evaluations
+✓ Converged successfully: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+Final objective value: 752.298
+Function evaluations: 66
+Iterations: 15
+Optimized fit completed in 66 function evaluations!
+Chi-squared: 752.30
+Reduced chi-squared: 0.65
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2460766.1298276, 'seconds': 0.0962599579943344, 'rows': 1168}
+Number of spectral days available: 1
+Total spectral samples in selected days: 1169
+
+Found 1 days with required filters
+Fitting 1169 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Iteration 10, elapsed: 0.0s
+Iteration 15, elapsed: 0.1s
+Optimization completed in 0.2s after 153 function evaluations
+✓ Converged successfully: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+Final objective value: 747.392
+Function evaluations: 153
+Iterations: 16
+Optimized fit completed in 153 function evaluations!
+Chi-squared: 747.39
+Reduced chi-squared: 0.64
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2460781.0366671, 'seconds': 0.2020003750003525, 'rows': 1169}
+Number of spectral days available: 1
+Total spectral samples in selected days: 1168
+
+Found 1 days with required filters
+Fitting 1168 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Iteration 10, elapsed: 0.0s
+Iteration 15, elapsed: 0.1s
+Optimization completed in 0.1s after 60 function evaluations
+✓ Converged successfully: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+Final objective value: 1285.833
+Function evaluations: 60
+Iterations: 15
+Optimized fit completed in 60 function evaluations!
+Chi-squared: 1285.83
+Reduced chi-squared: 1.10
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2460847.8498597, 'seconds': 0.08975129100144841, 'rows': 1168}
+Number of spectral days available: 1
+Total spectral samples in selected days: 1168
+
+Found 1 days with required filters
+Fitting 1168 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Optimization completed in 0.1s after 60 function evaluations
+✓ Converged successfully: CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL
+Final objective value: 1358.132
+Function evaluations: 60
+Iterations: 9
+Optimized fit completed in 60 function evaluations!
+Chi-squared: 1358.13
+Reduced chi-squared: 1.16
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2460861.8192732, 'seconds': 0.09129091599606909, 'rows': 1168}
+Number of spectral days available: 1
+Total spectral samples in selected days: 1168
+
+Found 1 days with required filters
+Fitting 1168 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Iteration 10, elapsed: 0.0s
+Optimization completed in 0.1s after 54 function evaluations
+✓ Converged successfully: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+Final objective value: 2457.332
+Function evaluations: 54
+Iterations: 13
+Optimized fit completed in 54 function evaluations!
+Chi-squared: 2457.33
+Reduced chi-squared: 2.11
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2461225.8110455, 'seconds': 0.0834381669992581, 'rows': 1168}

@@ -1,0 +1,52 @@
+key,value
+n_days,1
+n_data_points,4280
+dof,4278
+lambda_reg,0
+required_filters,[]
+fit_filters,[]
+photometric_wavelength_source,row Lambda with filter-table fallback
+stellar_mass_solar,0.5
+param_names,"[""logMdot"", ""Av""]"
+regularize_params,"[""logMdot"", ""Av""]"
+data_mode,spectral
+evaluate_only,False
+AR_mode,False
+AR_method,
+AR_mcmc_chains,
+AR_mcmc_steps,
+AR_mcmc_burn_in,
+AR_mcmc_thin,
+two_filter_direct_solver,False
+red_excess_mode,False
+red_excess_fit_param,
+spectral_rede_threshold_micron,
+spectral_rede_joint_refine,
+spectral_rede_independent_joint_refine,
+spectral_rede_independent_diagnostics,[]
+spectral_rede_max_blue_bb_fraction,
+spectral_rede_blue_penalty_weight,
+spectral_rede_stage_info,{}
+fixed_T_bb,1500.0
+fixed_R_bb,299195741400.0
+optimizer_method,L-BFGS-B
+optimizer_maxiter,100000
+optimizer_maxfun,100000
+optimizer_ftol,1e-12
+optimizer_gtol,1e-06
+mdot_bounds_msun_per_year,"[1e-07, 0.0008]"
+av_bounds,"[0.1, 40.0]"
+local_solver_max_nfev,10000
+local_solver_ftol,1e-13
+local_solver_gtol,1e-13
+optimizer_nfev,42
+optimizer_nit,11
+optimizer_message,CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+independent_epoch_fits,True
+epoch_diagnostics,"[{""JD"": [2457225.7462704], ""success"": true, ""info"": {""n_days"": 1, ""n_data_points"": 4280, ""dof"": 4278, ""lambda_reg"": 0, ""required_filters"": [], ""fit_filters"": [], ""photometric_wavelength_source"": ""row Lambda with filter-table fallback"", ""stellar_mass_solar"": 0.5, ""param_names"": [""logMdot"", ""Av""], ""regularize_params"": [""logMdot"", ""Av""], ""data_mode"": ""spectral"", ""evaluate_only"": false, ""AR_mode"": false, ""AR_method"": null, ""AR_mcmc_chains"": null, ""AR_mcmc_steps"": null, ""AR_mcmc_burn_in"": null, ""AR_mcmc_thin"": null, ""two_filter_direct_solver"": false, ""red_excess_mode"": false, ""red_excess_fit_param"": null, ""spectral_rede_threshold_micron"": null, ""spectral_rede_joint_refine"": null, ""spectral_rede_independent_joint_refine"": null, ""spectral_rede_independent_diagnostics"": null, ""spectral_rede_max_blue_bb_fraction"": null, ""spectral_rede_blue_penalty_weight"": null, ""spectral_rede_stage_info"": {}, ""fixed_T_bb"": 1500.0, ""fixed_R_bb"": 299195741400.0, ""optimizer_method"": ""L-BFGS-B"", ""optimizer_maxiter"": 100000, ""optimizer_maxfun"": 100000, ""optimizer_ftol"": 1e-12, ""optimizer_gtol"": 1e-06, ""mdot_bounds_msun_per_year"": [1e-07, 0.0008], ""av_bounds"": [0.1, 40.0], ""local_solver_max_nfev"": 10000, ""local_solver_ftol"": 1e-13, ""local_solver_gtol"": 1e-13, ""optimizer_nfev"": 42, ""optimizer_nit"": 11, ""optimizer_message"": ""CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH""}}]"
+final_round_input_sha256,20751bb0458ddbaf913634fa898740dc56c73dd93604cdb75dd363581b0e86ce
+success,True
+chi_squared,26215.66485149551
+reduced_chi_squared,6.128018899367814
+regularization_term,0.0
+total_objective,26215.66485149551

@@ -1,0 +1,26 @@
+Successfully loaded 1887 data points
+Column names: ['JD', 'Date', 'Filter', 'Lambda', 'Mag', 'Magerr', 'ZP', 'Flux', 'Fluxerr', 'Flag', 'Interpolated']
+Available filters: ['B', 'G', 'H', 'I', 'Ic', 'J', 'K', 'L', 'M', 'N', 'O', 'Q', 'R', 'V', 'W1', 'W2', 'i prime', 'y', 'λ1.635', 'λ10.49', 'λ11.6', 'λ12.0', 'λ17.65', 'λ19.5', 'λ22.1', 'λ7.78']
+Successfully loaded 43680 spectral samples from 8 IRTF SXD files
+Dates: ['20150722', '20230722', '20240912', '20250331', '20250415', '20250621', '20250705', '20260704']
+Wavelength coverage: 0.740–2.450 μm
+Successfully loaded 20840 spectral samples from 6 IRTF LXD files
+Dates: ['20150722', '20230722', '20250331', '20250415', '20250621', '20260704']
+Wavelength coverage: 2.900–5.370 μm
+Successfully loaded 276 samples from 3 XSHOOTER NIR files
+Dates: ['201506', '202402', '202410']
+Fitting wavelength coverage: 1.152–1.748 μm
+Fresh input: 1268 raw / 1887 total photometry rows; IRTF dates: ['20150722', '20230722', '20240912', '20250331', '20250415', '20250621', '20250705', '20260704']
+
+EXECUTING STAGE qa
+..........                                                               [100%]
+=============================== warnings summary ===============================
+tests/test_final_round_panels.py::test_explicit_residuals_keep_interpolated_points_and_marker
+  /Users/muki/VS/Accretion/src/accretion/final_panels.py:892: UserWarning: linestyle is redundantly defined by the 'linestyle' keyword argument and the fmt string "o-" (-> linestyle='-'). The keyword argument will take precedence.
+    ax.errorbar(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+10 passed, 1 warning in 1.23s
+
+Rendered 9 PDFs for visual inspection in /Users/muki/VS/Accretion/Final Round Up/logs/qa.
+Output index: /Users/muki/VS/Accretion/Final Round Up/README.md

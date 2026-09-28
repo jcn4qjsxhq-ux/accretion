@@ -1,0 +1,98 @@
+Successfully loaded 1887 data points
+Column names: ['JD', 'Date', 'Filter', 'Lambda', 'Mag', 'Magerr', 'ZP', 'Flux', 'Fluxerr', 'Flag', 'Interpolated']
+Available filters: ['B', 'G', 'H', 'I', 'Ic', 'J', 'K', 'L', 'M', 'N', 'O', 'Q', 'R', 'V', 'W1', 'W2', 'i prime', 'y', 'λ1.635', 'λ10.49', 'λ11.6', 'λ12.0', 'λ17.65', 'λ19.5', 'λ22.1', 'λ7.78']
+Successfully loaded 43680 spectral samples from 8 IRTF SXD files
+Dates: ['20150722', '20230722', '20240912', '20250331', '20250415', '20250621', '20250705', '20260704']
+Wavelength coverage: 0.740–2.450 μm
+Successfully loaded 20840 spectral samples from 6 IRTF LXD files
+Dates: ['20150722', '20230722', '20250331', '20250415', '20250621', '20260704']
+Wavelength coverage: 2.900–5.370 μm
+Successfully loaded 276 samples from 3 XSHOOTER NIR files
+Dates: ['201506', '202402', '202410']
+Fitting wavelength coverage: 1.152–1.748 μm
+Fresh input: 1268 raw / 1887 total photometry rows; IRTF dates: ['20150722', '20230722', '20240912', '20250331', '20250415', '20250621', '20250705', '20260704']
+
+EXECUTING STAGE figures
+Max |flux residual| by filter (Jy):
+Filter
+H     0.146746
+J     0.141841
+K     0.857365
+L     5.648620
+W1    2.027015
+Max |flux residual| by filter (Jy):
+Filter
+H     0.146746
+J     0.141841
+K     0.857365
+L     5.648620
+W1    2.027015
+Max |flux residual| by filter (Jy):
+Filter
+H     0.146240
+J     0.141840
+K     0.856589
+L     5.638805
+W1    2.013773
+Max |flux residual| by filter (Jy):
+Filter
+H     0.146240
+J     0.141840
+K     0.856589
+L     5.638805
+W1    2.013773
+Max |flux residual| by filter (Jy):
+Filter
+H     0.145723
+J     0.141840
+K     0.855844
+L     5.630764
+W1    2.003039
+Max |flux residual| by filter (Jy):
+Filter
+H     0.145723
+J     0.141840
+K     0.855844
+L     5.630764
+W1    2.003039
+Red-excess plot saved to /Users/muki/VS/Accretion/Final Round Up/figures/rede4L_T_evolution.pdf
+Figures:
+0-4_JH_2R.pdf
+0-4_JH_3R.pdf
+0-4_JH_4R.pdf
+6_colour_grid_JH.pdf
+6_colour_grid_JK.pdf
+Panels_spectral_fit_overview.pdf
+rede4L_T.pdf
+rede4L_T_evolution.pdf
+spectral_red_excess_parameter_evolution.pdf
+
+EXECUTING STAGE diagnostics
+         fit           JD bound_hits  Av_upper  wavelength_min_um  wavelength_max_um  max_blue_BB_over_disk no_coverage_beyond_2_2um
+   red_photo 2.444098e+06 T_bb:lower      40.0           1.250000           3.600000                    NaN                      NaN
+   red_photo 2.445450e+06 T_bb:lower      40.0           1.250000           4.800000                    NaN                      NaN
+   red_photo 2.445600e+06 T_bb:lower      40.0           1.250000           3.500000                    NaN                      NaN
+   red_photo 2.445632e+06 T_bb:lower      40.0           1.250000           3.500000                    NaN                      NaN
+   red_photo 2.446082e+06 T_bb:lower      40.0           1.250000          20.000000                    NaN                      NaN
+   red_photo 2.446098e+06 T_bb:lower      40.0           1.250000           4.800000                    NaN                      NaN
+   red_photo 2.446202e+06 T_bb:lower      40.0           1.250000           3.500000                    NaN                      NaN
+   red_photo 2.446482e+06 T_bb:lower      40.0           1.250000           4.800000                    NaN                      NaN
+   red_photo 2.447286e+06 T_bb:lower      40.0           1.250000           4.800000                    NaN                      NaN
+   red_photo 2.447328e+06 T_bb:lower      40.0           0.550000          10.100000                    NaN                      NaN
+   red_photo 2.447576e+06 T_bb:lower      40.0           1.250000           4.800000                    NaN                      NaN
+   red_photo 2.457226e+06 T_bb:lower      40.0           1.235000           3.353000                    NaN                      NaN
+red_spectral 2.457210e+06 T_bb:lower      40.0           1.152484           1.747464               0.106579                     True
+red_spectral 2.457226e+06 T_bb:lower      40.0           1.099760           4.149544               0.381319                    False
+red_spectral 2.460365e+06 R_bb:upper      40.0           1.152477           1.747542               0.106085                     True
+red_spectral 2.460594e+06 R_bb:upper      40.0           1.152499           1.747553               0.103583                     True
+red_spectral 2.460862e+06 R_bb:upper      40.0           0.740016           2.449935               0.413517                    False
+
+EXECUTING STAGE validate
+Successfully loaded 43680 spectral samples from 8 IRTF SXD files
+Dates: ['20150722', '20230722', '20240912', '20250331', '20250415', '20250621', '20250705', '20260704']
+Wavelength coverage: 0.740–2.450 μm
+Successfully loaded 20840 spectral samples from 6 IRTF LXD files
+Dates: ['20150722', '20230722', '20250331', '20250415', '20250621', '20260704']
+Wavelength coverage: 2.900–5.370 μm
+Validation passed: [{'radius': 2, 'interpolated_L_W1_points': 149, 'raw_fit_epochs': 84, 'spectral_epochs': 11}, {'radius': 3, 'interpolated_L_W1_points': 149, 'raw_fit_epochs': 84, 'spectral_epochs': 11}, {'radius': 4, 'interpolated_L_W1_points': 149, 'raw_fit_epochs': 84, 'spectral_epochs': 11}]
+Withheld red-excess fits: []

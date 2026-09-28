@@ -1,0 +1,80 @@
+After averaging: 16 data points (reduced from 16)
+Number of days having all required filters ('J', 'H', 'K', 'L'): 3
+Total measurements in selected days: 16
+After averaging: 4 data points (reduced from 4)
+Number of days having all required filters ('J', 'H', 'K', 'L'): 1
+Total measurements in selected days: 4
+
+Found 1 days with required filters
+Red excess mode: 1 days have sufficient measurements
+Red excess fit parameter: T_bb
+{'blue_filters': ['J', 'H'], 'red_filters': ['K', 'L']}
+Photometric wavelength source: 1/1 days use row Lambda (4 measurements); 0/1 days use fallback filter Lambda (0 measurements)
+Fitting 4 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Iteration 10, elapsed: 0.0s
+Iteration 15, elapsed: 0.0s
+Iteration 20, elapsed: 0.0s
+Iteration 25, elapsed: 0.0s
+Optimization completed in 0.0s after 124 function evaluations
+✓ Converged successfully: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+Final objective value: 5.768
+Function evaluations: 124
+Iterations: 29
+Optimized fit completed in 124 function evaluations!
+Chi-squared: 5.77
+Reduced chi-squared: 5.77
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2444098.5, 'seconds': 0.035535082999558654, 'rows': 4}
+After averaging: 8 data points (reduced from 8)
+Number of days having all required filters ('J', 'H', 'K', 'L'): 1
+Total measurements in selected days: 8
+
+Found 1 days with required filters
+Red excess mode: 1 days have sufficient measurements
+Red excess fit parameter: T_bb
+{'blue_filters': ['O', 'Ic', 'I', 'J', 'H'], 'red_filters': ['K', 'L', 'W2']}
+Photometric wavelength source: 1/1 days use row Lambda (4 measurements); 0/1 days use fallback filter Lambda (0 measurements)
+Fitting 4 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Iteration 10, elapsed: 0.0s
+Iteration 15, elapsed: 0.0s
+Optimization completed in 0.0s after 120 function evaluations
+✓ Converged successfully: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+Final objective value: 15.004
+Function evaluations: 120
+Iterations: 19
+Optimized fit completed in 120 function evaluations!
+Chi-squared: 15.00
+Reduced chi-squared: 15.00
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2460766.5, 'seconds': 0.03463550000014948, 'rows': 8}
+After averaging: 4 data points (reduced from 4)
+Number of days having all required filters ('J', 'H', 'K', 'L'): 1
+Total measurements in selected days: 4
+
+Found 1 days with required filters
+Red excess mode: 1 days have sufficient measurements
+Red excess fit parameter: T_bb
+{'blue_filters': ['J', 'H'], 'red_filters': ['K', 'L']}
+Photometric wavelength source: 1/1 days use row Lambda (4 measurements); 0/1 days use fallback filter Lambda (0 measurements)
+Fitting 4 data points across 1 days
+Starting optimized regularized optimization...
+Iteration 5, elapsed: 0.0s
+Iteration 10, elapsed: 0.0s
+Iteration 15, elapsed: 0.0s
+Iteration 20, elapsed: 0.0s
+Iteration 25, elapsed: 0.0s
+Iteration 30, elapsed: 0.0s
+Optimization completed in 0.1s after 200 function evaluations
+✓ Converged successfully: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+Final objective value: 33.441
+Function evaluations: 200
+Iterations: 32
+Optimized fit completed in 200 function evaluations!
+Chi-squared: 33.44
+Reduced chi-squared: 33.44
+Regularization term: 0.00
+EPOCH_TIMING {'JD': 2461165.5, 'seconds': 0.05453537499852246, 'rows': 4}

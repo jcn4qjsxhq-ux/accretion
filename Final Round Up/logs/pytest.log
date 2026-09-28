@@ -1,0 +1,8 @@
+..........                                                               [100%]
+=============================== warnings summary ===============================
+tests/test_final_round_panels.py::test_explicit_residuals_keep_interpolated_points_and_marker
+  /Users/muki/VS/Accretion/src/accretion/final_panels.py:892: UserWarning: linestyle is redundantly defined by the 'linestyle' keyword argument and the fmt string "o-" (-> linestyle='-'). The keyword argument will take precedence.
+    ax.errorbar(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+10 passed, 1 warning in 1.23s

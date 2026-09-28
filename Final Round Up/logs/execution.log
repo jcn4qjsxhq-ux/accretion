@@ -1,0 +1,236 @@
+
+EXECUTING STAGE setup
+Successfully loaded 1887 data points
+Column names: ['JD', 'Date', 'Filter', 'Lambda', 'Mag', 'Magerr', 'ZP', 'Flux', 'Fluxerr', 'Flag', 'Interpolated']
+Available filters: ['B', 'G', 'H', 'I', 'Ic', 'J', 'K', 'L', 'M', 'N', 'O', 'Q', 'R', 'V', 'W1', 'W2', 'i prime', 'y', 'λ1.635', 'λ10.49', 'λ11.6', 'λ12.0', 'λ17.65', 'λ19.5', 'λ22.1', 'λ7.78']
+Successfully loaded 43680 spectral samples from 8 IRTF SXD files
+Dates: ['20150722', '20230722', '20240912', '20250331', '20250415', '20250621', '20250705', '20260704']
+Wavelength coverage: 0.740–2.450 μm
+Successfully loaded 20840 spectral samples from 6 IRTF LXD files
+Dates: ['20150722', '20230722', '20250331', '20250415', '20250621', '20260704']
+Wavelength coverage: 2.900–5.370 μm
+Successfully loaded 276 samples from 3 XSHOOTER NIR files
+Dates: ['201506', '202402', '202410']
+Fitting wavelength coverage: 1.152–1.748 μm
+Fresh input: 1268 raw / 1887 total photometry rows; IRTF dates: ['20150722', '20230722', '20240912', '20250331', '20250415', '20250621', '20250705', '20260704']
+
+EXECUTING STAGE helpers
+
+EXECUTING STAGE jh
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/basic_JH_3R_newdf_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/basic_JH_3R_newdf_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/basic_JH_3R_newdf_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/basic_JH_3R_newdf_daily_data.csv
+basic_JH_3R_newdf: 84 epochs, 3.9 s
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/irtf_JH_3R_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/irtf_JH_3R_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/irtf_JH_3R_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/irtf_JH_3R_daily_data.csv
+irtf_JH_3R: 8 epochs, 2.3 s
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/xshooter_JH_3R_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/xshooter_JH_3R_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/xshooter_JH_3R_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/xshooter_JH_3R_daily_data.csv
+xshooter_JH_3R: 3 epochs, 1.4 s
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_JH_3R_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_JH_3R_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_JH_3R_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_JH_3R_daily_data.csv
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/basic_JH_2R_newdf_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/basic_JH_2R_newdf_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/basic_JH_2R_newdf_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/basic_JH_2R_newdf_daily_data.csv
+basic_JH_2R_newdf: 84 epochs, 3.7 s
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/irtf_JH_2R_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/irtf_JH_2R_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/irtf_JH_2R_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/irtf_JH_2R_daily_data.csv
+irtf_JH_2R: 8 epochs, 2.3 s
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/xshooter_JH_2R_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/xshooter_JH_2R_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/xshooter_JH_2R_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/xshooter_JH_2R_daily_data.csv
+xshooter_JH_2R: 3 epochs, 1.3 s
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_JH_2R_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_JH_2R_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_JH_2R_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_JH_2R_daily_data.csv
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/basic_JH_4R_newdf_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/basic_JH_4R_newdf_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/basic_JH_4R_newdf_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/basic_JH_4R_newdf_daily_data.csv
+basic_JH_4R_newdf: 84 epochs, 3.7 s
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/irtf_JH_4R_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/irtf_JH_4R_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/irtf_JH_4R_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/irtf_JH_4R_daily_data.csv
+irtf_JH_4R: 8 epochs, 2.3 s
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/xshooter_JH_4R_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/xshooter_JH_4R_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/xshooter_JH_4R_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/xshooter_JH_4R_daily_data.csv
+xshooter_JH_4R: 3 epochs, 1.3 s
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_JH_4R_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_JH_4R_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_JH_4R_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_JH_4R_daily_data.csv
+
+EXECUTING STAGE bench
+After averaging: 1267 data points (reduced from 1268)
+Number of days having all required filters ('J', 'H', 'K', 'L'): 28
+Total measurements in selected days: 140
+benchmark_red_photo: 3 epochs, 1.6 s
+photo {'status': 'pass', 'epochs': 28, 'sampled_epochs': [2444098.5, 2460766.5, 2461165.5], 'conservative_seconds': 25.95850600191625, 'hard_timeout_seconds': 600}
+Number of spectral days available: 11
+Total spectral samples in selected days: 64796
+benchmark_red_spectral: 3 epochs, 2.7 s
+spectral {'status': 'pass', 'epochs': 11, 'sampled_epochs': [2457209.599, 2460766.1298276, 2461225.8110455], 'conservative_seconds': 38.140563005945296, 'hard_timeout_seconds': 600}
+After averaging: 1267 data points (reduced from 1268)
+Number of days having all required filters ('J', 'H', 'K', 'L'): 28
+Total measurements in selected days: 140
+After averaging: 9 data points (reduced from 9)
+Number of days having all required filters ('J', 'H', 'K', 'L'): 2
+Total measurements in selected days: 9
+
+Found 2 days with required filters
+Red excess mode: 2 days have sufficient measurements
+Red excess fit parameter: T_bb
+{'blue_filters': ['J', 'H'], 'red_filters': ['K', 'L']}
+Photometric wavelength source: 2/2 days use row Lambda (8 measurements); 0/2 days use fallback filter Lambda (0 measurements)
+Fitting 8 data points across 2 days
+Evaluating fixed parameters without optimization...
+Optimization completed in 0.0s after 0 function evaluations
+✓ Converged successfully: Fixed parameters evaluated without optimization.
+Final objective value: 1449.828
+Function evaluations: 0
+Iterations: 0
+Fixed-parameter evaluation completed in 0 function evaluations!
+Chi-squared: 1449.83
+Reduced chi-squared: 181.23
+Regularization term: 0.00
+After averaging: 4 data points (reduced from 4)
+Number of days having all required filters ('J', 'H', 'K', 'L'): 1
+Total measurements in selected days: 4
+
+Found 1 days with required filters
+Red excess mode: 1 days have sufficient measurements
+Red excess fit parameter: T_bb
+{'blue_filters': ['J', 'H'], 'red_filters': ['K', 'L']}
+Photometric wavelength source: 1/1 days use row Lambda (4 measurements); 0/1 days use fallback filter Lambda (0 measurements)
+Fitting 4 data points across 1 days
+Evaluating fixed parameters without optimization...
+Optimization completed in 0.0s after 0 function evaluations
+✓ Converged successfully: Fixed parameters evaluated without optimization.
+Final objective value: 1193.784
+Function evaluations: 0
+Iterations: 0
+Fixed-parameter evaluation completed in 0 function evaluations!
+Chi-squared: 1193.78
+Reduced chi-squared: 298.45
+Regularization term: 0.00
+After averaging: 5 data points (reduced from 5)
+Number of days having all required filters ('J', 'H', 'K', 'L'): 1
+Total measurements in selected days: 5
+
+Found 1 days with required filters
+Red excess mode: 1 days have sufficient measurements
+Red excess fit parameter: T_bb
+{'blue_filters': ['J', 'H'], 'red_filters': ['K', 'L', 'M']}
+Photometric wavelength source: 1/1 days use row Lambda (4 measurements); 0/1 days use fallback filter Lambda (0 measurements)
+Fitting 4 data points across 1 days
+Evaluating fixed parameters without optimization...
+Optimization completed in 0.0s after 0 function evaluations
+✓ Converged successfully: Fixed parameters evaluated without optimization.
+Final objective value: 256.045
+Function evaluations: 0
+Iterations: 0
+Fixed-parameter evaluation completed in 0 function evaluations!
+Chi-squared: 256.04
+Reduced chi-squared: 64.01
+Regularization term: 0.00
+After averaging: 9 data points (reduced from 9)
+Number of days having all required filters ('J', 'H', 'K', 'L'): 2
+Total measurements in selected days: 9
+
+Found 2 days with required filters
+Red excess mode: 2 days have sufficient measurements
+Red excess fit parameter: T_bb
+{'blue_filters': ['J', 'H'], 'red_filters': ['K', 'L']}
+Photometric wavelength source: 2/2 days use row Lambda (8 measurements); 0/2 days use fallback filter Lambda (0 measurements)
+Fitting 8 data points across 2 days
+Evaluating fixed parameters without optimization...
+Optimization completed in 0.0s after 0 function evaluations
+✓ Converged successfully: Fixed parameters evaluated without optimization.
+Final objective value: 2335.685
+Function evaluations: 0
+Iterations: 0
+Fixed-parameter evaluation completed in 0 function evaluations!
+Chi-squared: 2335.69
+Reduced chi-squared: 291.96
+Regularization term: 0.00
+After averaging: 4 data points (reduced from 4)
+Number of days having all required filters ('J', 'H', 'K', 'L'): 1
+Total measurements in selected days: 4
+
+Found 1 days with required filters
+Red excess mode: 1 days have sufficient measurements
+Red excess fit parameter: T_bb
+{'blue_filters': ['J', 'H'], 'red_filters': ['K', 'L']}
+Photometric wavelength source: 1/1 days use row Lambda (4 measurements); 0/1 days use fallback filter Lambda (0 measurements)
+Fitting 4 data points across 1 days
+Evaluating fixed parameters without optimization...
+Optimization completed in 0.0s after 0 function evaluations
+✓ Converged successfully: Fixed parameters evaluated without optimization.
+Final objective value: 1804.266
+Function evaluations: 0
+Iterations: 0
+Fixed-parameter evaluation completed in 0 function evaluations!
+Chi-squared: 1804.27
+Reduced chi-squared: 451.07
+Regularization term: 0.00
+After averaging: 5 data points (reduced from 5)
+Number of days having all required filters ('J', 'H', 'K', 'L'): 1
+Total measurements in selected days: 5
+
+Found 1 days with required filters
+Red excess mode: 1 days have sufficient measurements
+Red excess fit parameter: T_bb
+{'blue_filters': ['J', 'H'], 'red_filters': ['K', 'L', 'M']}
+Photometric wavelength source: 1/1 days use row Lambda (4 measurements); 0/1 days use fallback filter Lambda (0 measurements)
+Fitting 4 data points across 1 days
+Evaluating fixed parameters without optimization...
+Optimization completed in 0.0s after 0 function evaluations
+✓ Converged successfully: Fixed parameters evaluated without optimization.
+Final objective value: 531.419
+Function evaluations: 0
+Iterations: 0
+Fixed-parameter evaluation completed in 0 function evaluations!
+Chi-squared: 531.42
+Reduced chi-squared: 132.85
+Regularization term: 0.00
+
+EXECUTING STAGE red
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/rede_4L_T_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/rede_4L_T_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/rede_4L_T_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/rede_4L_T_daily_data.csv
+rede_4L_T: 28 epochs, 3.1 s
+Saved fitting result bundle:
+  - daily_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_combined_rede_daily_params.csv
+  - global_params_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_combined_rede_global_params.csv
+  - fit_info_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_combined_rede_fit_info.csv
+  - daily_data_csv: /Users/muki/VS/Accretion/Final Round Up/fits/spectral_combined_rede_daily_data.csv
+spectral_combined_rede: 11 epochs, 7.3 s

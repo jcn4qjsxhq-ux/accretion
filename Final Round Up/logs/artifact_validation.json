@@ -1,0 +1,49 @@
+{
+  "tests": "..........                                                               [100%]\n=============================== warnings summary ===============================\ntests/test_final_round_panels.py::test_explicit_residuals_keep_interpolated_points_and_marker\n  /Users/muki/VS/Accretion/src/accretion/final_panels.py:892: UserWarning: linestyle is redundantly defined by the 'linestyle' keyword argument and the fmt string \"o-\" (-> linestyle='-'). The keyword argument will take precedence.\n    ax.errorbar(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n10 passed, 1 warning in 1.23s\n",
+  "figures": {
+    "0-4_JH_2R.pdf": "22f70cfccd86f19f9394acedfe0e082fd028c92979fe40e7d5b2ed6ebacd1eea",
+    "0-4_JH_3R.pdf": "49d4302397667fd439c3282d7dc2dd767266d285f9a306cc25cf1d47119ae08c",
+    "0-4_JH_4R.pdf": "c4ee988f101028dd8657a1224bc7dbe34ac06d08e8d14b438acb1dadd3dfd315",
+    "6_colour_grid_JH.pdf": "b01354432f709c7be534b5f46b2535de280f99fc0416b404224eee5fd654cdce",
+    "6_colour_grid_JK.pdf": "4f192bda99cd9c2cd9dca3eb3d9630121b15127f571dc095d46e7216ac30a50f",
+    "rede4L_T.pdf": "bb73d631c5f2bcc5d59253353093e2a008c6f4ef33101757813216865ac20eb3",
+    "rede4L_T_evolution.pdf": "049813f7eec44a2d74f5e0295ba01a5688d9a6eaf7e5acd5c5fa402910ca2302",
+    "Panels_spectral_fit_overview.pdf": "6bbdfc44a032f67211fcd172cbc851927f161a95cd21fc20d17bbc4c893256ab",
+    "spectral_red_excess_parameter_evolution.pdf": "abf97a945dc7cf44484a0d36a6d0c3b5601b94e97be8839db18bf127fb86f616"
+  },
+  "notebook_section": "Final Round Up",
+  "visual_review": {
+    "status": "passed",
+    "reviewed_figures": [
+      "0-4_JH_2R.pdf",
+      "0-4_JH_3R.pdf",
+      "0-4_JH_4R.pdf",
+      "6_colour_grid_JH.pdf",
+      "6_colour_grid_JK.pdf",
+      "Panels_spectral_fit_overview.pdf",
+      "rede4L_T.pdf",
+      "rede4L_T_evolution.pdf",
+      "spectral_red_excess_parameter_evolution.pdf"
+    ],
+    "checks": [
+      "all requested epochs and new 2026 IRTF spectrum",
+      "labels, legends and no clipping",
+      "interpolated L/W1 diamond markers",
+      "J,J-H and J,J-K colour axes",
+      "compact parameter evolution and bound markers"
+    ]
+  },
+  "notebook_final_round_source_sha256": "574d1f38f74f2a386b63f0e1007847cf474b2b09daf56ad53defb2b123269907",
+  "table2": {
+    "method": "exact plotted JH 3R bundles",
+    "spectral_rows": 11,
+    "photometric_rows": 4,
+    "photometry_selection": "JD >= 2461000 (2026)",
+    "sources": [
+      "fits/spectral_JH_3R.pkl",
+      "fits/basic_JH_3R_newdf.pkl"
+    ],
+    "validation": "all six parameter/error columns exactly equal to source bundles; CSV round-trip checked",
+    "refits": false
+  }
+}

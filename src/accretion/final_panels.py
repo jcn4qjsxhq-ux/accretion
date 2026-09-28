@@ -584,8 +584,14 @@ def plot_final_panels_0_to_4(
     save_path=None,
     show=True,
     _close_when_hidden=True,
+    residuals_override=None,
 ):
-    """Create the stacked final panels 0-4 figure."""
+    """Create the stacked final panels 0-4 figure.
+
+    ``residuals_override`` accepts the same mapping as
+    :func:`prepare_final_panel_residuals`, allowing callers to retain individual
+    wavelengths and interpolation provenance instead of averaging by filter.
+    """
     _apply_final_panel_style()
     spectral_results = spectral_results or {}
     default_params = default_params or {}
@@ -618,7 +624,7 @@ def plot_final_panels_0_to_4(
         else {}
     )
 
-    residuals = prepare_final_panel_residuals(
+    residuals = residuals_override if residuals_override is not None else prepare_final_panel_residuals(
         df,
         photometric_results,
         photometric_fit_filters,
@@ -897,6 +903,18 @@ def plot_final_panels_0_to_4(
                 label=f'{group_key} ({"fit" if is_fit_filter else "plot-only"})',
             )
 
+    if 'Interpolated' in residuals['flux'] and not flux_residual_log_scale:
+        interpolated_points = residuals['flux'][
+            residuals['flux']['Interpolated'].astype(str).str.strip().str.lower().eq('yes')
+            & residuals['flux']['Filter'].isin(['L', 'W1'])
+        ]
+        if len(interpolated_points):
+            ax.scatter(
+                interpolated_points['JD_day'], interpolated_points['Difference_flux'],
+                marker='D', facecolors='white', edgecolors='black', s=28,
+                linewidths=0.8, zorder=5, label='Interpolated L/W1',
+            )
+
     if flux_residual_log_scale:
         ax.set_yscale('log')
         ax.set_ylabel('Flux Residual |ΔFlux| (Jy)', fontsize=label_fontsize)
@@ -953,6 +971,7 @@ def plot_final_panels_0_to_4_layouts(
     two_column_save_path=None,
     show=True,
     raster_dpi=300,
+    residuals_override=None,
 ):
     """Save the full-timeline and full-plus-end-zoom layouts for panels 0-4.
 
@@ -963,6 +982,8 @@ def plot_final_panels_0_to_4_layouts(
     their rows remain perfectly aligned.  On an interactive widget backend,
     the two original canvases are displayed side by side instead, because an
     image-only comparison canvas cannot provide data-aware pan/zoom.
+    Supply ``residuals_override`` to share precomputed residuals between both
+    layouts without changing their provenance or epoch selection.
     """
     common_kwargs = {
         'spectral_results': spectral_results,
@@ -971,6 +992,7 @@ def plot_final_panels_0_to_4_layouts(
         'photometric_fit_filters': photometric_fit_filters,
         'residual_filter_groups': residual_filter_groups,
         'exclude_interpolated_residuals': exclude_interpolated_residuals,
+        'residuals_override': residuals_override,
         'plot_panel0_fits': plot_panel0_fits,
         'filter_diff': filter_diff,
         'show_panel3': show_panel3,
