@@ -102,7 +102,8 @@ AR_MCMC_THIN = 2
 AR_MCMC_RANDOM_SEED = 314159
 
 
-def _prepare_ar_day_arrays(day_df, fit_filters, data_mode='photometry', max_spectral_points=250):
+def _prepare_ar_day_arrays(day_df, fit_filters, data_mode='photometry', max_spectral_points=250,
+                           missing_photometric_fractional_error=.01, systematic_fractional_error=.05):
     """Precompute arrays used by one AR posterior evaluation."""
     data_mode = str(data_mode).strip().lower()
     wavelengths = get_filter_wavelengths()
@@ -140,12 +141,13 @@ def _prepare_ar_day_arrays(day_df, fit_filters, data_mode='photometry', max_spec
         if flux_val <= 0 or np.isnan(flux_val) or not np.isfinite(frequency_val):
             continue
 
-        if fluxerr_val <= 0 or np.isnan(fluxerr_val):
-            fluxerr_val = max(0.1 * flux_val, 1e-12)
+        if not np.isfinite(fluxerr_val) or fluxerr_val <= 0:
+            fluxerr_val = (max(0.1 * flux_val, 1e-12) if data_mode == 'spectral'
+                           else missing_photometric_fractional_error * flux_val)
 
         log_flux = np.log(flux_val)
         frac_err = fluxerr_val / flux_val
-        frac_err = np.sqrt(frac_err**2 + 0.05**2)
+        frac_err = np.hypot(frac_err, systematic_fractional_error)
         if np.isnan(log_flux) or np.isnan(frac_err):
             continue
 
@@ -368,7 +370,8 @@ def _run_ar_mcmc(prepared_data, default_params, initial_theta, rng):
 
 def generate_ar_mcmc_samples(ar_days, daily_data, fit_filters, default_params,
                              global_param_map, popt, daily_params,
-                             data_mode='photometry'):
+                             data_mode='photometry', missing_photometric_fractional_error=.01,
+                             systematic_fractional_error=.05):
     """Sample the 3-D AR posterior for each selected photometric or spectral day."""
     del global_param_map, popt  # Retained in the signature for compatibility with the old generator.
     results = {}
@@ -377,7 +380,10 @@ def generate_ar_mcmc_samples(ar_days, daily_data, fit_filters, default_params,
     for day_number, jd_day in enumerate(ar_days):
         sample_start = time.time()
         day_df = daily_data[jd_day]
-        prepared_data = _prepare_ar_day_arrays(day_df, fit_filters, data_mode=data_mode)
+        prepared_data = _prepare_ar_day_arrays(
+            day_df, fit_filters, data_mode=data_mode,
+            missing_photometric_fractional_error=missing_photometric_fractional_error,
+            systematic_fractional_error=systematic_fractional_error)
         n_points = len(prepared_data[0])
         if n_points == 0:
             print(f"Warning: No valid AR MCMC data found for day {jd_day}")
@@ -484,7 +490,8 @@ def generate_ar_parameter_surface(*args, **kwargs):
 
 def optimize_mdot_for_av_rin(day_df, fit_filters, av_test, rin_test, default_params, initial_mdot,
                              data_mode='photometry', prepared_data=None, return_chi=False,
-                             mdot_bounds_solar_per_year=None):
+                             mdot_bounds_solar_per_year=None, missing_photometric_fractional_error=.01,
+                             systematic_fractional_error=.05):
     """Quick optimization to find best Mdot for given Av and R_in.
 
     Args:
@@ -497,7 +504,9 @@ def optimize_mdot_for_av_rin(day_df, fit_filters, av_test, rin_test, default_par
 
     if prepared_data is None:
         frequencies, log_fluxes, errors = _prepare_ar_day_arrays(
-            day_df, fit_filters, data_mode=data_mode
+            day_df, fit_filters, data_mode=data_mode,
+            missing_photometric_fractional_error=missing_photometric_fractional_error,
+            systematic_fractional_error=systematic_fractional_error
         )
     else:
         frequencies, log_fluxes, errors = prepared_data

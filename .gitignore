@@ -24,6 +24,7 @@ env/
 .ipynb_checkpoints/
 
 # Generated analysis outputs
+/Final Round Up/
 results/generated/*
 !results/generated/.gitkeep
 !results/generated/pictures/

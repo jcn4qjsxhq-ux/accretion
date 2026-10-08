@@ -18,7 +18,7 @@ Optimized fit completed in 117 function evaluations!
 Chi-squared: 33.77
 Reduced chi-squared: 0.38
 Regularization term: 0.00
-EPOCH_TIMING {'JD': 2457209.599, 'seconds': 0.028534582997963298, 'rows': 92}
+EPOCH_TIMING {'JD': 2457209.599, 'seconds': 0.029492166999261826, 'rows': 92}
 Number of spectral days available: 1
 Total spectral samples in selected days: 92
 
@@ -36,7 +36,7 @@ Optimized fit completed in 192 function evaluations!
 Chi-squared: 18.70
 Reduced chi-squared: 0.21
 Regularization term: 0.00
-EPOCH_TIMING {'JD': 2460364.85, 'seconds': 0.04424516599829076, 'rows': 92}
+EPOCH_TIMING {'JD': 2460364.85, 'seconds': 0.04519662499660626, 'rows': 92}
 Number of spectral days available: 1
 Total spectral samples in selected days: 92
 
@@ -55,4 +55,4 @@ Optimized fit completed in 69 function evaluations!
 Chi-squared: 19.68
 Reduced chi-squared: 0.22
 Regularization term: 0.00
-EPOCH_TIMING {'JD': 2460594.478, 'seconds': 0.0176782499984256, 'rows': 92}
+EPOCH_TIMING {'JD': 2460594.478, 'seconds': 0.018573999986983836, 'rows': 92}

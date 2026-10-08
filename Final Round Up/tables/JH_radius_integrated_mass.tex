@@ -1,12 +1,10 @@
-\begin{tabular}{rlrrrr}
+\begin{tabular}{lrlrrrrrrrlrrr}
 \toprule
-radius_Rsun & method & mass_accreted_Msun & mass_accreted_err_Msun & covered_years & mass_ratio_to_3R \\
+family & radius_Rsun & method & start_jd & end_jd & span_years & covered_years & mass_accreted_Msun & mass_accreted_err_Msun & integrated_MstarMdot_Msun2 & interpolation & max_gap_days & n_epochs & n_intervals_included \\
 \midrule
-2 & full_interval & 0.00167849 & 9.69343e-05 & 47.3895 & 0.945954 \\
-2 & coverage_limited & 0.000525577 & 2.59339e-05 & 12.783 & 0.947626 \\
-3 & full_interval & 0.00177439 & 0.000102386 & 47.3895 & 1 \\
-3 & coverage_limited & 0.000554624 & 2.73016e-05 & 12.783 & 1 \\
-4 & full_interval & 0.00185786 & 0.000107121 & 47.3895 & 1.04705 \\
-4 & coverage_limited & 0.000579885 & 2.84842e-05 & 12.783 & 1.04555 \\
+photo & 3 & full_interval & 2.44392e+06 & 2.46123e+06 & 47.3895 & 47.3895 & 0.00177439 & 0.000134492 & 0.000887193 & piecewise linear between adjacent fitted epochs & NaN & 84 & 83 \\
+photo & 3 & coverage_limited & 2.44392e+06 & 2.46123e+06 & 47.3895 & 12.783 & 0.000554624 & 2.88961e-05 & 0.000277312 & piecewise linear between adjacent fitted epochs & 365.25 & 84 & 73 \\
+spectral & 3 & full_interval & 2.45721e+06 & 2.46123e+06 & 10.9958 & 10.9958 & 0.000930905 & 1.2435e-05 & 0.000465452 & piecewise linear between adjacent fitted epochs & NaN & 11 & 10 \\
+spectral & 3 & coverage_limited & 2.45721e+06 & 2.46123e+06 & 10.9958 & 2.99566 & 0.000260895 & 3.75331e-06 & 0.000130448 & piecewise linear between adjacent fitted epochs & 365.25 & 11 & 9 \\
 \bottomrule
 \end{tabular}

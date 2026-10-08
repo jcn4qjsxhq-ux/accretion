@@ -15,7 +15,6 @@ from accretion.ultimate_common import M_sun, R_sun, constants, np, pd, plt, year
 from accretion.ultimate_file_organisers import (
     assign_jd_day,
     average_daily_measurements,
-    get_daily_data,
 )
 from accretion.ultimate_visualisation import (
     _generated_figure_path,
@@ -23,7 +22,6 @@ from accretion.ultimate_visualisation import (
     add_gregorian_top_axis,
     julian_to_calendar,
 )
-from accretion.ultimate_synthetic_data import generate_synthetic_data
 from accretion.ultimate_fitting import _coerce_wavelength_meters
 from accretion.ultimate_physics import accretion_model, get_filter_wavelengths
 from accretion.final_panel_models import calculate_filter_accretion_models, normalize_filter_selection
@@ -506,65 +504,48 @@ def prepare_final_panel_residuals(
     residual_filter_groups=('I', 'J', 'H', 'K', 'L+W1'),
     exclude_interpolated=False,
 ):
-    """Create grouped magnitude and flux residual tables for panels 3 and 4."""
-    group_keys, group_map, residual_filters = _parse_filter_groups(residual_filter_groups)
-    filter_to_group = {
-        filter_name: group_key
-        for group_key, filters in group_map.items()
-        for filter_name in filters
-    }
+    """Evaluate excess at each measured wavelength and directly fitted epoch.
 
-    daily_data_sel = get_daily_data(df, fit_filters)
-    allowed_days = sorted(daily_data_sel.keys()) if daily_data_sel else []
-    residual_df = df
-    if exclude_interpolated and 'Interpolated' in df.columns:
-        interpolated = df['Interpolated'].astype(str).str.strip().str.lower()
-        residual_df = df[interpolated.eq('no')].copy()
-    synthetic_df = generate_synthetic_data(results, residual_df, noise_level=0.0, random_seed=None)
-    original_avg = average_daily_measurements(residual_df)
-    synthetic_avg = average_daily_measurements(synthetic_df)
+    Measurement interpolation is retained unless explicitly excluded. Epochs
+    requiring interpolated fit parameters are omitted. ``fit_filters`` remains
+    accepted for compatibility; the saved result defines the fitted epochs.
+    """
+    group_keys, group_map, filters = _parse_filter_groups(residual_filter_groups)
+    groups = {name: group for group, names in group_map.items() for name in names}
+    data = df[df.Filter.isin(filters)].copy()
+    if exclude_interpolated and 'Interpolated' in data:
+        data = data[data.Interpolated.astype(str).str.strip().str.lower().eq('no')]
+    models = calculate_filter_accretion_models(data, results['daily_params'], results.get('global_params'))
+    if not models:
+        raise ValueError('No residual measurements overlap the saved fitted epochs.')
+    model = pd.concat(models.values(), ignore_index=True).drop_duplicates(['JD', 'Filter', 'Lambda', 'ZP'])
+    frame = data.merge(model, on=['JD', 'Filter', 'Lambda', 'ZP'], how='inner', validate='many_to_one')
+    frame = frame[~frame.Is_interpolated_fit].copy()
+    frame['JD_day'] = frame.JD
+    frame['Group'] = frame.Filter.map(groups)
+    frame['Flux_synth'] = frame.ZP * 10**(-0.4 * frame.Mag_model)
+    frame['Fluxerr_synth'] = frame.Flux_synth * np.log(10) / 2.5 * frame.Mag_model_err
+    frame['Difference_flux'] = frame.Flux - frame.Flux_synth
+    frame['Difference_err_flux'] = np.hypot(frame.Fluxerr, frame.Fluxerr_synth)
+    frame['Mag_synth'] = frame.Mag_model
+    frame['Difference_mag'] = -2.5 * np.log10(frame.Flux / frame.ZP) - frame.Mag_model
+    frame['Difference_err'] = np.hypot(frame.Magerr, frame.Mag_model_err)
+    frame['Plotted_in_excess'] = excess_plot_selection(frame)
+    return dict(group_keys=group_keys, group_map=group_map, filters=filters,
+                magnitude=frame, flux=frame,
+                flux_max_by_filter=frame.groupby('Filter').Difference_flux.apply(lambda values: values.abs().max()))
 
-    original_avg['Mag_model_space'] = _mag_from_flux(original_avg)
-    synthetic_avg['Mag_model_space'] = _mag_from_flux(synthetic_avg)
 
-    original_avg = original_avg[
-        original_avg['JD_day'].isin(allowed_days)
-        & original_avg['Filter'].isin(residual_filters)
-    ].copy()
-    synthetic_avg = synthetic_avg[
-        synthetic_avg['JD_day'].isin(allowed_days)
-        & synthetic_avg['Filter'].isin(residual_filters)
-    ].copy()
-
-    orig_mag = original_avg[['JD_day', 'Filter', 'Mag_model_space', 'Magerr']].copy()
-    synth_mag = synthetic_avg[['JD_day', 'Filter', 'Mag_model_space', 'Magerr']].copy()
-    orig_mag = orig_mag.rename(columns={'Mag_model_space': 'Mag'})
-    synth_mag = synth_mag.rename(columns={'Mag_model_space': 'Mag_synth', 'Magerr': 'Magerr_synth'})
-    merged_mag = orig_mag.merge(synth_mag, on=['JD_day', 'Filter'], how='inner')
-    merged_mag['Group'] = merged_mag['Filter'].map(filter_to_group).fillna(merged_mag['Filter'])
-    merged_mag['Difference_mag'] = merged_mag['Mag'] - merged_mag['Mag_synth']
-    merged_mag['Difference_err'] = np.sqrt(merged_mag['Magerr'] ** 2 + merged_mag['Magerr_synth'] ** 2)
-
-    orig_flux = original_avg[['JD_day', 'Filter', 'Flux', 'Fluxerr']].copy()
-    synth_flux = synthetic_avg[['JD_day', 'Filter', 'Flux', 'Fluxerr']].copy()
-    synth_flux = synth_flux.rename(columns={'Flux': 'Flux_synth', 'Fluxerr': 'Fluxerr_synth'})
-    merged_flux = orig_flux.merge(synth_flux, on=['JD_day', 'Filter'], how='inner')
-    merged_flux['Group'] = merged_flux['Filter'].map(filter_to_group).fillna(merged_flux['Filter'])
-    merged_flux['Difference_flux'] = merged_flux['Flux'] - merged_flux['Flux_synth']
-    merged_flux['Difference_err_flux'] = np.sqrt(merged_flux['Fluxerr'] ** 2 + merged_flux['Fluxerr_synth'] ** 2)
-
-    return {
-        'group_keys': group_keys,
-        'group_map': group_map,
-        'filters': residual_filters,
-        'magnitude': merged_mag,
-        'flux': merged_flux,
-        'flux_max_by_filter': (
-            merged_flux.groupby('Filter')['Difference_flux']
-            .apply(lambda s: np.max(np.abs(s)))
-            .sort_values(ascending=False)
-        ),
-    }
+def excess_plot_selection(frame):
+    """Keep direct-fit epochs and reject only high-relative-error L/W1 excess."""
+    flux = pd.to_numeric(frame['Difference_flux'], errors='coerce')
+    error = pd.to_numeric(frame['Difference_err_flux'], errors='coerce')
+    selected = np.isfinite(flux) & np.isfinite(error) & (error >= 0)
+    if 'Is_interpolated_fit' in frame:
+        selected &= ~frame['Is_interpolated_fit'].fillna(True).astype(bool)
+    long_band = frame['Group'].eq('L+W1') | frame['Filter'].isin(['L', 'W1'])
+    selected &= ~long_band | (error < 0.75*flux.abs())
+    return selected
 
 
 def plot_final_panels_0_to_4(
@@ -733,7 +714,6 @@ def plot_final_panels_0_to_4(
         data_legend = ax.legend(data_handles, data_labels, title='Data', loc='lower left')
         ax.add_artist(data_legend)
     ax.grid(True, alpha=0.3)
-    add_gregorian_top_axis(ax, n_ticks=6, fontsize=12, use_grid_ticks=True, dynamic=True)
 
     ax = axes[1]
     ax.errorbar(jd_days, mdot_values, yerr=mdot_errors, fmt='o-', color=FINAL_PANEL_COLOURS['mdot_photometric'], capsize=3, label='Photometric fit', zorder=2)
@@ -818,7 +798,7 @@ def plot_final_panels_0_to_4(
                 group_data['JD_day'],
                 group_data['Difference_mag'],
                 yerr=group_data['Difference_err'],
-                fmt='o-',
+                fmt='o',
                 linestyle='-' if is_fit_filter else '--',
                 color=filter_colors[group_key],
                 linewidth=1.8,
@@ -835,7 +815,7 @@ def plot_final_panels_0_to_4(
 
     ax = axes[4 if show_panel3 else 3]
     for group_key in residuals['group_keys']:
-        group_data = residuals['flux'][residuals['flux']['Group'] == group_key].sort_values('JD_day')
+        group_data = residuals['flux'][residuals['flux']['Group'].eq(group_key) & excess_plot_selection(residuals['flux'])].sort_values('JD_day')
         if len(group_data) == 0:
             continue
         group_filters = residuals['group_map'][group_key]
@@ -854,7 +834,7 @@ def plot_final_panels_0_to_4(
                 plot_jd,
                 plot_flux,
                 yerr=plot_err,
-                fmt='o-',
+                fmt='o',
                 linestyle='-' if is_fit_filter else '--',
                 color=filter_colors[group_key],
                 linewidth=1.8,
@@ -893,7 +873,7 @@ def plot_final_panels_0_to_4(
                 group_data['JD_day'],
                 group_data['Difference_flux'],
                 yerr=group_data['Difference_err_flux'],
-                fmt='o-',
+                fmt='o',
                 linestyle='-' if is_fit_filter else '--',
                 color=filter_colors[group_key],
                 linewidth=1.8,
@@ -901,18 +881,6 @@ def plot_final_panels_0_to_4(
                 alpha=0.75,
                 capsize=2,
                 label=f'{group_key} ({"fit" if is_fit_filter else "plot-only"})',
-            )
-
-    if 'Interpolated' in residuals['flux'] and not flux_residual_log_scale:
-        interpolated_points = residuals['flux'][
-            residuals['flux']['Interpolated'].astype(str).str.strip().str.lower().eq('yes')
-            & residuals['flux']['Filter'].isin(['L', 'W1'])
-        ]
-        if len(interpolated_points):
-            ax.scatter(
-                interpolated_points['JD_day'], interpolated_points['Difference_flux'],
-                marker='D', facecolors='white', edgecolors='black', s=28,
-                linewidths=0.8, zorder=5, label='Interpolated L/W1',
             )
 
     if flux_residual_log_scale:
@@ -943,6 +911,7 @@ def plot_final_panels_0_to_4(
             raise ValueError("date_range lower limit must be less than the upper limit.")
         axes[-1].set_xlim(xmin, xmax)
 
+    add_gregorian_top_axis(axes[0], n_ticks=6, fontsize=12, calendar_years=True, show_title=False)
     fig.subplots_adjust(hspace=0.0, top=0.95, bottom=0.07)
     if save_path:
         fig.savefig(_generated_figure_path(save_path), dpi=300, bbox_inches='tight')
@@ -982,6 +951,8 @@ def plot_final_panels_0_to_4_layouts(
     their rows remain perfectly aligned.  On an interactive widget backend,
     the two original canvases are displayed side by side instead, because an
     image-only comparison canvas cannot provide data-aware pan/zoom.
+    Without a save path, widget display skips the raster comparison and returns
+    ``None`` for the comparison figure. Both live canvases remain open.
     Supply ``residuals_override`` to share precomputed residuals between both
     layouts without changing their provenance or epoch selection.
     """
@@ -1028,25 +999,22 @@ def plot_final_panels_0_to_4_layouts(
         buffer.close()
         return image
 
-    full_image = _render_figure(full_fig)
-    zoom_image = _render_figure(zoom_fig)
-    n_panels = 5 if show_panel3 else 4
-    comparison_fig, comparison_axes = plt.subplots(1, 2, figsize=(20, 4 * n_panels))
-    for axis, image in zip(comparison_axes, (full_image, zoom_image)):
-        axis.imshow(image)
-        axis.set_axis_off()
-    comparison_fig.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0, wspace=0.015)
-
-    if two_column_save_path:
-        comparison_fig.savefig(
-            _generated_figure_path(two_column_save_path),
-            dpi=raster_dpi,
-            bbox_inches='tight',
-            pad_inches=0.02,
-        )
+    backend = str(plt.get_backend()).lower()
+    is_widget_backend = any(name in backend for name in ('widget', 'ipympl', 'nbagg'))
+    comparison_fig = None
+    if two_column_save_path or not (show and is_widget_backend):
+        full_image = _render_figure(full_fig)
+        zoom_image = _render_figure(zoom_fig)
+        n_panels = 5 if show_panel3 else 4
+        comparison_fig, comparison_axes = plt.subplots(1, 2, figsize=(20, 4 * n_panels))
+        for axis, image in zip(comparison_axes, (full_image, zoom_image)):
+            axis.imshow(image)
+            axis.set_axis_off()
+        comparison_fig.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0, wspace=0.015)
+        if two_column_save_path:
+            comparison_fig.savefig(_generated_figure_path(two_column_save_path), dpi=raster_dpi,
+                                   bbox_inches='tight', pad_inches=0.02)
     if show:
-        backend = str(plt.get_backend()).lower()
-        is_widget_backend = 'widget' in backend or 'ipympl' in backend or 'nbagg' in backend
         if is_widget_backend:
             try:
                 from IPython.display import display
@@ -1055,7 +1023,8 @@ def plot_final_panels_0_to_4_layouts(
                 # ``comparison_fig`` contains two PNG artists for exact PDF
                 # alignment.  Displaying the live source canvases preserves
                 # Matplotlib's toolbar navigation and coordinate transforms.
-                plt.close(comparison_fig)
+                if comparison_fig is not None:
+                    plt.close(comparison_fig)
                 full_fig.canvas.layout = Layout(width='50%')
                 zoom_fig.canvas.layout = Layout(width='50%')
                 with plt.ioff():
@@ -1288,7 +1257,7 @@ def plot_final_residuals(
                     label=f'{group_key} ({"fit" if is_fit_filter else "plot-only"})',
                 )
             else:
-                group_data = residuals['flux'][residuals['flux']['Group'] == group_key].sort_values('JD_day')
+                group_data = residuals['flux'][residuals['flux']['Group'].eq(group_key) & excess_plot_selection(residuals['flux'])].sort_values('JD_day')
                 if len(group_data) == 0:
                     continue
                 raw_flux = pd.to_numeric(group_data['Difference_flux'], errors='coerce').to_numpy(dtype=float)
@@ -1305,7 +1274,7 @@ def plot_final_residuals(
                         plot_jd,
                         plot_flux,
                         yerr=plot_err,
-                        fmt='o-',
+                        fmt='o',
                         linestyle='-' if is_fit_filter else '--',
                         color=filter_colors[group_key],
                         linewidth=1.8,
@@ -1326,7 +1295,7 @@ def plot_final_residuals(
                         group_data['JD_day'],
                         group_data['Difference_flux'],
                         yerr=group_data['Difference_err_flux'],
-                        fmt='o-',
+                        fmt='o',
                         linestyle='-' if is_fit_filter else '--',
                         color=filter_colors[group_key],
                         linewidth=1.8,

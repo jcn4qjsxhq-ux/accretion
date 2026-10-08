@@ -1,143 +1,72 @@
 # Final Round Up
 
-Reproduce using the Final Round Up section at the end of `_private/notebooks/Ultimate_mine.ipynb`.
+Updated 2026-10-07 using the existing configurable pipeline.
 
-Validation: **10 tests passed**; all **9 PDFs visually inspected**. No requested fits were withheld.
+## Use the notebook
 
-## Scientific settings
+In `_private/notebooks/Ultimate_mine.ipynb`, run the imports and following configuration cell, load photometry, and run the two Final Panels cells. The default radius is 3R, with `RUN_FITS=False` and `SAVE_FIGURES=False`, so saved results open as live interactive panels without refitting or overwriting outputs. Contextual red-excess analysis and optional complete tables reuse the saved bundles. Configuration follows imports so it works in a fresh kernel.
 
-Table 2 contains the **exact plotted 3R JH results**: all 11 spectral epochs and four 2026 photometric epochs. JHK cross-checks and the separately normalized 2015 fit are excluded. Every parameter and uncertainty was checked against the plot-source bundles.
+The notebook's two flux uncertainty controls are:
 
-Updated database_daily_2609.txt; raw-only photometric fits and colours. Interpolated L/W1 points appear as open diamonds in excess panels. Radius comparisons use 3R as baseline. New IRTF divisors: SXD 0.653625; LXD 0.659931.
+```python
+PHOTOMETRIC_NOISE = {"missing_photometric_fractional_error": .01,
+                     "systematic_fractional_error": .05}
+```
 
-**Uncertainty limitation:** the inherited fitter uses fixed placeholder parameter errors with debug=False. Reported parameter and propagated mass errors are not statistical confidence intervals. Integrated masses also depend on interpolation across observational gaps.
+Missing, zero or invalid photometric errors use 1% measurement uncertainty. The 5% common systematic term is added in quadrature to every measurement: missing errors therefore have 5.099% total, while the median reported J/H error of 0.921% gives approximately 5.084% total. Positive reported errors retain their values. These are adopted likelihood assumptions, not estimates of missing errors from the data. Spectral noise assumptions remain unchanged; the contextual spectral red-excess fits were subsequently rerun with the corrected wavelength selection below.
 
-## Runtime gates
+## Refreshed results
 
-- photo: {'status': 'pass', 'epochs': 28, 'sampled_epochs': [2444098.5, 2460766.5, 2461165.5], 'conservative_seconds': 25.95850600191625, 'hard_timeout_seconds': 600}
-- spectral: {'status': 'pass', 'epochs': 11, 'sampled_epochs': [2457209.599, 2460766.1298276, 2461225.8110455], 'conservative_seconds': 38.140563005945296, 'hard_timeout_seconds': 600}
+All photometric fits used by this folder were rerun: 84 JH epochs at each of 2R, 3R and 4R, and 28 contextual JHKL epochs with joint temperature/radius fitting. Bound expansion and identifiability checks run through the standard fitting wrappers. JH central parameters are unchanged; 11 J/H measurements across six epochs use the fallback, and only those six epochs have smaller JH parameter errors. Integrated mass central estimates are unchanged.
 
-## Fit limitations
+Main results, Table 2 and integrated masses use JH fits. Table 2 contains all 11 spectral epochs and the four 2026 photometric epochs at 3R. The contextual JHKL and spectral JH + K-onward fits provide separate red-excess context. The spectral BB continuum begins at 2.0 micron and masks the inclusive 2.8--3.3 micron ice-water interval, preserving the existing atmospheric masks. Eligible spectra must contain at least two distinct unmasked continuum wavelengths in each of K (2.0--2.5 micron) and L (>3.3--4.2 micron). Disk initialization retains the existing IRTF JH selection (1.20--1.60 micron), followed by the existing joint four-parameter refinement and blue-BB soft penalty. The red figures report 24 identifiable photometric BB epochs and six spectral BB epochs; four photometric components remain unidentifiable, with NaN reported T/R and retained optimizer candidates.
 
-All photometric fits exclude interpolated rows.
-Existing fitter uncertainties with debug=False are fixed placeholders (0.1 in internal parameter units), not statistically estimated confidence intervals. Propagated mass errors inherit this limitation.
-The inherited 10% blue-BB setting is a soft penalty, not a hard upper bound. Actual blue fractions are exported in fit_bound_and_coverage_diagnostics.csv.
-XSHOOTER JH-only spectra do not directly constrain the long-wavelength BB component; retain their fits for consistency but inspect wavelength coverage and bound diagnostics.
+The corrected spectral range was refitted for the six IRTF epochs with K and L coverage. Three XSHOOTER and two SXD-only IRTF epochs lack L coverage and are excluded from contextual spectral red-excess fitting. The four dependent PDFs were regenerated and visually inspected: Context_spectral_red_excess_overview, red_excess_context_correlations, rede4L_T_evolution, and spectral_red_excess_parameter_evolution. Their saved spectral bundle, parameter/correlation tables, coverage diagnostics and covariance diagnostics were updated. All main JH bundles, Table 2, integrated masses, photometric red fits and seven other PDFs were verified unchanged. See logs/spectral_red_mask_refit.json for per-epoch coverage and tables/spectral_red_range_change_audit.csv for old/new parameters. The six retained fits reproduce their previous K-onward parameters. See tables/spectral_red_coverage_selection.csv for all 11 epochs and exclusion reasons.
 
-Parameter bounds and actual blue BB fractions are listed in tables/fit_bound_and_coverage_diagnostics.csv.
+## Plotting and uncertainty conventions
 
+Photometric fits and colour grids exclude interpolated rows. Interpolated K/L/W1 measurements at directly fitted epochs remain in the excess plot with ordinary markers; excess requiring interpolated fitted parameters is excluded. Only L/W1 has the 75% relative-error cut. There is no additional excess uncertainty floor. Residual predictions use each measurement's actual wavelength and the local Mdot/Av covariance.
 
-## Integrated masses
+Errors come from the local weighted model Jacobian with absolute likelihood uncertainties, without fixed parameter-error placeholders or reduced-chi-squared rescaling for the two-point JH inversion. Initial main-panel vertical grids use Gregorian year ticks; interactive zoom remains dynamic. Red correlations retain photometric and spectral symbols with shared viridis observation-year colours. Correlation axes use parameters from the same joint fits and share covariance. Triangles mark uncertainty continuing beyond displayed axes; full errors are in CSV tables.
 
- radius_Rsun           method  mass_accreted_Msun  covered_years
-           2    full_interval            0.001678      47.389459
-           2 coverage_limited            0.000526      12.783025
-           3    full_interval            0.001774      47.389459
-           3 coverage_limited            0.000555      12.783025
-           4    full_interval            0.001858      47.389459
-           4 coverage_limited            0.000580      12.783025
+XSHOOTER NIR coverage reaches 2.479 micron; overviews use full available masked NIR coverage, while main fits use JH only. XSHOOTER and SXD-only IRTF epochs lack L coverage and are excluded from contextual BB fitting, while remaining in the main JH results. IRTF overview display extends to 4.2 micron. The latest IRTF 20260704 divisors remain SXD 0.653625 and LXD 0.659931. Spectral covariances treat samples as independent and do not model correlated calibration errors; the inherited blue BB term is a soft penalty, with actual ratios exported in the coverage diagnostics. BB radii retain the existing emitting-area convention.
 
-## Outputs
+## Provenance and verification
 
-- [figures/0-4_JH_2R.pdf](figures/0-4_JH_2R.pdf)
-- [figures/0-4_JH_3R.pdf](figures/0-4_JH_3R.pdf)
-- [figures/0-4_JH_4R.pdf](figures/0-4_JH_4R.pdf)
-- [figures/6_colour_grid_JH.pdf](figures/6_colour_grid_JH.pdf)
-- [figures/6_colour_grid_JK.pdf](figures/6_colour_grid_JK.pdf)
-- [figures/Panels_spectral_fit_overview.pdf](figures/Panels_spectral_fit_overview.pdf)
-- [figures/rede4L_T.pdf](figures/rede4L_T.pdf)
-- [figures/rede4L_T_evolution.pdf](figures/rede4L_T_evolution.pdf)
-- [figures/spectral_red_excess_parameter_evolution.pdf](figures/spectral_red_excess_parameter_evolution.pdf)
-- [tables/JH_2R_excess_residuals.csv](tables/JH_2R_excess_residuals.csv)
-- [tables/JH_3R_excess_residuals.csv](tables/JH_3R_excess_residuals.csv)
-- [tables/JH_4R_excess_residuals.csv](tables/JH_4R_excess_residuals.csv)
-- [tables/JH_radius_differences_from_3R.csv](tables/JH_radius_differences_from_3R.csv)
-- [tables/JH_radius_fit_comparison.tex](tables/JH_radius_fit_comparison.tex)
-- [tables/JH_radius_fit_parameter_comparison.csv](tables/JH_radius_fit_parameter_comparison.csv)
-- [tables/JH_radius_fit_summary.csv](tables/JH_radius_fit_summary.csv)
-- [tables/JH_radius_integrated_mass.csv](tables/JH_radius_integrated_mass.csv)
-- [tables/JH_radius_integrated_mass.json](tables/JH_radius_integrated_mass.json)
-- [tables/JH_radius_integrated_mass.tex](tables/JH_radius_integrated_mass.tex)
-- [tables/Table_2.csv](tables/Table_2.csv)
-- [tables/Table_2.tex](tables/Table_2.tex)
-- [tables/colour_JH_I vs I-J.csv](tables/colour_JH_I%20vs%20I-J.csv)
-- [tables/colour_JH_J vs J-H.csv](tables/colour_JH_J%20vs%20J-H.csv)
-- [tables/colour_JH_J-H vs H-K.csv](tables/colour_JH_J-H%20vs%20H-K.csv)
-- [tables/colour_JH_K vs H-K.csv](tables/colour_JH_K%20vs%20H-K.csv)
-- [tables/colour_JK_I vs I-J.csv](tables/colour_JK_I%20vs%20I-J.csv)
-- [tables/colour_JK_J vs J-K.csv](tables/colour_JK_J%20vs%20J-K.csv)
-- [tables/colour_JK_J-H vs H-K.csv](tables/colour_JK_J-H%20vs%20H-K.csv)
-- [tables/colour_JK_K vs H-K.csv](tables/colour_JK_K%20vs%20H-K.csv)
-- [tables/fit_bound_and_coverage_diagnostics.csv](tables/fit_bound_and_coverage_diagnostics.csv)
-- [tables/photo_red_fit_validation.csv](tables/photo_red_fit_validation.csv)
-- [tables/rede4L_T_parameters.csv](tables/rede4L_T_parameters.csv)
-- [tables/spectral_red_excess_parameters.csv](tables/spectral_red_excess_parameters.csv)
-- [tables/spectral_red_fit_validation.csv](tables/spectral_red_fit_validation.csv)
-- [fits/basic_JH_2R_newdf_daily_data.csv](fits/basic_JH_2R_newdf_daily_data.csv)
-- [fits/basic_JH_2R_newdf_daily_params.csv](fits/basic_JH_2R_newdf_daily_params.csv)
-- [fits/basic_JH_2R_newdf_fit_info.csv](fits/basic_JH_2R_newdf_fit_info.csv)
-- [fits/basic_JH_2R_newdf_global_params.csv](fits/basic_JH_2R_newdf_global_params.csv)
-- [fits/basic_JH_3R_newdf_daily_data.csv](fits/basic_JH_3R_newdf_daily_data.csv)
-- [fits/basic_JH_3R_newdf_daily_params.csv](fits/basic_JH_3R_newdf_daily_params.csv)
-- [fits/basic_JH_3R_newdf_fit_info.csv](fits/basic_JH_3R_newdf_fit_info.csv)
-- [fits/basic_JH_3R_newdf_global_params.csv](fits/basic_JH_3R_newdf_global_params.csv)
-- [fits/basic_JH_4R_newdf_daily_data.csv](fits/basic_JH_4R_newdf_daily_data.csv)
-- [fits/basic_JH_4R_newdf_daily_params.csv](fits/basic_JH_4R_newdf_daily_params.csv)
-- [fits/basic_JH_4R_newdf_fit_info.csv](fits/basic_JH_4R_newdf_fit_info.csv)
-- [fits/basic_JH_4R_newdf_global_params.csv](fits/basic_JH_4R_newdf_global_params.csv)
-- [fits/irtf_JH_2R_daily_data.csv](fits/irtf_JH_2R_daily_data.csv)
-- [fits/irtf_JH_2R_daily_params.csv](fits/irtf_JH_2R_daily_params.csv)
-- [fits/irtf_JH_2R_fit_info.csv](fits/irtf_JH_2R_fit_info.csv)
-- [fits/irtf_JH_2R_global_params.csv](fits/irtf_JH_2R_global_params.csv)
-- [fits/irtf_JH_3R_daily_data.csv](fits/irtf_JH_3R_daily_data.csv)
-- [fits/irtf_JH_3R_daily_params.csv](fits/irtf_JH_3R_daily_params.csv)
-- [fits/irtf_JH_3R_fit_info.csv](fits/irtf_JH_3R_fit_info.csv)
-- [fits/irtf_JH_3R_global_params.csv](fits/irtf_JH_3R_global_params.csv)
-- [fits/irtf_JH_4R_daily_data.csv](fits/irtf_JH_4R_daily_data.csv)
-- [fits/irtf_JH_4R_daily_params.csv](fits/irtf_JH_4R_daily_params.csv)
-- [fits/irtf_JH_4R_fit_info.csv](fits/irtf_JH_4R_fit_info.csv)
-- [fits/irtf_JH_4R_global_params.csv](fits/irtf_JH_4R_global_params.csv)
-- [fits/rede_4L_T_daily_data.csv](fits/rede_4L_T_daily_data.csv)
-- [fits/rede_4L_T_daily_params.csv](fits/rede_4L_T_daily_params.csv)
-- [fits/rede_4L_T_fit_info.csv](fits/rede_4L_T_fit_info.csv)
-- [fits/rede_4L_T_global_params.csv](fits/rede_4L_T_global_params.csv)
-- [fits/spectral_JH_2R_daily_data.csv](fits/spectral_JH_2R_daily_data.csv)
-- [fits/spectral_JH_2R_daily_params.csv](fits/spectral_JH_2R_daily_params.csv)
-- [fits/spectral_JH_2R_fit_info.csv](fits/spectral_JH_2R_fit_info.csv)
-- [fits/spectral_JH_2R_global_params.csv](fits/spectral_JH_2R_global_params.csv)
-- [fits/spectral_JH_3R_daily_data.csv](fits/spectral_JH_3R_daily_data.csv)
-- [fits/spectral_JH_3R_daily_params.csv](fits/spectral_JH_3R_daily_params.csv)
-- [fits/spectral_JH_3R_fit_info.csv](fits/spectral_JH_3R_fit_info.csv)
-- [fits/spectral_JH_3R_global_params.csv](fits/spectral_JH_3R_global_params.csv)
-- [fits/spectral_JH_4R_daily_data.csv](fits/spectral_JH_4R_daily_data.csv)
-- [fits/spectral_JH_4R_daily_params.csv](fits/spectral_JH_4R_daily_params.csv)
-- [fits/spectral_JH_4R_fit_info.csv](fits/spectral_JH_4R_fit_info.csv)
-- [fits/spectral_JH_4R_global_params.csv](fits/spectral_JH_4R_global_params.csv)
-- [fits/spectral_combined_rede_daily_data.csv](fits/spectral_combined_rede_daily_data.csv)
-- [fits/spectral_combined_rede_daily_params.csv](fits/spectral_combined_rede_daily_params.csv)
-- [fits/spectral_combined_rede_fit_info.csv](fits/spectral_combined_rede_fit_info.csv)
-- [fits/spectral_combined_rede_global_params.csv](fits/spectral_combined_rede_global_params.csv)
-- [fits/table2_2015_unscaled_SXD_LXD_JHK_daily_data.csv](fits/table2_2015_unscaled_SXD_LXD_JHK_daily_data.csv)
-- [fits/table2_2015_unscaled_SXD_LXD_JHK_daily_params.csv](fits/table2_2015_unscaled_SXD_LXD_JHK_daily_params.csv)
-- [fits/table2_2015_unscaled_SXD_LXD_JHK_fit_info.csv](fits/table2_2015_unscaled_SXD_LXD_JHK_fit_info.csv)
-- [fits/table2_2015_unscaled_SXD_LXD_JHK_global_params.csv](fits/table2_2015_unscaled_SXD_LXD_JHK_global_params.csv)
-- [fits/table2_2026_JHK_daily_data.csv](fits/table2_2026_JHK_daily_data.csv)
-- [fits/table2_2026_JHK_daily_params.csv](fits/table2_2026_JHK_daily_params.csv)
-- [fits/table2_2026_JHK_fit_info.csv](fits/table2_2026_JHK_fit_info.csv)
-- [fits/table2_2026_JHK_global_params.csv](fits/table2_2026_JHK_global_params.csv)
-- [fits/table2_irtf_JHK_3R_daily_data.csv](fits/table2_irtf_JHK_3R_daily_data.csv)
-- [fits/table2_irtf_JHK_3R_daily_params.csv](fits/table2_irtf_JHK_3R_daily_params.csv)
-- [fits/table2_irtf_JHK_3R_fit_info.csv](fits/table2_irtf_JHK_3R_fit_info.csv)
-- [fits/table2_irtf_JHK_3R_global_params.csv](fits/table2_irtf_JHK_3R_global_params.csv)
-- [fits/xshooter_JH_2R_daily_data.csv](fits/xshooter_JH_2R_daily_data.csv)
-- [fits/xshooter_JH_2R_daily_params.csv](fits/xshooter_JH_2R_daily_params.csv)
-- [fits/xshooter_JH_2R_fit_info.csv](fits/xshooter_JH_2R_fit_info.csv)
-- [fits/xshooter_JH_2R_global_params.csv](fits/xshooter_JH_2R_global_params.csv)
-- [fits/xshooter_JH_3R_daily_data.csv](fits/xshooter_JH_3R_daily_data.csv)
-- [fits/xshooter_JH_3R_daily_params.csv](fits/xshooter_JH_3R_daily_params.csv)
-- [fits/xshooter_JH_3R_fit_info.csv](fits/xshooter_JH_3R_fit_info.csv)
-- [fits/xshooter_JH_3R_global_params.csv](fits/xshooter_JH_3R_global_params.csv)
-- [fits/xshooter_JH_4R_daily_data.csv](fits/xshooter_JH_4R_daily_data.csv)
-- [fits/xshooter_JH_4R_daily_params.csv](fits/xshooter_JH_4R_daily_params.csv)
-- [fits/xshooter_JH_4R_fit_info.csv](fits/xshooter_JH_4R_fit_info.csv)
-- [fits/xshooter_JH_4R_global_params.csv](fits/xshooter_JH_4R_global_params.csv)
+The 2015 photometric JH fit exists at JD 2457226.5 (daily date July 23). Earlier databases identify the same J/H/K values as IRTF/SpeX-derived photometry, with source JD 2457226.169 (July 22). Daily binning explains the date offset from the spectral JH fit at JD 2457225.7462704 (July 22); these are not independent measurements. Dates and original source records are preserved in `tables/2015_fit_provenance.csv`.
+
+**37 tests passed.** Synthetic checks recover T/R with strongly absorbed ice-water samples excluded and verify exclusion of K-only, L-only, and ice-window-only coverage through both the core fitter and bound-retry wrapper. Independent covariance calculations using finer derivative steps agree within 1e-4 relative tolerance; all JH standardized residuals are below 1e-6. Saved pickle and CSV parameters agree, with NaN fields omitted on CSV loading treated as missing. Current notebook cells were exercised using real ipympl widget canvases; displayed residuals, Table 2 and red/radius tables match saved exports. Unchanged main JH and photometric fit hashes, seven unaffected figure hashes and input hashes were verified; current contextual spectral hashes are recorded separately.
+
+See `tables/photometric_noise_change_audit.csv` for old/new per-epoch uncertainties, `tables/JH_convergence_uncertainty_audit.csv` for covariance checks, and `logs/uncertainty_investigation.md` for the current provenance/error audit. Historical error-recipe columns in `tables/uncertainty_investigation.csv` are explicitly comparison calculations, rather than adopted uncertainties. `logs/run_manifest.json` and `logs/artifact_validation.json` record current options, source/input hashes and artifact checksums.
+
+## Unidentifiable contextual BB components
+
+| JD | Date | Status |
+| --- | --- | --- |
+| 2446081.5 | 1985-01-16 | boundary asymptote |
+| 2446098.5 | 1985-02-02 | boundary asymptote |
+| 2446481.5 | 1986-02-20 | effectively unconstrained (>1000% local T and R uncertainty) |
+| 2447286.5 | 1988-05-05 | effectively unconstrained (>1000% local T and R uncertainty) |
+
+## Integrated mass estimates
+
+Mass estimates depend on interpolation across observational gaps. The coverage-limited calculation excludes gaps longer than 365.25 days.
+
+| Family | Radius (Rsun) | Method | Mass (Msun) | Covered years |
+| --- | --- | --- | --- | --- |
+| photo | 2 | coverage_limited | 0.0005255766 | 12.783025 |
+| photo | 2 | full_interval | 0.001678487 | 47.389459 |
+| photo | 3 | coverage_limited | 0.0005546242 | 12.783025 |
+| photo | 3 | full_interval | 0.001774385 | 47.389459 |
+| photo | 4 | coverage_limited | 0.000579885 | 12.783025 |
+| photo | 4 | full_interval | 0.001857863 | 47.389459 |
+| spectral | 2 | coverage_limited | 0.0002474928 | 2.995664 |
+| spectral | 2 | full_interval | 0.0008858929 | 10.995789 |
+| spectral | 3 | coverage_limited | 0.0002608952 | 2.995664 |
+| spectral | 3 | full_interval | 0.0009309048 | 10.995789 |
+| spectral | 4 | coverage_limited | 0.0002724787 | 2.995664 |
+| spectral | 4 | full_interval | 0.0009698721 | 10.995789 |
+
+## Files
+
+`figures/` contains the 11 final PDFs; `fits/` contains the saved result bundles; `tables/` contains CSV/LaTeX exports and mass JSON; `logs/` contains current validation and render QA. The output folder remains ignored by Git.

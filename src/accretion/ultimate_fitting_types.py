@@ -20,7 +20,8 @@ except ImportError:
 
 def basic_fitting(df, lambda_reg=0, debug=False, required_filters=('J', 'H', 'K'),
         fit_filters=('J', 'H', 'K'), initial_params=None, evaluate_only=False,
-        mdot_bounds_msun_per_year=(1e-7, 0.8e-3), av_bounds=(0.1, 40.0)):
+        mdot_bounds_msun_per_year=(1e-7, 0.8e-3), av_bounds=(0.1, 40.0),
+        expand_bounds=True, make_plots=True, **fit_options):
     """Fit daily parameters with optional fixed model-parameter overrides.
 
     ``initial_params`` supplies starting/fixed model values such as ``R_star``
@@ -50,6 +51,8 @@ def basic_fitting(df, lambda_reg=0, debug=False, required_filters=('J', 'H', 'K'
         evaluate_only=evaluate_only,
         mdot_bounds_msun_per_year=mdot_bounds_msun_per_year,
         av_bounds=av_bounds,
+        expand_bounds=expand_bounds,
+        **fit_options,
     )
 
     end_time = time.time()
@@ -57,7 +60,7 @@ def basic_fitting(df, lambda_reg=0, debug=False, required_filters=('J', 'H', 'K'
 
     print(f"\nTotal execution time: {execution_time:.1f} seconds")
 
-    if results and results['success']:
+    if results and results['success'] and make_plots:
         plot_results_regularized(results, df)
         print('And it was a success')
     return results
@@ -115,7 +118,8 @@ def AR_fitting(df, filename, required_filters=('J', 'H', 'K'), fit_filters=('J',
 
 def rede_fitting(df, required_filters, fit_filters, filename, debug=False, lambda_reg=0,
                  red_excess_fit_param='T_bb', fixed_T_bb=RED_EXCESS_DEFAULT_T_BB,
-                 fixed_R_bb=RED_EXCESS_DEFAULT_R_BB, fit_param=None):
+                 fixed_R_bb=RED_EXCESS_DEFAULT_R_BB, fit_param=None, initial_params=None,
+                 expand_bounds=True, make_plots=True, **fit_options):
     if fit_param is not None:
         red_excess_fit_param = fit_param
 
@@ -129,15 +133,18 @@ def rede_fitting(df, required_filters, fit_filters, filename, debug=False, lambd
         df=df,
         debug=debug,
         lambda_reg=lambda_reg,
-        regularize_params=['logMdot', 'Av', _normalize_red_excess_fit_param(red_excess_fit_param)],
+        regularize_params=['logMdot', 'Av', 'T_bb', 'R_bb'] if _normalize_red_excess_fit_param(red_excess_fit_param)=='T_bb_R_bb' else ['logMdot', 'Av', _normalize_red_excess_fit_param(red_excess_fit_param)],
         red_excess_fit_param=red_excess_fit_param,
         fixed_T_bb=fixed_T_bb,
-        fixed_R_bb=fixed_R_bb
+        fixed_R_bb=fixed_R_bb,
+        initial_params=initial_params,
+        expand_bounds=expand_bounds,
+        **fit_options,
     )
 
     if results and results['success']:
         print("Red excess mode fitting completed successfully!")
-        visualize_results(results, df, filename)
+        if make_plots: visualize_results(results, df, filename)
         return results
 
     print("Red excess mode fitting failed!")
@@ -148,7 +155,7 @@ def spectral_fitting(df, lambda_reg=0, debug=False, save_dir='results/generated/
                      joint_refine=True, max_blue_bb_fraction=SPECTRAL_REDE_MAX_BLUE_BB_FRACTION,
                      ar_mode=False, initial_params=None, av_bounds=(0.1, 40.0),
                      mdot_bounds_msun_per_year=(1e-7, 0.8e-3),
-                     make_plots=True):
+                     make_plots=True, expand_bounds=True, **fit_options):
     mode_label = 'Spectral Red-Excess Accretion + BB Fitting' if rede else 'Spectral Accretion Fitting'
     if ar_mode:
         mode_label += ' + AR MCMC'
@@ -170,6 +177,8 @@ def spectral_fitting(df, lambda_reg=0, debug=False, save_dir='results/generated/
         initial_params=initial_params,
         mdot_bounds_msun_per_year=mdot_bounds_msun_per_year,
         av_bounds=av_bounds,
+        expand_bounds=expand_bounds,
+        **fit_options,
     )
 
     end_time = time.time()

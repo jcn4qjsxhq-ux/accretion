@@ -1,8 +1,9 @@
-..........                                                               [100%]
+.....................................                                    [100%]
 =============================== warnings summary ===============================
-tests/test_final_round_panels.py::test_explicit_residuals_keep_interpolated_points_and_marker
-  /Users/muki/VS/Accretion/src/accretion/final_panels.py:892: UserWarning: linestyle is redundantly defined by the 'linestyle' keyword argument and the fmt string "o-" (-> linestyle='-'). The keyword argument will take precedence.
-    ax.errorbar(
+tests/test_photometric_noise.py::test_reported_errors_and_spectral_fallback_do_not_depend_on_photometric_fallback
+tests/test_photometric_noise.py::test_reported_errors_and_spectral_fallback_do_not_depend_on_photometric_fallback
+  /Users/muki/VS/Accretion/src/accretion/ultimate_fitting.py:1494: OptimizeWarning: Unknown solver options: disp
+    result = minimize(
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-10 passed, 1 warning in 1.23s
+37 passed, 2 warnings in 10.18s

@@ -722,6 +722,52 @@ def load_database_new(filepath):
     data_start = 2
     data = []
 
+    # Map lambda to filter names (common astronomical filters)
+    filter_mapping = {
+        0.44: 'B', 0.55: 'V',
+        0.513: 'V', 0.518: 'V',
+        0.625: 'G', 0.62: 'G',
+        0.64: 'R',
+        0.663: 'O', 0.767: 'i prime',
+        0.772: 'i prime', 0.783:'Ic', # O itt Ic
+        0.788: 'I', 0.801: 'I',
+        1.083: 'z prime', 1.05:'y',
+        1.20: 'J',
+        1.221: 'J', 1.235: 'J',
+        1.24: 'J',1.25: 'J',
+
+        1.60: 'H', 1.635: 'H',
+        1.64: 'H',
+        1.65: 'H', 1.662: 'H',
+        2.144: 'K', 2.159: 'K',
+        2.18: 'K', 2.20: 'K',
+        3.4: 'W1',
+        3.353: 'L', 3.452: 'L',
+        3.5: 'L', 3.60: 'L',
+        3.77: 'L', 3.80: 'L',
+        4.6: 'W2', 4.603: 'W2',
+        4.80: 'M', 10.1: 'N',
+        7.78: 'J9.6', 10.49: 'SiV',
+        11.6: 'W3', 12:'J12.2',
+        17.65: 'Q1', 19.50:'Q3',
+        20.0:'Q', 22.1:'W4'
+
+    }
+
+    # Validate the entire database before returning any rows to the fit pipeline.
+    # Keep every unknown wavelength in the message so registration takes one pass.
+    unknown_wavelengths = sorted({
+        float(line.split()[2])
+        for line in lines[data_start:]
+        if line.strip() and float(line.split()[2]) not in filter_mapping
+    })
+    if unknown_wavelengths:
+        wavelengths = ', '.join(f'{value:g}' for value in unknown_wavelengths)
+        raise ValueError(
+            f'Unregistered photometric wavelengths (micron): {wavelengths}. '
+            'Register their filter names in ultimate_file_organisers before fitting.'
+        )
+
     for line_num, line in enumerate(lines[data_start:], data_start):
         line = line.strip()
         if not line:  # Skip empty lines
@@ -746,34 +792,7 @@ def load_database_new(filepath):
         if fluxerr <= 0 and flux > 0 and np.isfinite(magerr) and magerr > 0:
             fluxerr = flux * np.log(10.0) * magerr / 2.5
 
-        # Map lambda to filter names (common astronomical filters)
-        filter_mapping = {
-            0.44: 'B', 0.55: 'V', 
-            0.513: 'V', 0.518: 'V',
-            0.625: 'G', 0.62: 'G', 
-            0.64: 'R',
-            0.663: 'O', 0.767: 'i prime',
-            0.772: 'i prime', 0.783:'Ic', # O itt Ic
-            0.788: 'I', 0.801: 'I',
-            1.083: 'z prime', 1.05:'y',
-            1.20: 'J',
-            1.221: 'J', 1.235: 'J',
-            1.24: 'J',1.25: 'J',
-            1.60: 'H', 1.64: 'H',
-            1.65: 'H', 1.662: 'H',
-            2.144: 'K', 2.159: 'K',
-            2.18: 'K', 2.20: 'K',
-            3.4: 'W1',
-            3.353: 'L',
-            3.452: 'L',
-            3.5: 'L', 3.60: 'L',
-            3.77: 'L', 3.80: 'L', 
-            4.6: 'W2', 4.603: 'W2',
-            4.80: 'M', 10.1: 'N',
-            20.0:'Q'
-        }
-
-        filter_name = filter_mapping.get(lambda_val, f'λ{lambda_val}')
+        filter_name = filter_mapping[lambda_val]
 
         # Create data entry matching the old format structure
         data.append({

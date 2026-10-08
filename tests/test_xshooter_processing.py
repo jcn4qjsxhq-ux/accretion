@@ -130,7 +130,7 @@ def test_spectral_red_excess_joint_refine_is_independent_per_day(monkeypatch):
 
     monkeypatch.setattr(fitting, "minimize", fail_global_minimize)
 
-    wavelengths = np.array([1.0, 1.3, 1.6, 1.9, 2.2, 2.8, 3.5, 4.5])
+    wavelengths = np.array([1.0, 1.3, 1.6, 1.9, 2.2, 2.4, 2.8, 3.5, 4.0, 4.5])
     frequencies = constants.c / (wavelengths * 1e-6)
     rows = []
     for jd, mdot_scale, av, temperature, radius_scale in (

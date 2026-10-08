@@ -17,7 +17,7 @@ def test_model_interpolates_parameters_but_does_not_extrapolate(monkeypatch):
         return np.array([0.0])
 
     monkeypatch.setattr(models, 'accretion_model', model)
-    monkeypatch.setattr(models, 'accretion_model_magnitude_error', lambda *args: 0.0)
+    monkeypatch.setattr(models, 'accretion_model_magnitude_error', lambda *args, **kwargs: 0.0)
     data = pd.DataFrame({'JD': [0., 1., 2., 3., 4.], 'Filter': 'L', 'Lambda': 3.5, 'ZP': 280.})
     params = {1.: {'Mdot': 1e-5, 'Av': 10.}, 3.: {'Mdot': 3e-5, 'Av': 20.}}
     result = models.calculate_filter_accretion_models(data, params)[('L', 3.5)]
@@ -27,7 +27,7 @@ def test_model_interpolates_parameters_but_does_not_extrapolate(monkeypatch):
     assert result.Is_interpolated_fit.tolist() == [False, True, False]
 
 
-def test_explicit_residuals_keep_interpolated_points_and_marker(monkeypatch):
+def test_explicit_residuals_keep_measurement_interpolation_without_special_marker(monkeypatch):
     def unexpected(*args, **kwargs):
         raise AssertionError('Supplied residuals must not be regenerated or filtered')
 
@@ -47,5 +47,52 @@ def test_explicit_residuals_keep_interpolated_points_and_marker(monkeypatch):
         plot_panel0_fits=False, show_panel3=False, show=False, residuals_override=residuals,
     )
     assert returned is residuals
-    assert 'Interpolated L/W1' in axes[-1].get_legend_handles_labels()[1]
+    assert 'Interpolated L/W1' not in axes[-1].get_legend_handles_labels()[1]
+    assert 'L+W1 (plot-only)' in axes[-1].get_legend_handles_labels()[1]
     plt.close(fig)
+
+
+def test_excess_selection_distinguishes_parameter_and_measurement_interpolation():
+    frame = pd.DataFrame({
+        'Filter': ['L', 'W1', 'K', 'L', 'J', 'L'],
+        'Group': ['L+W1', 'L+W1', 'K', 'L+W1', 'J', 'L+W1'],
+        'Difference_flux': [1., -1., 1., 1., 1., 0.],
+        'Difference_err_flux': [.74, .75, 1., .1, .1, .1],
+        'Interpolated': ['yes', 'no', 'yes', 'no', 'no', 'no'],
+        'Is_interpolated_fit': [False, False, False, True, True, False],
+    })
+    assert panels.excess_plot_selection(frame).tolist() == [True, False, True, False, False, False]
+
+
+def test_calendar_grid_starts_at_january_first_and_tracks_zoom():
+    from datetime import datetime
+    from accretion.ultimate_visualisation import add_gregorian_top_axis, julian_to_calendar
+    fig, ax = plt.subplots()
+    ax.set_xlim(2444000, 2461300)
+    top = add_gregorian_top_axis(ax, calendar_years=True, show_title=False)
+    dates = julian_to_calendar(ax.get_xticks())
+    assert all(d.endswith('-01-01') and int(d[:4]) % 5 == 0 for d in dates)
+    assert top.get_xlabel() == ''
+    assert all(len(t.get_text()) == 4 for t in top.get_xticklabels())
+    ax.set_xlim(2460000, 2460100)
+    assert top.get_xlim() == ax.get_xlim()
+    assert all(2460000 <= t <= 2460100 for t in top.get_xticks())
+    plt.close(fig)
+
+
+def test_model_error_uses_mdot_extinction_covariance(monkeypatch):
+    def fake(freq, mdot, mass, rstar, rout, rin, distance, av):
+        return np.array([np.log(mdot)-av])
+    monkeypatch.setattr(models,'accretion_model',fake)
+    parameters={'M':1.,'R_star':1.,'R_out':1.,'R_in':1.,'distance':1.}
+    independent=models.accretion_model_magnitude_error(1.,1.,1.,1.,.01,.01,parameters)
+    correlated=models.accretion_model_magnitude_error(1.,1.,1.,1.,.01,.01,parameters,log_mdot_av_cov=.0001/np.log(10.))
+    assert correlated < independent*.01
+
+
+def test_model_error_large_correlated_errors_cancel_in_log_coordinates(monkeypatch):
+    # Exact cancellation must survive large reported parameter uncertainties.
+    monkeypatch.setattr(models, 'accretion_model', lambda freq, mdot, mass, rstar, rout, rin, distance, av: np.array([np.log(mdot)-av]))
+    parameters={'M':1.,'R_star':1.,'R_out':1.,'R_in':1.,'distance':1.}
+    error=models.accretion_model_magnitude_error(1.,1.,1.,1.,.8,.8,parameters,log_mdot_av_cov=.64/np.log(10.))
+    assert error < 1e-5

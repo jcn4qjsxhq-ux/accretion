@@ -1,59 +1,98 @@
+Historical benchmark for the superseded >3.3 micron BB range. Current refit: spectral_red_mask_refit.json.
 Number of spectral days available: 3
-Total spectral samples in selected days: 19315
+Total spectral samples in selected days: 10675
 Number of spectral days available: 1
-Total spectral samples in selected days: 92
+Total spectral samples in selected days: 2836
 
 Found 1 days with required filters
-Fitting 92 data points across 1 days
-Stage A/B initialization: fitting blue accretion disk, then red excess BB...
-Stage A/B initialization complete: disk 1/1 day(s), BB 0/1 day(s)
-Starting independent per-day Stage C joint spectral red-excess refinement...
-Stage C day 1/1 (2457209.599): converged after 47 evaluations
-Optimization completed in 0.1s after 47 function evaluations
-✓ Converged successfully: Independent four-parameter joint fits converged for 1/1 day(s).
-Final objective value: 26.423
-Function evaluations: 47
-Optimized fit completed in 47 function evaluations!
-Chi-squared: 26.27
-Reduced chi-squared: 0.30
-Regularization term: 0.00
-Blue BB penalty: 0.16
-EPOCH_TIMING {'JD': 2457209.599, 'seconds': 0.07029570799932117, 'rows': 92}
-Number of spectral days available: 1
-Total spectral samples in selected days: 9790
-
-Found 1 days with required filters
-Fitting 9790 data points across 1 days
+Fitting 2836 data points across 1 days
 Stage A/B initialization: fitting blue accretion disk, then red excess BB...
 Stage A/B initialization complete: disk 1/1 day(s), BB 1/1 day(s)
 Starting independent per-day Stage C joint spectral red-excess refinement...
-Stage C day 1/1 (2460766.1298276): converged after 8 evaluations
-Optimization completed in 0.4s after 8 function evaluations
+Stage C day 1/1 (2457225.7856901): converged after 37 evaluations
+Optimization completed in 2.8s after 37 function evaluations
 ✓ Converged successfully: Independent four-parameter joint fits converged for 1/1 day(s).
-Final objective value: 53664.352
-Function evaluations: 8
-Optimized fit completed in 8 function evaluations!
-Chi-squared: 50410.64
-Reduced chi-squared: 5.15
+Final objective value: 14411.925
+Function evaluations: 37
+Optimized fit completed in 37 function evaluations!
+Chi-squared: 14411.92
+Reduced chi-squared: 5.09
 Regularization term: 0.00
-Blue BB penalty: 3253.71
-EPOCH_TIMING {'JD': 2460766.1298276, 'seconds': 0.7048077919971547, 'rows': 9790}
+Blue BB penalty: 0.00
+EXPANDING_BOUNDS {'attempt': 1, 'hits': [{'parameter': 'T_bb', 'lower': True, 'upper': False, 'old': [650, 10000], 'new': [325.0, 10000]}]}
 Number of spectral days available: 1
-Total spectral samples in selected days: 9433
+Total spectral samples in selected days: 2836
 
 Found 1 days with required filters
-Fitting 9433 data points across 1 days
+Fitting 2836 data points across 1 days
 Stage A/B initialization: fitting blue accretion disk, then red excess BB...
 Stage A/B initialization complete: disk 1/1 day(s), BB 1/1 day(s)
 Starting independent per-day Stage C joint spectral red-excess refinement...
-Stage C day 1/1 (2461225.8110455): converged after 7 evaluations
-Optimization completed in 0.4s after 7 function evaluations
+Stage C day 1/1 (2457225.7856901): converged after 56 evaluations
+Optimization completed in 2.2s after 56 function evaluations
 ✓ Converged successfully: Independent four-parameter joint fits converged for 1/1 day(s).
-Final objective value: 38099.862
-Function evaluations: 7
-Optimized fit completed in 7 function evaluations!
-Chi-squared: 37185.05
-Reduced chi-squared: 3.94
+Final objective value: 5154.734
+Function evaluations: 56
+Optimized fit completed in 56 function evaluations!
+Chi-squared: 5154.73
+Reduced chi-squared: 1.82
 Regularization term: 0.00
-Blue BB penalty: 914.81
-EPOCH_TIMING {'JD': 2461225.8110455, 'seconds': 0.5947658340010094, 'rows': 9433}
+Blue BB penalty: 0.00
+EXPANDING_BOUNDS {'attempt': 2, 'hits': [{'parameter': 'R_bb', 'lower': False, 'upper': True, 'old': [0.05, 20], 'new': [0.05, 40]}]}
+Number of spectral days available: 1
+Total spectral samples in selected days: 2836
+
+Found 1 days with required filters
+Fitting 2836 data points across 1 days
+Stage A/B initialization: fitting blue accretion disk, then red excess BB...
+Stage A/B initialization complete: disk 1/1 day(s), BB 1/1 day(s)
+Starting independent per-day Stage C joint spectral red-excess refinement...
+Stage C day 1/1 (2457225.7856901): converged after 53 evaluations
+Optimization completed in 2.1s after 53 function evaluations
+✓ Converged successfully: Independent four-parameter joint fits converged for 1/1 day(s).
+Final objective value: 5077.196
+Function evaluations: 53
+Optimized fit completed in 53 function evaluations!
+Chi-squared: 5077.20
+Reduced chi-squared: 1.79
+Regularization term: 0.00
+Blue BB penalty: 0.00
+EPOCH_TIMING {'JD': 2457225.7856901, 'seconds': 7.331594291026704, 'rows': 2836}
+Number of spectral days available: 1
+Total spectral samples in selected days: 3968
+
+Found 1 days with required filters
+Fitting 3968 data points across 1 days
+Stage A/B initialization: fitting blue accretion disk, then red excess BB...
+Stage A/B initialization complete: disk 1/1 day(s), BB 1/1 day(s)
+Starting independent per-day Stage C joint spectral red-excess refinement...
+Stage C day 1/1 (2460147.8042661): converged after 17 evaluations
+Optimization completed in 2.4s after 17 function evaluations
+✓ Converged successfully: Independent four-parameter joint fits converged for 1/1 day(s).
+Final objective value: 2944.568
+Function evaluations: 17
+Optimized fit completed in 17 function evaluations!
+Chi-squared: 2944.57
+Reduced chi-squared: 0.74
+Regularization term: 0.00
+Blue BB penalty: 0.00
+EPOCH_TIMING {'JD': 2460147.8042661, 'seconds': 2.5085350000008475, 'rows': 3968}
+Number of spectral days available: 1
+Total spectral samples in selected days: 3871
+
+Found 1 days with required filters
+Fitting 3871 data points across 1 days
+Stage A/B initialization: fitting blue accretion disk, then red excess BB...
+Stage A/B initialization complete: disk 1/1 day(s), BB 1/1 day(s)
+Starting independent per-day Stage C joint spectral red-excess refinement...
+Stage C day 1/1 (2461225.8232898): converged after 42 evaluations
+Optimization completed in 2.1s after 42 function evaluations
+✓ Converged successfully: Independent four-parameter joint fits converged for 1/1 day(s).
+Final objective value: 7489.105
+Function evaluations: 42
+Optimized fit completed in 42 function evaluations!
+Chi-squared: 7489.11
+Reduced chi-squared: 1.94
+Regularization term: 0.00
+Blue BB penalty: 0.00
+EPOCH_TIMING {'JD': 2461225.8232898, 'seconds': 2.1708193749946076, 'rows': 3871}

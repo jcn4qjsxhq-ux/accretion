@@ -59,7 +59,7 @@ def _interp_error(x, xp, errors):
     return float(np.hypot(weight_lower * errors[lower], weight_upper * errors[upper]))
 
 
-def accretion_model_magnitude_error(freq, zp, mdot, av, mdot_err, av_err, model_params):
+def accretion_model_magnitude_error(freq, zp, mdot, av, mdot_err, av_err, model_params, log_mdot_av_cov=0.0):
     """Propagate Mdot and Av errors to one accretion model magnitude."""
     if not (
         np.isfinite(freq)
@@ -86,24 +86,20 @@ def accretion_model_magnitude_error(freq, zp, mdot, av, mdot_err, av_err, model_
         )[0]
         return float(log_flux_to_magnitude(log_flux, zp))
 
-    terms = []
-    if np.isfinite(mdot_err) and mdot_err > 0:
-        plus = mag_for(mdot + mdot_err, av)
-        minus = mag_for(max(mdot - mdot_err, np.finfo(float).tiny), av)
-        if np.isfinite(plus) and np.isfinite(minus):
-            terms.append(0.5 * abs(plus - minus))
-        elif np.isfinite(plus):
-            center = mag_for(mdot, av)
-            if np.isfinite(center):
-                terms.append(abs(plus - center))
-
-    if np.isfinite(av_err) and av_err > 0:
-        plus = mag_for(mdot, av + av_err)
-        minus = mag_for(mdot, av - av_err)
-        if np.isfinite(plus) and np.isfinite(minus):
-            terms.append(0.5 * abs(plus - minus))
-
-    return float(np.hypot(*terms)) if terms else np.nan
+    # The fitter covariance is in (log10 Mdot, Av). Differentiate in those
+    # coordinates with small steps; full-sigma linear-Mdot excursions distort
+    # the cancellation between strongly correlated parameters.
+    sigma_log_mdot = mdot_err / (np.log(10.0) * mdot) if np.isfinite(mdot_err) and mdot_err > 0 else 0.0
+    sigma_av = av_err if np.isfinite(av_err) and av_err > 0 else 0.0
+    if sigma_log_mdot == 0 and sigma_av == 0:
+        return np.nan
+    step_log, step_av = 1e-5, 1e-4
+    grad_log = (mag_for(mdot * 10**step_log, av) - mag_for(mdot * 10**(-step_log), av)) / (2 * step_log)
+    grad_av = (mag_for(mdot, av + step_av) - mag_for(mdot, av - step_av)) / (2 * step_av)
+    variance = (grad_log * sigma_log_mdot)**2 + (grad_av * sigma_av)**2
+    if sigma_log_mdot > 0 and sigma_av > 0 and np.isfinite(log_mdot_av_cov):
+        variance += 2 * grad_log * grad_av * log_mdot_av_cov
+    return float(np.sqrt(max(variance, 0.0)))
 
 
 def calculate_filter_accretion_models(filter_data, daily_params, global_params=None):
@@ -220,8 +216,9 @@ def calculate_filter_accretion_models(filter_data, daily_params, global_params=N
                 mdot_err,
                 av_err,
                 model_params | {'R_in': r_in},
+                log_mdot_av_cov=next((p.get('logMdot_Av_cov',0.0) for fitted_jd,p in daily_params.items() if np.isclose(jd,fitted_jd,rtol=0,atol=1e-6)),0.0),
             )
-            magnitude_errors.append(mag_err * 1.1 if interpolated and np.isfinite(mag_err) else mag_err)
+            magnitude_errors.append(mag_err)
 
         model_by_series[(filter_name, lambda_value)] = pd.DataFrame({
             'JD': jd_eval,

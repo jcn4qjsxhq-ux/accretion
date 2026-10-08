@@ -207,3 +207,57 @@ loaded = result_opener(filepath="results/generated/datas/basic_JHK")
 
 This allows a workflow where expensive fitting is done once, then visualization
 and comparison notebooks can be rerun quickly.
+
+
+### Configurable Final Round Up workflow
+
+`_private/notebooks/Ultimate_mine.ipynb` follows import → configure → load/fit →
+analyse → Final Panels. The separate configuration cell selects radius,
+photometric filters, spectral JH windows, red-continuum threshold and masks, parameter
+bounds, result stems and output directories. `RUN_FITS=False` loads existing
+results; `SAVE_FIGURES=False` displays without replacing published outputs.
+No batch runner or folder deletion is required to view the latest results.
+
+Final Panels defaults to the saved 3R JH photometric and spectral bundles.
+It preserves raw data in the magnitude panels and interpolated K/L/W1
+measurements at directly fitted epochs in the excess panel. Parameter-
+interpolated excess is excluded; only L/W1 has the 75% error cut. Residuals
+are evaluated at each measurement's actual wavelength with the fitted
+Mdot/Av covariance. The widget backend shows live full and zoom canvases;
+it does not rasterize them merely for notebook display.
+
+`ultimate_fitting.py` computes covariance errors in the normal workflow.
+Its `expand_bounds` option (enabled by basic/red/spectral convenience wrappers)
+retries active bounds and records attempts, retaining independent epoch fits.
+Boundary-asymptotic, rank-deficient or extremely weak joint BB components are
+flagged and their numerical candidates retained separately. Retry exhaustion
+raises an error. The notebook's `PHOTOMETRIC_NOISE` controls separate missing
+measurement and common systematic flux uncertainties. Missing photometric
+errors default to 1%; the unchanged 5% systematic term is added in quadrature
+to both reported and substituted errors, giving 5.099% total for missing errors.
+Reported positive errors are retained. The spectral fallback remains 10%.
+Local covariance still omits correlated calibration/systematic uncertainties.
+
+`final_tables.py` builds Table 2, radius comparisons, red parameter tables,
+bound/coverage and covariance diagnostics. It exports supplied mass estimates;
+`integrate_accretion_history` remains in `final_panels.py`. The notebook offers
+an optional complete table cell for all saved radius and red fits. CSV, LaTeX
+and mass JSON exports use a configurable directory without deleting outputs.
+Historical provenance/error investigations remain saved in Final Round Up.
+
+`plot_red_excess_evolution` and `plot_red_excess_correlations` in
+`ultimate_visualisation.py` accept either a saved result or a photo/spectral
+mapping, optional save paths and a show flag. They preserve joint T/R fits,
+flagged components and uncertainty arrows. The four correlation panels share
+viridis observation-year colours. `plot_spectral_fit_grid` accepts full masked
+observations through `observed_df` and `save_dir=None` for display-only use;
+fitted regions are shaded from the saved fitted data. Contextual spectral fits
+retain the instrument's JH disk window and fit the BB continuum from K onward
+(wavelengths >= 2.0 micron), masking the inclusive 2.8--3.3 micron ice-water
+interval along with the existing atmospheric masks. The core fitter applies
+`spectral_red_mask_regions_micron` to every fitting stage. XSHOOTER and
+SXD-only epochs lack L coverage and are excluded from contextual BB fitting.
+Eligibility requires at least two distinct unmasked continuum wavelengths in
+each of K (2.0--2.5 micron) and L (>3.3--4.2 micron); the standard BB
+identifiability checks then apply. Unregistered photometric wavelengths
+still stop data loading.

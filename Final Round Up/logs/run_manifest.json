@@ -1,7 +1,7 @@
 {
   "database": "/Users/muki/VS/Accretion/_private/data/raw/photometry/database_daily_2609.txt",
   "inputs": {
-    "_private/data/raw/photometry/database_daily_2609.txt": "20751bb0458ddbaf913634fa898740dc56c73dd93604cdb75dd363581b0e86ce",
+    "_private/data/raw/photometry/database_daily_2609.txt": "aedbc505187fd7437411af049c5eff6d252b7d5831b03a70a6d23fcddf001335",
     "_private/data/raw/IRTF/merged_v346nor_lxd_20150722.txt": "013e6b3d807c7a4b860c73d4b949d4d4ae886e8a3c287fae6f5b22443124b7e3",
     "_private/data/raw/IRTF/merged_v346nor_lxd_20230722.txt": "4870a72c5519a9dd163020b3e676d95ab834a05c4df3f0845fb71ac77c120f0f",
     "_private/data/raw/IRTF/merged_v346nor_lxd_20250331.txt": "74a006cc1e600b10959cba1c3066799e7fa444e4b19b71c2ac5abcb816d73c79",
@@ -28,8 +28,8 @@
     "_private/data/raw/Xshooter/final_vis_202402.txt": "c3262d28665b5433877762da8bcf564dc787b84b14d6a46ff77e97b30b3c7350",
     "_private/data/raw/Xshooter/final_vis_202410.txt": "1d4c51a5f70d64aab4332384b06ef374946e9f255228c3c7b4f77bac6fca3e95"
   },
-  "raw_photometry_rows": 1268,
-  "all_photometry_rows": 1887,
+  "raw_photometry_rows": 1267,
+  "all_photometry_rows": 1886,
   "irtf_normalization_divisors": {
     "20260704": {
       "SXD": 0.653625,
@@ -40,15 +40,9 @@
   "runs": {
     "basic_JH_3R_newdf": {
       "status": "complete",
-      "seconds": 3.909626708002179,
+      "seconds": 5.539551374997245,
       "epochs": 84,
-      "timings": [
-        {
-          "JD": 0,
-          "seconds": 2.4619750839992776,
-          "rows": 1268
-        }
-      ],
+      "timings": [],
       "options": {
         "required_filters": [
           "J",
@@ -68,7 +62,7 @@
           "distance": 2.159974307043957e+19
         },
         "red_excess_mode": false,
-        "red_excess_fit_param": "T_bb",
+        "red_excess_fit_param": "both",
         "fixed_R_bb": 299195741400.0,
         "spectral_rede_joint_refine": true,
         "spectral_rede_max_blue_bb_fraction": 0.1,
@@ -80,58 +74,70 @@
           0.1,
           40
         ],
+        "bb_temperature_bounds": [
+          650,
+          10000
+        ],
+        "bb_radius_bounds_au": [
+          0.05,
+          20
+        ],
         "optimizer_maxiter": 1000000,
         "optimizer_maxfun": 1000000,
         "optimizer_ftol": 1e-15,
         "optimizer_gtol": 1e-10,
         "local_solver_max_nfev": 100000,
         "local_solver_ftol": 1e-14,
-        "local_solver_gtol": 1e-14
-      }
+        "local_solver_gtol": 1e-14,
+        "missing_photometric_fractional_error": 0.01,
+        "systematic_fractional_error": 0.05,
+        "expand_bounds": true
+      },
+      "refreshed_on": "2026-10-07"
     },
     "irtf_JH_3R": {
       "status": "complete",
-      "seconds": 2.2866720000019995,
+      "seconds": 1.8161997089919169,
       "epochs": 8,
       "timings": [
         {
           "JD": 2457225.7462704,
-          "seconds": 0.11608408299798612,
+          "seconds": 0.10574675002135336,
           "rows": 1189
         },
         {
           "JD": 2460147.7922115,
-          "seconds": 0.12806741699751,
+          "seconds": 0.12992029200540856,
           "rows": 1168
         },
         {
           "JD": 2460565.7374397,
-          "seconds": 0.10007991599559318,
+          "seconds": 0.10047383399796672,
           "rows": 1167
         },
         {
           "JD": 2460766.1298276,
-          "seconds": 0.09846662500058301,
+          "seconds": 0.092878750001546,
           "rows": 1168
         },
         {
           "JD": 2460781.0366671,
-          "seconds": 0.09409179200156359,
+          "seconds": 0.0928664579987526,
           "rows": 1169
         },
         {
           "JD": 2460847.8498597,
-          "seconds": 0.09621850000257837,
+          "seconds": 0.09624733298551291,
           "rows": 1168
         },
         {
           "JD": 2460861.8192732,
-          "seconds": 0.159179000002041,
+          "seconds": 0.15868975000921637,
           "rows": 1168
         },
         {
           "JD": 2461225.8110455,
-          "seconds": 0.11428662500111386,
+          "seconds": 0.1154535409878008,
           "rows": 1168
         }
       ],
@@ -148,7 +154,7 @@
           "distance": 2.159974307043957e+19
         },
         "red_excess_mode": false,
-        "red_excess_fit_param": "T_bb",
+        "red_excess_fit_param": "both",
         "fixed_R_bb": 299195741400.0,
         "spectral_rede_joint_refine": true,
         "spectral_rede_max_blue_bb_fraction": 0.1,
@@ -159,6 +165,14 @@
         "av_bounds": [
           0.1,
           40
+        ],
+        "bb_temperature_bounds": [
+          650,
+          10000
+        ],
+        "bb_radius_bounds_au": [
+          0.05,
+          20
         ],
         "optimizer_maxiter": 1000000,
         "optimizer_maxfun": 1000000,
@@ -171,22 +185,22 @@
     },
     "xshooter_JH_3R": {
       "status": "complete",
-      "seconds": 1.3643910840037279,
+      "seconds": 1.0056794580013957,
       "epochs": 3,
       "timings": [
         {
           "JD": 2457209.599,
-          "seconds": 0.044550999999046326,
+          "seconds": 0.044823375006671995,
           "rows": 92
         },
         {
           "JD": 2460364.85,
-          "seconds": 0.017589416995178908,
+          "seconds": 0.018093583988957107,
           "rows": 92
         },
         {
           "JD": 2460594.478,
-          "seconds": 0.016778625002189074,
+          "seconds": 0.01722650000010617,
           "rows": 92
         }
       ],
@@ -203,7 +217,7 @@
           "distance": 2.159974307043957e+19
         },
         "red_excess_mode": false,
-        "red_excess_fit_param": "T_bb",
+        "red_excess_fit_param": "both",
         "fixed_R_bb": 299195741400.0,
         "spectral_rede_joint_refine": true,
         "spectral_rede_max_blue_bb_fraction": 0.1,
@@ -214,6 +228,14 @@
         "av_bounds": [
           0.1,
           40
+        ],
+        "bb_temperature_bounds": [
+          650,
+          10000
+        ],
+        "bb_radius_bounds_au": [
+          0.05,
+          20
         ],
         "optimizer_maxiter": 1000000,
         "optimizer_maxfun": 1000000,
@@ -226,15 +248,9 @@
     },
     "basic_JH_2R_newdf": {
       "status": "complete",
-      "seconds": 3.652833416002977,
+      "seconds": 5.334694458026206,
       "epochs": 84,
-      "timings": [
-        {
-          "JD": 0,
-          "seconds": 2.3924197079977603,
-          "rows": 1268
-        }
-      ],
+      "timings": [],
       "options": {
         "required_filters": [
           "J",
@@ -254,7 +270,7 @@
           "distance": 2.159974307043957e+19
         },
         "red_excess_mode": false,
-        "red_excess_fit_param": "T_bb",
+        "red_excess_fit_param": "both",
         "fixed_R_bb": 299195741400.0,
         "spectral_rede_joint_refine": true,
         "spectral_rede_max_blue_bb_fraction": 0.1,
@@ -266,58 +282,70 @@
           0.1,
           40
         ],
+        "bb_temperature_bounds": [
+          650,
+          10000
+        ],
+        "bb_radius_bounds_au": [
+          0.05,
+          20
+        ],
         "optimizer_maxiter": 1000000,
         "optimizer_maxfun": 1000000,
         "optimizer_ftol": 1e-15,
         "optimizer_gtol": 1e-10,
         "local_solver_max_nfev": 100000,
         "local_solver_ftol": 1e-14,
-        "local_solver_gtol": 1e-14
-      }
+        "local_solver_gtol": 1e-14,
+        "missing_photometric_fractional_error": 0.01,
+        "systematic_fractional_error": 0.05,
+        "expand_bounds": true
+      },
+      "refreshed_on": "2026-10-07"
     },
     "irtf_JH_2R": {
       "status": "complete",
-      "seconds": 2.23407962499914,
+      "seconds": 1.9169537500129081,
       "epochs": 8,
       "timings": [
         {
           "JD": 2457225.7462704,
-          "seconds": 0.1476482500002021,
+          "seconds": 0.14466312501463108,
           "rows": 1189
         },
         {
           "JD": 2460147.7922115,
-          "seconds": 0.13239529199927347,
+          "seconds": 0.13392349999048747,
           "rows": 1168
         },
         {
           "JD": 2460565.7374397,
-          "seconds": 0.09508799999457551,
+          "seconds": 0.09694587500416674,
           "rows": 1167
         },
         {
           "JD": 2460766.1298276,
-          "seconds": 0.12066545799461892,
+          "seconds": 0.1226585830154363,
           "rows": 1168
         },
         {
           "JD": 2460781.0366671,
-          "seconds": 0.1501475409968407,
+          "seconds": 0.11162375001003966,
           "rows": 1169
         },
         {
           "JD": 2460847.8498597,
-          "seconds": 0.1056174999976065,
+          "seconds": 0.1078456660034135,
           "rows": 1168
         },
         {
           "JD": 2460861.8192732,
-          "seconds": 0.12165629200171679,
+          "seconds": 0.12578020899672993,
           "rows": 1168
         },
         {
           "JD": 2461225.8110455,
-          "seconds": 0.0955842080002185,
+          "seconds": 0.10059300001012161,
           "rows": 1168
         }
       ],
@@ -334,7 +362,7 @@
           "distance": 2.159974307043957e+19
         },
         "red_excess_mode": false,
-        "red_excess_fit_param": "T_bb",
+        "red_excess_fit_param": "both",
         "fixed_R_bb": 299195741400.0,
         "spectral_rede_joint_refine": true,
         "spectral_rede_max_blue_bb_fraction": 0.1,
@@ -345,6 +373,14 @@
         "av_bounds": [
           0.1,
           40
+        ],
+        "bb_temperature_bounds": [
+          650,
+          10000
+        ],
+        "bb_radius_bounds_au": [
+          0.05,
+          20
         ],
         "optimizer_maxiter": 1000000,
         "optimizer_maxfun": 1000000,
@@ -357,22 +393,22 @@
     },
     "xshooter_JH_2R": {
       "status": "complete",
-      "seconds": 1.3207428330060793,
+      "seconds": 0.9904867080040276,
       "epochs": 3,
       "timings": [
         {
           "JD": 2457209.599,
-          "seconds": 0.018902333998994436,
+          "seconds": 0.020542166981613263,
           "rows": 92
         },
         {
           "JD": 2460364.85,
-          "seconds": 0.02073762500367593,
+          "seconds": 0.022191458992892876,
           "rows": 92
         },
         {
           "JD": 2460594.478,
-          "seconds": 0.015831541997613385,
+          "seconds": 0.017187916004331782,
           "rows": 92
         }
       ],
@@ -389,7 +425,7 @@
           "distance": 2.159974307043957e+19
         },
         "red_excess_mode": false,
-        "red_excess_fit_param": "T_bb",
+        "red_excess_fit_param": "both",
         "fixed_R_bb": 299195741400.0,
         "spectral_rede_joint_refine": true,
         "spectral_rede_max_blue_bb_fraction": 0.1,
@@ -400,6 +436,14 @@
         "av_bounds": [
           0.1,
           40
+        ],
+        "bb_temperature_bounds": [
+          650,
+          10000
+        ],
+        "bb_radius_bounds_au": [
+          0.05,
+          20
         ],
         "optimizer_maxiter": 1000000,
         "optimizer_maxfun": 1000000,
@@ -412,15 +456,9 @@
     },
     "basic_JH_4R_newdf": {
       "status": "complete",
-      "seconds": 3.672524000001431,
+      "seconds": 5.510297250002623,
       "epochs": 84,
-      "timings": [
-        {
-          "JD": 0,
-          "seconds": 2.3252936669960036,
-          "rows": 1268
-        }
-      ],
+      "timings": [],
       "options": {
         "required_filters": [
           "J",
@@ -440,7 +478,7 @@
           "distance": 2.159974307043957e+19
         },
         "red_excess_mode": false,
-        "red_excess_fit_param": "T_bb",
+        "red_excess_fit_param": "both",
         "fixed_R_bb": 299195741400.0,
         "spectral_rede_joint_refine": true,
         "spectral_rede_max_blue_bb_fraction": 0.1,
@@ -452,58 +490,70 @@
           0.1,
           40
         ],
+        "bb_temperature_bounds": [
+          650,
+          10000
+        ],
+        "bb_radius_bounds_au": [
+          0.05,
+          20
+        ],
         "optimizer_maxiter": 1000000,
         "optimizer_maxfun": 1000000,
         "optimizer_ftol": 1e-15,
         "optimizer_gtol": 1e-10,
         "local_solver_max_nfev": 100000,
         "local_solver_ftol": 1e-14,
-        "local_solver_gtol": 1e-14
-      }
+        "local_solver_gtol": 1e-14,
+        "missing_photometric_fractional_error": 0.01,
+        "systematic_fractional_error": 0.05,
+        "expand_bounds": true
+      },
+      "refreshed_on": "2026-10-07"
     },
     "irtf_JH_4R": {
       "status": "complete",
-      "seconds": 2.241595082996355,
+      "seconds": 1.9081680419913027,
       "epochs": 8,
       "timings": [
         {
           "JD": 2457225.7462704,
-          "seconds": 0.12961424999957671,
+          "seconds": 0.13412866601720452,
           "rows": 1189
         },
         {
           "JD": 2460147.7922115,
-          "seconds": 0.10272704199451255,
+          "seconds": 0.10571545799029991,
           "rows": 1168
         },
         {
           "JD": 2460565.7374397,
-          "seconds": 0.10784483300085412,
+          "seconds": 0.11209841701202095,
           "rows": 1167
         },
         {
           "JD": 2460766.1298276,
-          "seconds": 0.0962599579943344,
+          "seconds": 0.10110458298004232,
           "rows": 1168
         },
         {
           "JD": 2460781.0366671,
-          "seconds": 0.2020003750003525,
+          "seconds": 0.20655795899801888,
           "rows": 1169
         },
         {
           "JD": 2460847.8498597,
-          "seconds": 0.08975129100144841,
+          "seconds": 0.09344525000778958,
           "rows": 1168
         },
         {
           "JD": 2460861.8192732,
-          "seconds": 0.09129091599606909,
+          "seconds": 0.09370245900936425,
           "rows": 1168
         },
         {
           "JD": 2461225.8110455,
-          "seconds": 0.0834381669992581,
+          "seconds": 0.1115044170001056,
           "rows": 1168
         }
       ],
@@ -520,7 +570,7 @@
           "distance": 2.159974307043957e+19
         },
         "red_excess_mode": false,
-        "red_excess_fit_param": "T_bb",
+        "red_excess_fit_param": "both",
         "fixed_R_bb": 299195741400.0,
         "spectral_rede_joint_refine": true,
         "spectral_rede_max_blue_bb_fraction": 0.1,
@@ -531,6 +581,14 @@
         "av_bounds": [
           0.1,
           40
+        ],
+        "bb_temperature_bounds": [
+          650,
+          10000
+        ],
+        "bb_radius_bounds_au": [
+          0.05,
+          20
         ],
         "optimizer_maxiter": 1000000,
         "optimizer_maxfun": 1000000,
@@ -543,22 +601,22 @@
     },
     "xshooter_JH_4R": {
       "status": "complete",
-      "seconds": 1.3184601249959087,
+      "seconds": 1.0061263749958016,
       "epochs": 3,
       "timings": [
         {
           "JD": 2457209.599,
-          "seconds": 0.028534582997963298,
+          "seconds": 0.029492166999261826,
           "rows": 92
         },
         {
           "JD": 2460364.85,
-          "seconds": 0.04424516599829076,
+          "seconds": 0.04519662499660626,
           "rows": 92
         },
         {
           "JD": 2460594.478,
-          "seconds": 0.0176782499984256,
+          "seconds": 0.018573999986983836,
           "rows": 92
         }
       ],
@@ -575,7 +633,7 @@
           "distance": 2.159974307043957e+19
         },
         "red_excess_mode": false,
-        "red_excess_fit_param": "T_bb",
+        "red_excess_fit_param": "both",
         "fixed_R_bb": 299195741400.0,
         "spectral_rede_joint_refine": true,
         "spectral_rede_max_blue_bb_fraction": 0.1,
@@ -586,6 +644,14 @@
         "av_bounds": [
           0.1,
           40
+        ],
+        "bb_temperature_bounds": [
+          650,
+          10000
+        ],
+        "bb_radius_bounds_au": [
+          0.05,
+          20
         ],
         "optimizer_maxiter": 1000000,
         "optimizer_maxfun": 1000000,
@@ -598,22 +664,22 @@
     },
     "benchmark_red_photo": {
       "status": "complete",
-      "seconds": 1.576968458997726,
+      "seconds": 1.1058011669956613,
       "epochs": 3,
       "timings": [
         {
           "JD": 2444098.5,
-          "seconds": 0.035535082999558654,
+          "seconds": 0.03924858398386277,
           "rows": 4
         },
         {
           "JD": 2460766.5,
-          "seconds": 0.03463550000014948,
+          "seconds": 0.04875558300409466,
           "rows": 8
         },
         {
           "JD": 2461165.5,
-          "seconds": 0.05453537499852246,
+          "seconds": 0.04124695900827646,
           "rows": 4
         }
       ],
@@ -640,31 +706,47 @@
           "distance": 2.159974307043957e+19
         },
         "red_excess_mode": true,
-        "red_excess_fit_param": "T_bb",
+        "red_excess_fit_param": "both",
         "fixed_R_bb": 299195741400.0,
         "spectral_rede_joint_refine": true,
-        "spectral_rede_max_blue_bb_fraction": 0.1
+        "spectral_rede_max_blue_bb_fraction": 0.1,
+        "mdot_bounds_msun_per_year": [
+          1e-09,
+          0.002
+        ],
+        "av_bounds": [
+          0.1,
+          40
+        ],
+        "bb_temperature_bounds": [
+          650,
+          10000
+        ],
+        "bb_radius_bounds_au": [
+          0.05,
+          20
+        ]
       }
     },
     "benchmark_red_spectral": {
       "status": "complete",
-      "seconds": 2.6872651250014314,
+      "seconds": 12.909096332994523,
       "epochs": 3,
       "timings": [
         {
-          "JD": 2457209.599,
-          "seconds": 0.07029570799932117,
-          "rows": 92
+          "JD": 2457225.7856901,
+          "seconds": 7.331594291026704,
+          "rows": 2836
         },
         {
-          "JD": 2460766.1298276,
-          "seconds": 0.7048077919971547,
-          "rows": 9790
+          "JD": 2460147.8042661,
+          "seconds": 2.5085350000008475,
+          "rows": 3968
         },
         {
-          "JD": 2461225.8110455,
-          "seconds": 0.5947658340010094,
-          "rows": 9433
+          "JD": 2461225.8232898,
+          "seconds": 2.1708193749946076,
+          "rows": 3871
         }
       ],
       "options": {
@@ -680,158 +762,33 @@
           "distance": 2.159974307043957e+19
         },
         "red_excess_mode": true,
-        "red_excess_fit_param": "T_bb",
+        "red_excess_fit_param": "both",
         "fixed_R_bb": 299195741400.0,
         "spectral_rede_joint_refine": true,
-        "spectral_rede_max_blue_bb_fraction": 0.1
+        "spectral_rede_max_blue_bb_fraction": 0.1,
+        "mdot_bounds_msun_per_year": [
+          1e-09,
+          0.002
+        ],
+        "av_bounds": [
+          0.1,
+          40
+        ],
+        "bb_temperature_bounds": [
+          650,
+          10000
+        ],
+        "bb_radius_bounds_au": [
+          0.05,
+          20
+        ]
       }
     },
     "rede_4L_T": {
       "status": "complete",
-      "seconds": 2.522519791004015,
+      "seconds": 15.92554237501463,
       "epochs": 28,
-      "timings": [
-        {
-          "JD": 2444098.5,
-          "seconds": 0.03978016700420994,
-          "rows": 4
-        },
-        {
-          "JD": 2445450.5,
-          "seconds": 0.04163229199912166,
-          "rows": 5
-        },
-        {
-          "JD": 2445599.5,
-          "seconds": 0.08006070799456211,
-          "rows": 4
-        },
-        {
-          "JD": 2445631.5,
-          "seconds": 0.02863400000205729,
-          "rows": 4
-        },
-        {
-          "JD": 2446081.5,
-          "seconds": 0.06788916699588299,
-          "rows": 6
-        },
-        {
-          "JD": 2446098.5,
-          "seconds": 0.04208600000129081,
-          "rows": 5
-        },
-        {
-          "JD": 2446201.5,
-          "seconds": 0.06882250000489876,
-          "rows": 4
-        },
-        {
-          "JD": 2446481.5,
-          "seconds": 0.06602570800168905,
-          "rows": 5
-        },
-        {
-          "JD": 2447286.5,
-          "seconds": 0.0676662089972524,
-          "rows": 5
-        },
-        {
-          "JD": 2447328.5,
-          "seconds": 0.033892084000399336,
-          "rows": 6
-        },
-        {
-          "JD": 2447576.5,
-          "seconds": 0.04255604200443486,
-          "rows": 5
-        },
-        {
-          "JD": 2447616.5,
-          "seconds": 0.048399540995887946,
-          "rows": 5
-        },
-        {
-          "JD": 2447630.5,
-          "seconds": 0.04067054200277198,
-          "rows": 5
-        },
-        {
-          "JD": 2448284.5,
-          "seconds": 0.045399707996693905,
-          "rows": 5
-        },
-        {
-          "JD": 2448309.5,
-          "seconds": 0.03497712499665795,
-          "rows": 5
-        },
-        {
-          "JD": 2448310.5,
-          "seconds": 0.04504845799965551,
-          "rows": 5
-        },
-        {
-          "JD": 2448314.5,
-          "seconds": 0.040440625001792796,
-          "rows": 5
-        },
-        {
-          "JD": 2448518.5,
-          "seconds": 0.04485058400314301,
-          "rows": 5
-        },
-        {
-          "JD": 2448642.5,
-          "seconds": 0.04779237499315059,
-          "rows": 5
-        },
-        {
-          "JD": 2448881.5,
-          "seconds": 0.04003099999681581,
-          "rows": 5
-        },
-        {
-          "JD": 2449182.5,
-          "seconds": 0.04762425000080839,
-          "rows": 5
-        },
-        {
-          "JD": 2457226.5,
-          "seconds": 0.04065937500126893,
-          "rows": 4
-        },
-        {
-          "JD": 2460147.5,
-          "seconds": 0.04476241699740058,
-          "rows": 5
-        },
-        {
-          "JD": 2460766.5,
-          "seconds": 0.03256425000290619,
-          "rows": 8
-        },
-        {
-          "JD": 2460781.5,
-          "seconds": 0.04191854099917691,
-          "rows": 6
-        },
-        {
-          "JD": 2460816.5,
-          "seconds": 0.04712304099666653,
-          "rows": 5
-        },
-        {
-          "JD": 2460856.5,
-          "seconds": 0.0461098329978995,
-          "rows": 5
-        },
-        {
-          "JD": 2461165.5,
-          "seconds": 0.051658291995408945,
-          "rows": 4
-        }
-      ],
+      "timings": [],
       "options": {
         "required_filters": [
           "J",
@@ -855,73 +812,38 @@
           "distance": 2.159974307043957e+19
         },
         "red_excess_mode": true,
-        "red_excess_fit_param": "T_bb",
+        "red_excess_fit_param": "both",
         "fixed_R_bb": 299195741400.0,
         "spectral_rede_joint_refine": true,
-        "spectral_rede_max_blue_bb_fraction": 0.1
-      }
+        "spectral_rede_max_blue_bb_fraction": 0.1,
+        "mdot_bounds_msun_per_year": [
+          1e-09,
+          0.002
+        ],
+        "av_bounds": [
+          0.1,
+          40
+        ],
+        "bb_temperature_bounds": [
+          650,
+          10000
+        ],
+        "bb_radius_bounds_au": [
+          0.05,
+          20
+        ],
+        "missing_photometric_fractional_error": 0.01,
+        "systematic_fractional_error": 0.05,
+        "expand_bounds": true
+      },
+      "refreshed_on": "2026-10-07",
+      "identifiable_BB_epochs": 24
     },
     "spectral_combined_rede": {
       "status": "complete",
-      "seconds": 6.443706749996636,
-      "epochs": 11,
-      "timings": [
-        {
-          "JD": 2457209.599,
-          "seconds": 0.06401775000267662,
-          "rows": 92
-        },
-        {
-          "JD": 2457225.7462704,
-          "seconds": 0.7046649159965455,
-          "rows": 6388
-        },
-        {
-          "JD": 2460147.7922115,
-          "seconds": 0.5230943749993457,
-          "rows": 8446
-        },
-        {
-          "JD": 2460364.85,
-          "seconds": 0.0637212500005262,
-          "rows": 92
-        },
-        {
-          "JD": 2460565.7374397,
-          "seconds": 0.6416367500060005,
-          "rows": 5474
-        },
-        {
-          "JD": 2460594.478,
-          "seconds": 0.07411320800019894,
-          "rows": 92
-        },
-        {
-          "JD": 2460766.1298276,
-          "seconds": 0.6706262090010568,
-          "rows": 9790
-        },
-        {
-          "JD": 2460781.0366671,
-          "seconds": 0.6508353339959285,
-          "rows": 9779
-        },
-        {
-          "JD": 2460847.8498597,
-          "seconds": 0.6381634589997702,
-          "rows": 9213
-        },
-        {
-          "JD": 2460861.8192732,
-          "seconds": 0.5988331250046031,
-          "rows": 5997
-        },
-        {
-          "JD": 2461225.8110455,
-          "seconds": 0.581734833001974,
-          "rows": 9433
-        }
-      ],
+      "seconds": 24.949437625007704,
+      "epochs": 6,
+      "timings": [],
       "options": {
         "required_filters": [],
         "fit_filters": [],
@@ -935,214 +857,127 @@
           "distance": 2.159974307043957e+19
         },
         "red_excess_mode": true,
-        "red_excess_fit_param": "T_bb",
+        "red_excess_fit_param": "both",
         "fixed_R_bb": 299195741400.0,
         "spectral_rede_joint_refine": true,
-        "spectral_rede_max_blue_bb_fraction": 0.1
-      }
-    },
-    "table2_irtf_JHK_3R": {
-      "status": "complete",
-      "seconds": 2.892141292002634,
-      "epochs": 7,
-      "timings": [
-        {
-          "JD": 2460147.7922115,
-          "seconds": 0.18094166700029746,
-          "rows": 2686
-        },
-        {
-          "JD": 2460565.7374397,
-          "seconds": 0.15679370800353354,
-          "rows": 2684
-        },
-        {
-          "JD": 2460766.1298276,
-          "seconds": 0.24106308299815282,
-          "rows": 2684
-        },
-        {
-          "JD": 2460781.0366671,
-          "seconds": 0.18470383300154936,
-          "rows": 2685
-        },
-        {
-          "JD": 2460847.8498597,
-          "seconds": 0.3073172500007786,
-          "rows": 2685
-        },
-        {
-          "JD": 2460861.8192732,
-          "seconds": 0.173666458002117,
-          "rows": 2684
-        },
-        {
-          "JD": 2461225.8110455,
-          "seconds": 0.1557769589999225,
-          "rows": 2686
-        }
-      ],
-      "options": {
-        "required_filters": [],
-        "fit_filters": [],
-        "data_mode": "spectral",
-        "lambda_reg": 0,
-        "initial_params": {
-          "M": 9.945e+29,
-          "R_star": 2086500000.0,
-          "R_in": 2086500000.0,
-          "R_out": 299195741400.0,
-          "distance": 2.159974307043957e+19
-        },
-        "red_excess_mode": false,
-        "red_excess_fit_param": "T_bb",
-        "fixed_R_bb": 299195741400.0,
-        "spectral_rede_joint_refine": true,
-        "spectral_rede_max_blue_bb_fraction": 0.1
-      }
-    },
-    "table2_2015_unscaled_SXD_LXD_JHK": {
-      "status": "complete",
-      "seconds": 1.7031182920036372,
-      "epochs": 1,
-      "timings": [
-        {
-          "JD": 2457225.7462704,
-          "seconds": 0.2544703749954351,
-          "rows": 4280
-        }
-      ],
-      "options": {
-        "required_filters": [],
-        "fit_filters": [],
-        "data_mode": "spectral",
-        "lambda_reg": 0,
-        "initial_params": {
-          "M": 9.945e+29,
-          "R_star": 2086500000.0,
-          "R_in": 2086500000.0,
-          "R_out": 299195741400.0,
-          "distance": 2.159974307043957e+19
-        },
-        "red_excess_mode": false,
-        "red_excess_fit_param": "T_bb",
-        "fixed_R_bb": 299195741400.0,
-        "spectral_rede_joint_refine": true,
-        "spectral_rede_max_blue_bb_fraction": 0.1
-      }
-    },
-    "table2_2026_JHK": {
-      "status": "complete",
-      "seconds": 1.445196874999965,
-      "epochs": 4,
-      "timings": [
-        {
-          "JD": 2461102.5,
-          "seconds": 0.00786333299765829,
-          "rows": 4
-        },
-        {
-          "JD": 2461165.5,
-          "seconds": 0.007724832998064812,
-          "rows": 4
-        },
-        {
-          "JD": 2461222.5,
-          "seconds": 0.007653415996173862,
-          "rows": 3
-        },
-        {
-          "JD": 2461225.5,
-          "seconds": 0.010336540995922405,
-          "rows": 3
-        }
-      ],
-      "options": {
-        "required_filters": [
-          "J",
-          "H",
-          "K"
+        "spectral_rede_max_blue_bb_fraction": 0.1,
+        "mdot_bounds_msun_per_year": [
+          1e-09,
+          0.002
         ],
-        "fit_filters": [
-          "J",
-          "H",
-          "K"
+        "av_bounds": [
+          0.1,
+          40
         ],
-        "data_mode": "photometry",
-        "lambda_reg": 0,
-        "initial_params": {
-          "M": 9.945e+29,
-          "R_star": 2086500000.0,
-          "R_in": 2086500000.0,
-          "R_out": 299195741400.0,
-          "distance": 2.159974307043957e+19
-        },
-        "red_excess_mode": false,
-        "red_excess_fit_param": "T_bb",
-        "fixed_R_bb": 299195741400.0,
-        "spectral_rede_joint_refine": true,
-        "spectral_rede_max_blue_bb_fraction": 0.1
+        "bb_temperature_bounds": [
+          650,
+          10000
+        ],
+        "bb_radius_bounds_au": [
+          0.05,
+          20
+        ],
+        "spectral_red_min_micron": 2.0,
+        "spectral_red_mask_regions_micron": [
+          [
+            2.8,
+            3.3
+          ]
+        ],
+        "IRTF_JH_range_micron": [
+          1.2,
+          1.6
+        ],
+        "XSHOOTER_JH_range_micron": [
+          1.15,
+          1.75
+        ],
+        "spectral_red_coverage_requirement": {
+          "K_micron": [
+            2.0,
+            2.5
+          ],
+          "L_micron": [
+            3.3,
+            4.2
+          ],
+          "min_unique_samples_per_band": 2
+        }
       }
     }
   },
   "runtime_gates": {
-    "photo": {
-      "status": "pass",
-      "epochs": 28,
-      "sampled_epochs": [
-        2444098.5,
-        2460766.5,
-        2461165.5
-      ],
-      "conservative_seconds": 25.95850600191625,
-      "hard_timeout_seconds": 600
-    },
     "spectral": {
       "status": "pass",
-      "epochs": 11,
+      "epochs": 6,
       "sampled_epochs": [
-        2457209.599,
-        2460766.1298276,
-        2461225.8110455
+        2457225.7856901,
+        2460147.8042661,
+        2461225.8232898
       ],
-      "conservative_seconds": 38.140563005945296,
+      "conservative_seconds": 109.77542682626517,
       "hard_timeout_seconds": 600
     }
   },
   "notes": [
     "All photometric fits exclude interpolated rows.",
-    "Existing fitter uncertainties with debug=False are fixed placeholders (0.1 in internal parameter units), not statistically estimated confidence intervals. Propagated mass errors inherit this limitation.",
+    "Parameter errors use the local weighted model Jacobian with absolute measurement errors, without a parameter-error floor. Integrated masses retain interpolation-gap and model-systematic limitations.",
+    "Main results, Table 2 and integrated masses use JH-only fits; red-excess fits provide separate context.",
     "The inherited 10% blue-BB setting is a soft penalty, not a hard upper bound. Actual blue fractions are exported in fit_bound_and_coverage_diagnostics.csv.",
-    "XSHOOTER JH-only spectra do not directly constrain the long-wavelength BB component; retain their fits for consistency but inspect wavelength coverage and bound diagnostics."
+    "Local Jacobian errors treat spectral samples as independent; correlated calibration/model systematics are not modeled.",
+    "BB radii retain the existing emitting-area convention of the pipeline.",
+    "The separate four-panel red-excess correlation figure pairs T/R with MstarMdot/Av from the same joint contextual fit; shared viridis colours encode Gregorian observation year. Photometry derived from spectra is not independent of spectroscopy. Four unidentifiable BB epochs are omitted; complete local errors are retained in the CSV. Axis-aligned errors do not display cross-parameter covariance.",
+    "BB temperature/radius are reported as NaN for boundary-asymptotic or rank-deficient fits, or when both local fractional T/R errors exceed 1000%. Evolution triangles indicate errorbars continuing beyond the displayed range; full uncertainties are in the tables. Numerical optimizer candidates are retained separately for audit; these contextual failures do not enter main JH results.",
+    "Contextual spectral BB fits require both K and L continuum. Six IRTF epochs refitted from K onward (>=2.0 micron) with inclusive 2.8--3.3 micron ice-water mask; three XSHOOTER and two SXD-only IRTF epochs excluded for lacking L coverage. Main JH and photometric fits unchanged."
   ],
-  "photometric_objective_additivity": [
-    {
-      "T_bb": 1000.0,
-      "joint": 1449.8281662583927,
-      "sum_of_epochs": 1449.8281662583927
-    },
-    {
-      "T_bb": 1500.0,
-      "joint": 2335.6852873299586,
-      "sum_of_epochs": 2335.6852873299586
-    }
+  "excluded_BB_epochs_without_red_coverage": [
+    2457209.599,
+    2460364.85,
+    2460565.7374397,
+    2460594.478,
+    2460861.8192732
   ],
+  "bound_hits": [],
+  "software": {
+    "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2"
+  },
+  "source_checksums": {
+    "src/accretion/__init__.py": "056780d5d42af4d114c6ff8859624ca56636b65e22be817fcccd33985a8b4689",
+    "src/accretion/final_panel_colour_grid.py": "a31b92becb4c4d2cb54b91f9b857ac5d08bfa05f1ee9566fd5f0d4354d1e4980",
+    "src/accretion/final_panel_models.py": "4885936c8b7d348ae3b8cdbd1627c74eac08a22d028a9cf41e2faecb8b56cd89",
+    "src/accretion/final_panels.py": "8f1db64fbdd1f11f102bc8234b6ddd751aa3a412f5b56ff665db9b1c39d6933f",
+    "src/accretion/final_tables.py": "b944310ba12c67b517043cc14ef14f8dbcd847a6bf7d40be4a75765e4c9ad8f0",
+    "src/accretion/ultimate_common.py": "9fada879a7ab33af77d7c7366e6b55163709e7c14fea94073e90415bd5d4405b",
+    "src/accretion/ultimate_file_organisers.py": "b3ba34131512c153a123d10e207f0b11adc271f26a8360ac0f868582cb6e43af",
+    "src/accretion/ultimate_fitting.py": "928fbfd93384deb26ce3e12a52bff3bcc928eba7cd57d73aa21736a81b42c6d0",
+    "src/accretion/ultimate_fitting_types.py": "c1bac595de11261ccd2d1559f748943c628199eb7495741ed68ad58b34beb1a4",
+    "src/accretion/ultimate_functions.py": "dff7f739428f01e7d59034d84f670d4811fe587f40288eedbf6a67ffdcb5c252",
+    "src/accretion/ultimate_helpers.py": "d03d7210ab01c587f79c6bd8defb15b9a518ffefed10244382ad820d20bd087c",
+    "src/accretion/ultimate_older_functions.py": "218ca8ccabfe7d5dd1d2b972110c4a7e93381f65002be0947c8b4b1a789ecd9e",
+    "src/accretion/ultimate_physics.py": "44ea50d76e34ed007bc21052124ed5df0ce6bcd94897ba1b031768b403484311",
+    "src/accretion/ultimate_synthetic_data.py": "a9d09a5127a465ed2d7376662ba7fe26fa73252c312f8c3e291d05e71b1d1395",
+    "src/accretion/ultimate_visualisation.py": "947b4759e7a5654c7db3940b8d8a6d676c418a1fa06705e83dbbd149b7940411"
+  },
   "validation": [
     {
       "radius": 2,
-      "interpolated_L_W1_points": 149,
+      "interpolated_L_W1_points": 72,
       "raw_fit_epochs": 84,
       "spectral_epochs": 11
     },
     {
       "radius": 3,
-      "interpolated_L_W1_points": 149,
+      "interpolated_L_W1_points": 72,
       "raw_fit_epochs": 84,
       "spectral_epochs": 11
     },
     {
       "radius": 4,
-      "interpolated_L_W1_points": 149,
+      "interpolated_L_W1_points": 72,
       "raw_fit_epochs": 84,
       "spectral_epochs": 11
     }
@@ -1153,35 +988,12 @@
     "figures/0-4_JH_4R.pdf",
     "figures/6_colour_grid_JH.pdf",
     "figures/6_colour_grid_JK.pdf",
+    "figures/Context_spectral_red_excess_overview.pdf",
     "figures/Panels_spectral_fit_overview.pdf",
+    "figures/red_excess_context_correlations.pdf",
     "figures/rede4L_T.pdf",
     "figures/rede4L_T_evolution.pdf",
     "figures/spectral_red_excess_parameter_evolution.pdf",
-    "tables/JH_2R_excess_residuals.csv",
-    "tables/JH_3R_excess_residuals.csv",
-    "tables/JH_4R_excess_residuals.csv",
-    "tables/JH_radius_differences_from_3R.csv",
-    "tables/JH_radius_fit_comparison.tex",
-    "tables/JH_radius_fit_parameter_comparison.csv",
-    "tables/JH_radius_fit_summary.csv",
-    "tables/JH_radius_integrated_mass.csv",
-    "tables/JH_radius_integrated_mass.json",
-    "tables/JH_radius_integrated_mass.tex",
-    "tables/Table_2.csv",
-    "tables/Table_2.tex",
-    "tables/colour_JH_I vs I-J.csv",
-    "tables/colour_JH_J vs J-H.csv",
-    "tables/colour_JH_J-H vs H-K.csv",
-    "tables/colour_JH_K vs H-K.csv",
-    "tables/colour_JK_I vs I-J.csv",
-    "tables/colour_JK_J vs J-K.csv",
-    "tables/colour_JK_J-H vs H-K.csv",
-    "tables/colour_JK_K vs H-K.csv",
-    "tables/fit_bound_and_coverage_diagnostics.csv",
-    "tables/photo_red_fit_validation.csv",
-    "tables/rede4L_T_parameters.csv",
-    "tables/spectral_red_excess_parameters.csv",
-    "tables/spectral_red_fit_validation.csv",
     "fits/basic_JH_2R_newdf.pkl",
     "fits/basic_JH_2R_newdf_daily_data.csv",
     "fits/basic_JH_2R_newdf_daily_params.csv",
@@ -1237,21 +1049,6 @@
     "fits/spectral_combined_rede_daily_params.csv",
     "fits/spectral_combined_rede_fit_info.csv",
     "fits/spectral_combined_rede_global_params.csv",
-    "fits/table2_2015_unscaled_SXD_LXD_JHK.pkl",
-    "fits/table2_2015_unscaled_SXD_LXD_JHK_daily_data.csv",
-    "fits/table2_2015_unscaled_SXD_LXD_JHK_daily_params.csv",
-    "fits/table2_2015_unscaled_SXD_LXD_JHK_fit_info.csv",
-    "fits/table2_2015_unscaled_SXD_LXD_JHK_global_params.csv",
-    "fits/table2_2026_JHK.pkl",
-    "fits/table2_2026_JHK_daily_data.csv",
-    "fits/table2_2026_JHK_daily_params.csv",
-    "fits/table2_2026_JHK_fit_info.csv",
-    "fits/table2_2026_JHK_global_params.csv",
-    "fits/table2_irtf_JHK_3R.pkl",
-    "fits/table2_irtf_JHK_3R_daily_data.csv",
-    "fits/table2_irtf_JHK_3R_daily_params.csv",
-    "fits/table2_irtf_JHK_3R_fit_info.csv",
-    "fits/table2_irtf_JHK_3R_global_params.csv",
     "fits/xshooter_JH_2R.pkl",
     "fits/xshooter_JH_2R_daily_data.csv",
     "fits/xshooter_JH_2R_daily_params.csv",
@@ -1266,217 +1063,430 @@
     "fits/xshooter_JH_4R_daily_data.csv",
     "fits/xshooter_JH_4R_daily_params.csv",
     "fits/xshooter_JH_4R_fit_info.csv",
-    "fits/xshooter_JH_4R_global_params.csv"
+    "fits/xshooter_JH_4R_global_params.csv",
+    "tables/2015_fit_provenance.csv",
+    "tables/JH_2R_excess_residuals.csv",
+    "tables/JH_3R_excess_residuals.csv",
+    "tables/JH_4R_excess_residuals.csv",
+    "tables/JH_convergence_uncertainty_audit.csv",
+    "tables/JH_radius_differences_from_3R.csv",
+    "tables/JH_radius_differences_from_3R.tex",
+    "tables/JH_radius_fit_comparison.tex",
+    "tables/JH_radius_fit_parameter_comparison.csv",
+    "tables/JH_radius_fit_parameter_comparison.tex",
+    "tables/JH_radius_fit_summary.csv",
+    "tables/JH_radius_fit_summary.tex",
+    "tables/JH_radius_integrated_mass.csv",
+    "tables/JH_radius_integrated_mass.json",
+    "tables/JH_radius_integrated_mass.tex",
+    "tables/Table_2.csv",
+    "tables/Table_2.tex",
+    "tables/colour_JH_I vs I-J.csv",
+    "tables/colour_JH_J vs J-H.csv",
+    "tables/colour_JH_J-H vs H-K.csv",
+    "tables/colour_JH_K vs H-K.csv",
+    "tables/colour_JK_I vs I-J.csv",
+    "tables/colour_JK_J vs J-K.csv",
+    "tables/colour_JK_J-H vs H-K.csv",
+    "tables/colour_JK_K vs H-K.csv",
+    "tables/fit_bound_and_coverage_diagnostics.csv",
+    "tables/fit_bound_and_coverage_diagnostics.tex",
+    "tables/fit_uncertainty_diagnostics.csv",
+    "tables/fit_uncertainty_diagnostics.tex",
+    "tables/photo_red_fit_validation.csv",
+    "tables/photo_red_fit_validation.tex",
+    "tables/photometric_noise_change_audit.csv",
+    "tables/red_excess_context_correlations.csv",
+    "tables/red_excess_context_correlations.tex",
+    "tables/rede4L_T_parameters.csv",
+    "tables/rede_4L_T_parameters.csv",
+    "tables/rede_4L_T_parameters.tex",
+    "tables/spectral_red_coverage_selection.csv",
+    "tables/spectral_red_excess_parameters.csv",
+    "tables/spectral_red_excess_parameters.tex",
+    "tables/spectral_red_fit_validation.csv",
+    "tables/spectral_red_fit_validation.tex",
+    "tables/spectral_red_range_change_audit.csv",
+    "tables/uncertainty_investigation.csv",
+    "tables/xshooter_wavelength_coverage.csv"
   ],
-  "withheld": [],
-  "bound_hits": [
-    {
-      "fit": "red_photo",
-      "JD": 2444098.5,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.25,
-      "wavelength_max_um": 3.6,
-      "max_blue_BB_over_disk": NaN,
-      "no_coverage_beyond_2_2um": NaN
-    },
-    {
-      "fit": "red_photo",
-      "JD": 2445450.5,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.25,
-      "wavelength_max_um": 4.8,
-      "max_blue_BB_over_disk": NaN,
-      "no_coverage_beyond_2_2um": NaN
-    },
-    {
-      "fit": "red_photo",
-      "JD": 2445599.5,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.25,
-      "wavelength_max_um": 3.5,
-      "max_blue_BB_over_disk": NaN,
-      "no_coverage_beyond_2_2um": NaN
-    },
-    {
-      "fit": "red_photo",
-      "JD": 2445631.5,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.25,
-      "wavelength_max_um": 3.5,
-      "max_blue_BB_over_disk": NaN,
-      "no_coverage_beyond_2_2um": NaN
-    },
-    {
-      "fit": "red_photo",
-      "JD": 2446081.5,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.25,
-      "wavelength_max_um": 20.0,
-      "max_blue_BB_over_disk": NaN,
-      "no_coverage_beyond_2_2um": NaN
-    },
-    {
-      "fit": "red_photo",
-      "JD": 2446098.5,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.25,
-      "wavelength_max_um": 4.8,
-      "max_blue_BB_over_disk": NaN,
-      "no_coverage_beyond_2_2um": NaN
-    },
-    {
-      "fit": "red_photo",
-      "JD": 2446201.5,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.25,
-      "wavelength_max_um": 3.5,
-      "max_blue_BB_over_disk": NaN,
-      "no_coverage_beyond_2_2um": NaN
-    },
-    {
-      "fit": "red_photo",
-      "JD": 2446481.5,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.25,
-      "wavelength_max_um": 4.8,
-      "max_blue_BB_over_disk": NaN,
-      "no_coverage_beyond_2_2um": NaN
-    },
-    {
-      "fit": "red_photo",
-      "JD": 2447286.5,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.25,
-      "wavelength_max_um": 4.8,
-      "max_blue_BB_over_disk": NaN,
-      "no_coverage_beyond_2_2um": NaN
-    },
-    {
-      "fit": "red_photo",
-      "JD": 2447328.5,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 0.55,
-      "wavelength_max_um": 10.1,
-      "max_blue_BB_over_disk": NaN,
-      "no_coverage_beyond_2_2um": NaN
-    },
-    {
-      "fit": "red_photo",
-      "JD": 2447576.5,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.25,
-      "wavelength_max_um": 4.8,
-      "max_blue_BB_over_disk": NaN,
-      "no_coverage_beyond_2_2um": NaN
-    },
-    {
-      "fit": "red_photo",
-      "JD": 2457226.5,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.235,
-      "wavelength_max_um": 3.353,
-      "max_blue_BB_over_disk": NaN,
-      "no_coverage_beyond_2_2um": NaN
-    },
-    {
-      "fit": "red_spectral",
-      "JD": 2457209.599,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.1524839546455035,
-      "wavelength_max_um": 1.7474639932038054,
-      "max_blue_BB_over_disk": 0.1065789940251876,
-      "no_coverage_beyond_2_2um": true
-    },
-    {
-      "fit": "red_spectral",
-      "JD": 2457225.7462704,
-      "bound_hits": "T_bb:lower",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.0997602,
-      "wavelength_max_um": 4.1495442,
-      "max_blue_BB_over_disk": 0.1973802009477193,
-      "no_coverage_beyond_2_2um": false
-    },
-    {
-      "fit": "red_spectral",
-      "JD": 2460364.85,
-      "bound_hits": "R_bb:upper",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.152476926685365,
-      "wavelength_max_um": 1.7475423788236364,
-      "max_blue_BB_over_disk": 0.1060850651293694,
-      "no_coverage_beyond_2_2um": true
-    },
-    {
-      "fit": "red_spectral",
-      "JD": 2460594.478,
-      "bound_hits": "R_bb:upper",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 1.1524985279891677,
-      "wavelength_max_um": 1.747553228927471,
-      "max_blue_BB_over_disk": 0.1035826507333636,
-      "no_coverage_beyond_2_2um": true
-    },
-    {
-      "fit": "red_spectral",
-      "JD": 2460861.8192732,
-      "bound_hits": "R_bb:upper",
-      "Av_upper": 40.0,
-      "wavelength_min_um": 0.74001557,
-      "wavelength_max_um": 2.4499354,
-      "max_blue_BB_over_disk": 0.2195265863928939,
-      "no_coverage_beyond_2_2um": false
-    }
-  ],
-  "software": {
-    "python": "3.14.4 (v3.14.4:23116f998f6, Apr  7 2026, 09:45:22) [Clang 17.0.0 (clang-1700.6.4.2)]",
-    "numpy": "2.4.4",
-    "pandas": "3.0.2",
-    "scipy": "1.17.1",
-    "matplotlib": "3.10.8"
-  },
-  "source_checksums": {
-    "src/accretion/__init__.py": "056780d5d42af4d114c6ff8859624ca56636b65e22be817fcccd33985a8b4689",
-    "src/accretion/final_panel_colour_grid.py": "a31b92becb4c4d2cb54b91f9b857ac5d08bfa05f1ee9566fd5f0d4354d1e4980",
-    "src/accretion/final_panel_models.py": "154a279a820c7beb33d309e48397433047ada7ed0b6ea8b765f3bb455422aa44",
-    "src/accretion/final_panels.py": "74efb9a10550618623711ef199af19c8b061788122488d4de807dbfb6709c209",
-    "src/accretion/ultimate_common.py": "9fada879a7ab33af77d7c7366e6b55163709e7c14fea94073e90415bd5d4405b",
-    "src/accretion/ultimate_file_organisers.py": "1699ecde45517f732acc715ae6257738c4a029fbbb338fae9958157bb6d066c8",
-    "src/accretion/ultimate_fitting.py": "e5008725378912fa5b9f808e5641549cd3cf24cef8b4c3979df93ce8c54a22f4",
-    "src/accretion/ultimate_fitting_types.py": "553a523d9df86e2f91d0ce9fcb120b6a3207218a88cb926eed458647d2d86918",
-    "src/accretion/ultimate_functions.py": "dff7f739428f01e7d59034d84f670d4811fe587f40288eedbf6a67ffdcb5c252",
-    "src/accretion/ultimate_helpers.py": "3052aa261561910dee09c91102abfb20a8b0c8d1e3808fccfe8159c77cdab82e",
-    "src/accretion/ultimate_older_functions.py": "218ca8ccabfe7d5dd1d2b972110c4a7e93381f65002be0947c8b4b1a789ecd9e",
-    "src/accretion/ultimate_physics.py": "35cdb06147bbb0bd9a0886b74cec028899dc2fef955d0b787c635ffa6b9905c1",
-    "src/accretion/ultimate_synthetic_data.py": "a9d09a5127a465ed2d7376662ba7fe26fa73252c312f8c3e291d05e71b1d1395",
-    "src/accretion/ultimate_visualisation.py": "9266d6cca424e133af68cd48de6bd53234f2bcfd6f88faea265c033b582ab191"
-  },
-  "artifact_validation": "logs/artifact_validation.json",
-  "tests": "10 passed",
-  "visual_review": "9 PDFs inspected",
-  "table2": {
-    "method": "exact plotted JH 3R bundles",
-    "spectral_rows": 11,
-    "photometric_rows": 4,
-    "photometry_selection": "JD >= 2461000 (2026)",
-    "sources": [
-      "fits/spectral_JH_3R.pkl",
-      "fits/basic_JH_3R_newdf.pkl"
+  "unidentifiable_BB_epochs": {
+    "photo": [
+      2446081.5,
+      2446098.5,
+      2446481.5,
+      2447286.5
     ],
-    "validation": "all six parameter/error columns exactly equal to source bundles; CSV round-trip checked",
-    "refits": false
+    "spectral": []
+  },
+  "withheld": [],
+  "tests": "37 passed",
+  "visual_review": "Four spectral-red-dependent PDFs rendered and visually inspected with six eligible IRTF epochs; seven other PDFs verified unchanged.",
+  "notebook_sha256": "d720ba46c9c1e83c6c135916bc8aee67e1c5ae9b6633a748eb3f372883803bf3",
+  "artifact_validation": "logs/artifact_validation.json",
+  "unidentifiable_BB_dates": {
+    "photo": [
+      {
+        "JD": 2446081.5,
+        "Date": "1985-01-16",
+        "status": "boundary asymptote"
+      },
+      {
+        "JD": 2446098.5,
+        "Date": "1985-02-02",
+        "status": "boundary asymptote"
+      },
+      {
+        "JD": 2446481.5,
+        "Date": "1986-02-20",
+        "status": "effectively unconstrained (>1000% local T and R uncertainty)"
+      },
+      {
+        "JD": 2447286.5,
+        "Date": "1988-05-05",
+        "status": "effectively unconstrained (>1000% local T and R uncertainty)"
+      }
+    ],
+    "spectral": []
+  },
+  "uncertainty_investigation": {
+    "convergence": [
+      {
+        "radius_Rsun": 2,
+        "epochs": 84,
+        "max_abs_standardized_residual": 8.006965019012992e-13,
+        "max_relative_Av_error_change_finer_steps": 7.028615467419286e-10,
+        "Av_error_median": 0.9249555427050917,
+        "older_placeholder_Av_error": 0.1,
+        "refit_needed": false
+      },
+      {
+        "radius_Rsun": 3,
+        "epochs": 84,
+        "max_abs_standardized_residual": 7.805139127500356e-13,
+        "max_relative_Av_error_change_finer_steps": 6.100119298579898e-10,
+        "Av_error_median": 0.985877784128647,
+        "older_placeholder_Av_error": 0.1,
+        "refit_needed": false
+      },
+      {
+        "radius_Rsun": 4,
+        "epochs": 84,
+        "max_abs_standardized_residual": 6.223438918028022e-13,
+        "max_relative_Av_error_change_finer_steps": 7.12468528618615e-10,
+        "Av_error_median": 1.0453436144186972,
+        "older_placeholder_Av_error": 0.1,
+        "refit_needed": false
+      }
+    ],
+    "L_W1_3R_median_errors_Jy": {
+      "older_placeholder_error_Jy": 0.15041947484170964,
+      "previous_full_sigma_error_Jy": 0.16430568254233865,
+      "consistent_covariance_error_Jy": 0.1600033087958815
+    },
+    "photometric_2015_JD": 2457226.5,
+    "spectral_2015_JD": 2457225.7462704,
+    "photometric_refit_completed": true
+  },
+  "photometric_noise": {
+    "missing_measurement_fraction": 0.01,
+    "systematic_fraction": 0.05,
+    "missing_total_fraction": 0.050990195135927854,
+    "reported_positive_errors_retained": true,
+    "JH_measurements": 168,
+    "JH_missing_error_measurements": 11,
+    "JH_affected_epochs": 6
+  },
+  "refresh_date": "2026-10-07",
+  "spectral_fits_refitted": true,
+  "unchanged_spectral_fit_sha256": {
+    "fits/spectral_JH_4R_daily_data.csv": "55fe0255e6a3bfe0da5369dff29d7652c24627ae361e3b7f807b9eba5e6a7c31",
+    "fits/spectral_JH_3R_daily_params.csv": "b93cfd2efd1fdd5d1ec8442afb7f8f6ef4dcdb81c27b26b729ffab95fe697af1",
+    "fits/xshooter_JH_3R.pkl": "420815f9b4f623ea0b0a38b456c1a97e7fe6edca7a9f527b6c5ada79b8342d53",
+    "fits/irtf_JH_2R_fit_info.csv": "c671c2a8a74282a6ca7bcef103f566c6e75b61ca8db05f15c0fdf37502d6899d",
+    "fits/spectral_JH_2R_global_params.csv": "104aee00f9294c8c10cd20baaec2cd2dd8cdfb3322de6658d99f933d2c6cd6a7",
+    "fits/xshooter_JH_2R_daily_params.csv": "6cbc6171d65482894d34f15abf5f0eb831c4d50507d6036704da92cd7b2afb8b",
+    "fits/xshooter_JH_3R_daily_data.csv": "9e8cdf32b04e6bc8777f0560297bfbf5584ad3455f6ade106b83887ba327901b",
+    "fits/xshooter_JH_3R_fit_info.csv": "c398e73d30b4bb16c16fc56db625bfdc6a12e86f38d413434a6bc3a80fbf1dfb",
+    "fits/irtf_JH_3R.pkl": "112bb560f921a7b02f2fedb31980dc34429402fa8643d3f14d6f817bae26f56d",
+    "fits/spectral_JH_2R_fit_info.csv": "78149f35266789550a8abac78afc4497c95270ef79d97c4e16d6e994a383cfc7",
+    "fits/spectral_JH_2R_daily_params.csv": "c47adf3da40d70d56b96e9f0e93d93f42bb6113e7ba927eba225458ad88d150b",
+    "fits/basic_JH_2R_newdf_global_params.csv": "104aee00f9294c8c10cd20baaec2cd2dd8cdfb3322de6658d99f933d2c6cd6a7",
+    "fits/irtf_JH_4R_daily_params.csv": "db1f5e043cada1d8c7b1a126de01dd411d38e9e02c87b667ec30b493cb4ae955",
+    "fits/spectral_JH_4R.pkl": "27996088a8c7a2b10062d077e41096edf9d2515f76b5442e91eb27a351ba5101",
+    "fits/xshooter_JH_4R_fit_info.csv": "7850057e8b120b1285139c5d529cec0e1a1d6110d8c86b1c1e0d83f8ed931d3b",
+    "fits/irtf_JH_2R.pkl": "1d7e485302af41b51e3bd421cd915a266850f3f44a166932410acdaf1288947a",
+    "fits/xshooter_JH_3R_daily_params.csv": "c466ba5968ad1ce5b3049a7daee38cfe25711856a41f200be794e071cd19053d",
+    "fits/irtf_JH_4R_global_params.csv": "7d5507e249137699b74df87c3e1d02eaadff465395f0813a03063f4041d0397d",
+    "fits/xshooter_JH_4R_daily_data.csv": "9e8cdf32b04e6bc8777f0560297bfbf5584ad3455f6ade106b83887ba327901b",
+    "fits/xshooter_JH_2R.pkl": "b67cbc3480a8e94049ef01867cf9d497d9a1a9cfca85da3b875575d1da391cb8",
+    "fits/spectral_JH_3R_daily_data.csv": "55fe0255e6a3bfe0da5369dff29d7652c24627ae361e3b7f807b9eba5e6a7c31",
+    "fits/irtf_JH_2R_global_params.csv": "104aee00f9294c8c10cd20baaec2cd2dd8cdfb3322de6658d99f933d2c6cd6a7",
+    "fits/basic_JH_3R_newdf_global_params.csv": "43fccb199d89d5a16b4945f99b905d62e220626403d5494c3242b5c0746ed958",
+    "fits/spectral_JH_3R.pkl": "c1c0207c63c4b593871461b82c014780bc068cbecb90a4e042b77244cbf91bc4",
+    "fits/basic_JH_4R_newdf_fit_info.csv": "b02e2130e0244e81209e96404d13609cae90d97cf14afb1b403e5ff81f2a33b2",
+    "fits/spectral_JH_4R_daily_params.csv": "973ba7b4f13e4faa3816a5e7398dea106d363fa48837b8e5dd1cbb63c6883e51",
+    "fits/spectral_JH_2R_daily_data.csv": "55fe0255e6a3bfe0da5369dff29d7652c24627ae361e3b7f807b9eba5e6a7c31",
+    "fits/irtf_JH_2R_daily_params.csv": "38e1a2ec0017938595c0cc769332da1c7474bdf00a7f17dd4787e8f458afbb94",
+    "fits/xshooter_JH_3R_global_params.csv": "43fccb199d89d5a16b4945f99b905d62e220626403d5494c3242b5c0746ed958",
+    "fits/xshooter_JH_4R.pkl": "f6b9c381d75dc3e0b0d812f2c9b2317d17fcbe99d031965a4bd4758752f135a6",
+    "fits/xshooter_JH_2R_daily_data.csv": "9e8cdf32b04e6bc8777f0560297bfbf5584ad3455f6ade106b83887ba327901b",
+    "fits/basic_JH_2R_newdf_daily_params.csv": "d3bb7840c17610792c9829547932a80b476c72faa41f2bee55585e519191d485",
+    "fits/basic_JH_3R_newdf_daily_data.csv": "ac33519cb9e041d68cd4a279dde9b494b6e1877b14562e8cc1a4bd3816a4d1b1",
+    "fits/basic_JH_2R_newdf_fit_info.csv": "ca1a1038763f0ca88bd11b8afc6ecd73ca5fc208c780503328b2a7ae83f826c8",
+    "fits/spectral_JH_2R.pkl": "737bcb8c82ea2b5a6f320529ea98eaad1b894656693597ef3bc9e5ba9e1c8ff8",
+    "fits/basic_JH_3R_newdf_fit_info.csv": "0956869316d87c00b255575a04bc1df56b67fb03edba8851434d282d2b59b005",
+    "fits/irtf_JH_4R.pkl": "3125f60129e8b01b0610fb5a066a7c19074751b68dfe109dbdc86100f89c781b",
+    "fits/irtf_JH_3R_daily_params.csv": "57db0825a734c0994328b7ef4ea60209d8c540b31286c31ed3069ef1ec5de85e",
+    "fits/basic_JH_2R_newdf.pkl": "1758ab6fc9dcb6125c58337872016f283af39b83bb4cb74e0ccf934e83099320",
+    "fits/spectral_JH_4R_global_params.csv": "7d5507e249137699b74df87c3e1d02eaadff465395f0813a03063f4041d0397d",
+    "fits/xshooter_JH_4R_daily_params.csv": "88af73793dc57fde213c39c7f83574420f168fa908a274bc9fb927e11abf0968",
+    "fits/basic_JH_4R_newdf_daily_data.csv": "ac33519cb9e041d68cd4a279dde9b494b6e1877b14562e8cc1a4bd3816a4d1b1",
+    "fits/basic_JH_4R_newdf_daily_params.csv": "5a4a3114fedaef9590f9e9de434048f7cb14df0573ce0c187af70e1ec5517bc2",
+    "fits/xshooter_JH_2R_global_params.csv": "104aee00f9294c8c10cd20baaec2cd2dd8cdfb3322de6658d99f933d2c6cd6a7",
+    "fits/basic_JH_4R_newdf.pkl": "02f30ef4b9b03c1818b6698e26b83d5c937cc5b96be9a29f843c7094ad8ad15c",
+    "fits/irtf_JH_2R_daily_data.csv": "d38917863472e94915bd39a7864fce5d1d3053682508cb23d6b6d95a31ea5807",
+    "fits/irtf_JH_3R_global_params.csv": "43fccb199d89d5a16b4945f99b905d62e220626403d5494c3242b5c0746ed958",
+    "fits/irtf_JH_3R_daily_data.csv": "d38917863472e94915bd39a7864fce5d1d3053682508cb23d6b6d95a31ea5807",
+    "fits/spectral_JH_4R_fit_info.csv": "c3541c3762b0858a650652ffb6e227b0d618ef76c9df90b30eb214b1fc34aad6",
+    "fits/basic_JH_3R_newdf_daily_params.csv": "3a59c503e71c3874bd0d1d810cfaf646d53bc0177119277a417a1f89d989dc8d",
+    "fits/basic_JH_3R_newdf.pkl": "c24314de996fb528b7a818fc58fa7b742f0b3741392e33637f3a6609ff23c973",
+    "fits/irtf_JH_4R_fit_info.csv": "ff02468dfd2f36997d5e6947598216fe88a6eb285be05ee10a95efbb5878f37d",
+    "fits/spectral_JH_3R_global_params.csv": "43fccb199d89d5a16b4945f99b905d62e220626403d5494c3242b5c0746ed958",
+    "fits/irtf_JH_3R_fit_info.csv": "967a4b7642699a8d5d610eb9e115398836f69c61451d5626c9ab4cf2ea07bddc",
+    "fits/spectral_JH_3R_fit_info.csv": "f85dc75127ca9837faf85257f3e930eced95fb900429cd813e0e59179ca5162c",
+    "fits/xshooter_JH_4R_global_params.csv": "7d5507e249137699b74df87c3e1d02eaadff465395f0813a03063f4041d0397d",
+    "fits/basic_JH_2R_newdf_daily_data.csv": "ac33519cb9e041d68cd4a279dde9b494b6e1877b14562e8cc1a4bd3816a4d1b1",
+    "fits/irtf_JH_4R_daily_data.csv": "d38917863472e94915bd39a7864fce5d1d3053682508cb23d6b6d95a31ea5807",
+    "fits/basic_JH_4R_newdf_global_params.csv": "7d5507e249137699b74df87c3e1d02eaadff465395f0813a03063f4041d0397d",
+    "fits/xshooter_JH_2R_fit_info.csv": "fc90953f960971359f859f305bdf2603481ee799312f2e813d95aa9618842f4f"
+  },
+  "affected_pdf_outputs": [
+    "figures/Context_spectral_red_excess_overview.pdf",
+    "figures/red_excess_context_correlations.pdf",
+    "figures/spectral_red_excess_parameter_evolution.pdf",
+    "figures/rede4L_T_evolution.pdf"
+  ],
+  "spectral_red_range_correction": {
+    "seconds": 24.949437625007704,
+    "epochs": 6,
+    "identifiable": 6,
+    "spectral_red_min_micron": 2.0,
+    "spectral_red_mask_regions_micron": [
+      [
+        2.8,
+        3.3
+      ]
+    ],
+    "coverage": [
+      {
+        "JD": 2457225.7462704,
+        "date": "20150722",
+        "instrument": "IRTF",
+        "n_JH": 1189,
+        "n_red": 2904,
+        "red_min_um": 2.0001819,
+        "red_max_um": 4.1495442,
+        "BB_identifiable": true,
+        "status": "constrained",
+        "T_bb": 546.4255716431882,
+        "R_bb_au": 13.764379660238912
+      },
+      {
+        "JD": 2460147.8042661,
+        "date": "20230722",
+        "instrument": "IRTF",
+        "n_JH": 1168,
+        "n_red": 4057,
+        "red_min_um": 2.0000863,
+        "red_max_um": 5.3695574,
+        "BB_identifiable": true,
+        "status": "constrained",
+        "T_bb": 1112.0686143295118,
+        "R_bb_au": 4.556010075564771
+      },
+      {
+        "JD": 2460766.1008691,
+        "date": "20250331",
+        "instrument": "IRTF",
+        "n_JH": 1168,
+        "n_red": 4044,
+        "red_min_um": 2.0002072,
+        "red_max_um": 5.3694019,
+        "BB_identifiable": true,
+        "status": "constrained",
+        "T_bb": 1004.1487194630241,
+        "R_bb_au": 4.598941613814219
+      },
+      {
+        "JD": 2460781.0496146,
+        "date": "20250415",
+        "instrument": "IRTF",
+        "n_JH": 1169,
+        "n_red": 4041,
+        "red_min_um": 2.0002766,
+        "red_max_um": 5.3692093,
+        "BB_identifiable": true,
+        "status": "constrained",
+        "T_bb": 1003.4979734098553,
+        "R_bb_au": 4.889975398572774
+      },
+      {
+        "JD": 2460847.8364954,
+        "date": "20250621",
+        "instrument": "IRTF",
+        "n_JH": 1168,
+        "n_red": 3996,
+        "red_min_um": 2.0001519,
+        "red_max_um": 5.369076299999999,
+        "BB_identifiable": true,
+        "status": "constrained",
+        "T_bb": 1023.5542381088313,
+        "R_bb_au": 5.0647029032407405
+      },
+      {
+        "JD": 2461225.8232898,
+        "date": "20260704",
+        "instrument": "IRTF",
+        "n_JH": 1168,
+        "n_red": 3960,
+        "red_min_um": 2.0001357,
+        "red_max_um": 5.368131199999999,
+        "BB_identifiable": true,
+        "status": "constrained",
+        "T_bb": 968.7286006872952,
+        "R_bb_au": 5.607282006619926
+      }
+    ],
+    "excluded_red_epochs": [
+      2457209.599,
+      2460364.85,
+      2460565.7374397,
+      2460594.478,
+      2460861.8192732
+    ],
+    "coverage_requirement": {
+      "K_micron": [
+        2.0,
+        2.5
+      ],
+      "L_micron": [
+        3.3,
+        4.2
+      ],
+      "min_unique_samples_per_band": 2
+    },
+    "coverage_selection": [
+      {
+        "JD": 2457209.599,
+        "DateCode": "201506",
+        "instrument": "XSHOOTER",
+        "selected_for_BB": false,
+        "n_K_continuum": 96,
+        "n_L_continuum": 0,
+        "red_max_um": 2.4772171178640012,
+        "reason": "excluded: no unmasked L continuum"
+      },
+      {
+        "JD": 2457225.7462704,
+        "DateCode": "20150722",
+        "instrument": "IRTF",
+        "selected_for_BB": true,
+        "n_K_continuum": 1257,
+        "n_L_continuum": 1647,
+        "red_max_um": 4.1495442,
+        "reason": "eligible: K and L continuum"
+      },
+      {
+        "JD": 2460147.8042661,
+        "DateCode": "20230722",
+        "instrument": "IRTF",
+        "selected_for_BB": true,
+        "n_K_continuum": 1257,
+        "n_L_continuum": 1663,
+        "red_max_um": 5.3695574,
+        "reason": "eligible: K and L continuum"
+      },
+      {
+        "JD": 2460364.85,
+        "DateCode": "202402",
+        "instrument": "XSHOOTER",
+        "selected_for_BB": false,
+        "n_K_continuum": 96,
+        "n_L_continuum": 0,
+        "red_max_um": 2.477259799891806,
+        "reason": "excluded: no unmasked L continuum"
+      },
+      {
+        "JD": 2460565.7374397,
+        "DateCode": "20240912",
+        "instrument": "IRTF",
+        "selected_for_BB": false,
+        "n_K_continuum": 1257,
+        "n_L_continuum": 0,
+        "red_max_um": 2.4498067,
+        "reason": "excluded: no unmasked L continuum"
+      },
+      {
+        "JD": 2460594.478,
+        "DateCode": "202410",
+        "instrument": "XSHOOTER",
+        "selected_for_BB": false,
+        "n_K_continuum": 96,
+        "n_L_continuum": 0,
+        "red_max_um": 2.4772012634042655,
+        "reason": "excluded: no unmasked L continuum"
+      },
+      {
+        "JD": 2460766.1008691,
+        "DateCode": "20250331",
+        "instrument": "IRTF",
+        "selected_for_BB": true,
+        "n_K_continuum": 1257,
+        "n_L_continuum": 1647,
+        "red_max_um": 5.3694019,
+        "reason": "eligible: K and L continuum"
+      },
+      {
+        "JD": 2460781.0496146,
+        "DateCode": "20250415",
+        "instrument": "IRTF",
+        "selected_for_BB": true,
+        "n_K_continuum": 1257,
+        "n_L_continuum": 1642,
+        "red_max_um": 5.3692093,
+        "reason": "eligible: K and L continuum"
+      },
+      {
+        "JD": 2460847.8364954,
+        "DateCode": "20250621",
+        "instrument": "IRTF",
+        "selected_for_BB": true,
+        "n_K_continuum": 1257,
+        "n_L_continuum": 1604,
+        "red_max_um": 5.369076299999999,
+        "reason": "eligible: K and L continuum"
+      },
+      {
+        "JD": 2460861.8192732,
+        "DateCode": "20250705",
+        "instrument": "IRTF",
+        "selected_for_BB": false,
+        "n_K_continuum": 1257,
+        "n_L_continuum": 0,
+        "red_max_um": 2.4499354,
+        "reason": "excluded: no unmasked L continuum"
+      },
+      {
+        "JD": 2461225.8232898,
+        "DateCode": "20260704",
+        "instrument": "IRTF",
+        "selected_for_BB": true,
+        "n_K_continuum": 1257,
+        "n_L_continuum": 1612,
+        "red_max_um": 5.368131199999999,
+        "reason": "eligible: K and L continuum"
+      }
+    ]
   }
 }

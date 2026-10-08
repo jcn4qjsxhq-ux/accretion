@@ -61,83 +61,29 @@ def planck_function(freq, T):
 
 
 def planck_model_custom(frequencies, temperature, distance, av=0.0, R_bb=2 * 1.496e11):
+    """Extincted BB log F_nu in Jy, with the pipeline's emitting-area convention.
+
+    Compute in log space so a faint blue tail does not invalidate the red
+    continuum. Physical bounds belong to the fitter, not hidden temperature
+    cutoffs or a wavelength-independent low-flux sentinel in this model.
     """
-    Custom Planck model using your existing planck_function
-    R_bb: emitting radius in metres. If None, defaults to dust sublimation
-    radius estimate. Should be ~0.1–1 AU for a 1500 K dust component.
-    """
-
-
-    try:
-        frequencies = np.asarray(frequencies)
-        
-        # Validate temperature (handle scalar or array)
-        temp_array = np.atleast_1d(temperature)
-        if np.any(temp_array <= 500) or np.any(temp_array > 20000):
-            return np.full(len(frequencies), -50.0)
-        
-        # Use your existing vectorized planck function
-        planck_intensity = planck_function(frequencies, temperature)
-        
-        # Handle the 2D output from planck_function
-        if planck_intensity.ndim > 1:
-            if planck_intensity.shape[1] > 1:
-                planck_intensity = planck_intensity[:, 0]
-            else:
-                planck_intensity = planck_intensity.squeeze()
-        
-        # Ensure it's 1D
-        planck_intensity = np.atleast_1d(planck_intensity)
-        
-        # Check for valid planck output BEFORE distance scaling
-        # if np.any(planck_intensity < 1e-40) or np.any(~np.isfinite(planck_intensity)):
-        #     print(f"Invalid Planck intensity: {planck_intensity}, T={temperature}, freq={frequencies}")
-        #     return np.full(len(frequencies), -50.0)
-
-        if np.any(~np.isfinite(planck_intensity)) or np.any(planck_intensity <= 0):
-            print(f"EARLY EXIT 1: planck_intensity={planck_intensity}")
-            return np.full(len(frequencies), -50.0)
-        
-        # Convert to flux density at distance
-        # emitting_area = np.pi * (1e10)**2  # 10^10 m radius disk
-
-        emitting_area = np.pi * R_bb**2
-        solid_angle = emitting_area / (4 * np.pi * distance**2)
-        flux_density = planck_intensity * solid_angle
-        
-        # Apply extinction if provided
-        if av > 0:
-            wavelength_micron = (constants.c / frequencies) * 1e6
-            A_lambda = ccm89_extinction(wavelength_micron) * av
-            flux_density *= 10**(-A_lambda / 2.5)
-        
-        # Check if flux is too small before taking log
-        if np.any(flux_density <= 0) or np.any(~np.isfinite(flux_density)):
-            print(f"EARLY EXIT 2: flux_density={flux_density}")
-            return np.full(len(frequencies), -50.0)
-            
-        # Convert to log flux
-        # log_flux = np.log(flux_density)
-        # After computing flux_density in SI (W/m²/Hz):
-        flux_density_jy = flux_density * 1e26  # Convert W/m²/Hz → Jy
-        
-        # Then apply extinction and take log of the Jy value
-        log_flux = np.log(flux_density_jy)
-        
-        # Validate result - allow very negative values, they're just faint!
-        # Changed threshold from -55 to -100 to allow faint extincted sources
-        if np.any(~np.isfinite(log_flux)) or np.any(log_flux < -100):
-            print(f"EARLY EXIT 3: log_flux={log_flux}")
-            return np.full(len(frequencies), -50.0)
-                
-        return log_flux
-    
-    except Exception as e:
-        print(f"Planck model error: {e}")
-        import traceback
-        traceback.print_exc()
-        frequencies = np.asarray(frequencies)
-        return np.full(len(frequencies), -50.0)
+    frequencies = np.atleast_1d(np.asarray(frequencies, dtype=float))
+    temperature = float(np.asarray(temperature).ravel()[0])
+    if (not np.isfinite(temperature) or temperature <= 0 or
+        not np.isfinite(distance) or distance <= 0 or
+        not np.isfinite(R_bb) or R_bb <= 0 or
+        np.any(~np.isfinite(frequencies)) or np.any(frequencies <= 0)):
+        return np.full(frequencies.shape, -50.0)
+    x = constants.h * frequencies / (constants.k * temperature)
+    log_denominator = np.empty_like(x)
+    large = x > 50
+    log_denominator[large] = x[large] + np.log1p(-np.exp(-x[large]))
+    log_denominator[~large] = np.log(np.expm1(x[~large]))
+    log_intensity = np.log(2*constants.h/constants.c**2) + 3*np.log(frequencies) - log_denominator
+    log_flux = log_intensity + 2*np.log(R_bb) - np.log(4.) - 2*np.log(distance) + np.log(1e26)
+    if av > 0:
+        log_flux -= np.log(10.)/2.5 * ccm89_extinction(constants.c/frequencies*1e6)*av
+    return log_flux
 
 
 def ccm89_extinction(wavelength_micron, Rv=3.1):

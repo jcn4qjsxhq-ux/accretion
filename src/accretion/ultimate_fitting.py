@@ -40,10 +40,13 @@ def _normalize_red_excess_fit_param(fit_param):
         'R': 'R_bb',
         'radius': 'R_bb',
         'geometry': 'R_bb',
-        'logr_bb': 'R_bb'
+        'logr_bb': 'R_bb',
+        't_bb_r_bb': 'T_bb_R_bb',
+        'both': 'T_bb_R_bb',
+        'joint': 'T_bb_R_bb'
     }
     if value not in mapping:
-        raise ValueError("red_excess_fit_param must be one of: 'T_bb', 'R_bb', 'temperature', 'radius', 'geometry'")
+        raise ValueError("red_excess_fit_param must be one of: 'T_bb', 'R_bb', 'temperature', 'radius', 'geometry', 'both'")
     return mapping[value]
 
 
@@ -70,6 +73,9 @@ def _resolve_red_excess_component(day_params, fit_info=None,
         fit_param = _normalize_red_excess_fit_param(fit_param)
     except ValueError:
         fit_param = 'R_bb' if ('R_bb' in day_params or 'logR_bb' in day_params) else 'T_bb'
+
+    if fit_param == 'T_bb_R_bb':
+        return fit_param, _safe_float(day_params.get('T_bb'), default_T_bb), _safe_float(day_params.get('R_bb'), default_R_bb)
 
     if fit_param == 'R_bb':
         T_bb = _safe_float(fit_info.get('fixed_T_bb', default_T_bb), default_T_bb)
@@ -186,6 +192,133 @@ def _photometric_frequency_from_row(row, filter_name=None, fallback_frequencies=
     return np.nan, 'missing'
 
 
+def spectral_red_continuum_mask(wavelengths_micron, min_micron=2.0,
+                               mask_regions_micron=((2.8, 3.3),)):
+    """Select K and longer continuum, excluding inclusive absorption windows."""
+    wave = np.asarray(wavelengths_micron, dtype=float)
+    selected = np.isfinite(wave) & (wave >= min_micron - 1e-9)
+    for low, high in mask_regions_micron:
+        selected &= ~((wave >= low - 1e-9) & (wave <= high + 1e-9))
+    return selected
+
+
+def spectral_red_has_kl_coverage(wavelengths_micron, min_micron=2.0,
+                                 mask_regions_micron=((2.8, 3.3),)):
+    """Require usable continuum samples in both K and L, after masking."""
+    wave = np.asarray(wavelengths_micron, dtype=float)
+    red = spectral_red_continuum_mask(wave, min_micron, mask_regions_micron)
+    k = red & (wave >= 2.0 - 1e-9) & (wave <= 2.5 + 1e-9)
+    l = red & (wave > 3.3 + 1e-9) & (wave <= 4.2 + 1e-9)
+    return len(np.unique(wave[k])) >= 2 and len(np.unique(wave[l])) >= 2
+
+
+def fit_with_expanding_bounds(required_filters, fit_filters, df, max_attempts=20, **options):
+    """Retry active parameter bounds; flag unidentifiable joint BB components.
+
+    Independent red/spectral fits are processed per epoch. Coupled or regularized
+    fits retain their complete dataset. Local covariance is computed by the core
+    fitter on every attempt; retries never substitute placeholder uncertainties.
+    """
+    import copy
+    if max_attempts < 1:
+        raise ValueError('max_attempts must be positive')
+    options = dict(options, expand_bounds=False)
+    spectral = options.get('data_mode') == 'spectral'
+    red = options.get('red_excess_mode', False)
+    independent = not options.get('global_params') and options.get('lambda_reg', 1.) == 0 and not options.get('AR_mode')
+    groups = (_get_spectral_daily_data(df) if spectral else get_daily_data(df, required_filters)) if independent and (spectral or red) else {None: df}
+    excluded_coverage_epochs = []
+    if spectral and red:
+        eligible_groups = {}
+        for jd, day in groups.items():
+            wave = _coerce_wavelength_meters(day[day['Flux'] > 0])*1e6
+            if spectral_red_has_kl_coverage(wave,
+                    options.get('spectral_red_min_micron', 2.0),
+                    options.get('spectral_red_mask_regions_micron', ((2.8, 3.3),))):
+                eligible_groups[jd] = day
+            elif jd is not None:
+                excluded_coverage_epochs.append(jd)
+        groups = eligible_groups
+    definitions = {'Mdot':('mdot_bounds_msun_per_year',(1e-7,8e-4),1.),
+                   'Av':('av_bounds',(.1,40.),1.),
+                   'T_bb':('bb_temperature_bounds',(650.,10000.),1.),
+                   'R_bb':('bb_radius_bounds_au',(.05,20.),constants.au)}
+    completed = []
+    for _, day in groups.items():
+        settings = copy.deepcopy(options)
+        attempts, previous, flat_bb, status = [], None, 0, 'constrained'
+        for attempt in range(max_attempts):
+            result = ultimate_fitting_regularized(required_filters, fit_filters, df=day, **settings)
+            if result is None:
+                break
+            hits = []
+            for params in result['daily_params'].values():
+                active = set(result['fit_info'].get('param_names', ('logMdot','Av')))
+                active.add('Mdot')
+                for key,(bound_name,default,scale) in definitions.items():
+                    if key not in active: continue
+                    value = params.get(key,np.nan)/scale
+                    low, high = settings.get(bound_name,default)
+                    if np.isfinite(value):
+                        if value <= low+max(abs(low)*1e-3,1e-12): hits.append((key,bound_name,'low'))
+                        if value >= high-max(abs(high)*1e-3,1e-12): hits.append((key,bound_name,'high'))
+            hits = sorted(set(hits))
+            objective = float(result['total_objective'])
+            attempts.append(dict(attempt=attempt+1, objective=objective, success=result['success'],
+                bound_hits=[f'{key}:{side}' for key,_,side in hits],
+                bounds={name:list(settings.get(name,default)) for name,default,_ in definitions.values()}))
+            bb_only = hits and all(key in ('T_bb','R_bb') for key,_,_ in hits)
+            flat_bb = flat_bb+1 if bb_only and previous is not None and abs(objective-previous)<=1e-5*max(1.,abs(previous)) else 0
+            if flat_bb >= 3:
+                status = 'boundary asymptote'
+                break
+            if not hits:
+                if not result['success']:
+                    raise RuntimeError(f'Fit failed without an active bound: {result.get("message", "optimizer warning")}')
+                break
+            if attempt+1 == max_attempts:
+                raise RuntimeError(f'Active bounds remain after {max_attempts} attempts: {hits}')
+            for _,name,side in hits:
+                low,high = settings.get(name,next(default for n,default,_ in definitions.values() if n==name))
+                settings[name] = (low/2,high) if side=='low' else (low,high*2)
+            if len(result['daily_params']) == 1:
+                params = next(iter(result['daily_params'].values()))
+                seed = {**(settings.get('initial_params') or {}), **{k:params[k] for k in ('Av','T_bb','R_bb') if k in params}}
+                seed['Mdot'] = params['Mdot']*M_sun/year
+                settings['initial_params'] = seed
+            previous = objective
+        if result is None: continue
+        result['fit_info']['bound_attempts'] = attempts
+        for params in result['daily_params'].values():
+            if not red or not {'T_bb','R_bb'}.issubset(params): continue
+            weak = all(not np.isfinite(params.get(key+'_err',np.nan)) for key in ('T_bb','R_bb'))
+            huge = all(params.get(key+'_err',0)>10*params[key] for key in ('T_bb','R_bb'))
+            component_status = status if status!='constrained' else ('rank deficient' if weak else ('effectively unconstrained (>1000% local T and R uncertainty)' if huge else 'constrained'))
+            params['BB_constraint_status'] = component_status
+            params['BB_identifiable'] = component_status=='constrained'
+            if not params['BB_identifiable']:
+                for key in ('T_bb','R_bb'):
+                    params[key+'_candidate'] = params[key]
+                    params[key] = params[key+'_err'] = np.nan
+        completed.append(result)
+    if not completed: return None
+    merged = copy.deepcopy(completed[0])
+    for key in ('daily_params','daily_data','red_excess_data'):
+        merged[key] = {jd:value for result in completed for jd,value in result.get(key,{}).items()}
+    merged['success'] = all(result['success'] for result in completed)
+    for key in ('chi_squared','regularization_term','total_objective','blue_bb_penalty'):
+        merged[key] = sum(result.get(key,0.) for result in completed)
+    merged['fit_info']['epoch_diagnostics'] = [dict(JD=list(result['daily_params']),info=result['fit_info']) for result in completed]
+    for key in ('n_days','n_data_points','dof'):
+        merged['fit_info'][key] = sum(result['fit_info'].get(key,0) for result in completed)
+    merged['fit_info']['uncertainty_diagnostics'] = [item for result in completed for item in result['fit_info'].get('uncertainty_diagnostics',[])]
+    merged['fit_info']['excluded_red_epochs'] = sorted(set(excluded_coverage_epochs + [
+        jd for result in completed for jd in result['fit_info'].get('excluded_red_epochs', [])]))
+    dof = merged['fit_info']['dof']
+    merged['reduced_chi_squared'] = merged['chi_squared']/dof if dof>0 else np.nan
+    return merged
+
+
 def ultimate_fitting_regularized(required_filters, fit_filters, global_params=(),
     AR_mode=False, red_excess_mode=False, initial_params=None,
     df=None, debug=False, lambda_reg=1.0,
@@ -206,7 +339,24 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
     local_solver_gtol=1e-13,
     mdot_bounds_msun_per_year=(1e-7, 0.8e-3),
     av_bounds=(0.1, 40.0),
-    evaluate_only=False):
+    evaluate_only=False,
+    bb_temperature_bounds=(650.0, 10000.0),
+    bb_radius_bounds_au=(0.05, 20.0),
+    spectral_red_min_micron=2.0,
+    spectral_red_mask_regions_micron=((2.8, 3.3),),
+    expand_bounds=False, bound_retry_limit=20,
+    missing_photometric_fractional_error=0.01,
+    systematic_fractional_error=0.05):
+    # These are flux fractions, not magnitude errors. Reported measurement
+    # errors take precedence; the common systematic term is added in quadrature.
+    if not np.isfinite(missing_photometric_fractional_error) or missing_photometric_fractional_error <= 0:
+        raise ValueError('missing_photometric_fractional_error must be positive and finite')
+    if not np.isfinite(systematic_fractional_error) or systematic_fractional_error < 0:
+        raise ValueError('systematic_fractional_error must be nonnegative and finite')
+    if expand_bounds and not evaluate_only:
+        options = locals().copy()
+        for key in ('required_filters','fit_filters','df','expand_bounds','bound_retry_limit'): options.pop(key)
+        return fit_with_expanding_bounds(required_filters,fit_filters,df,max_attempts=bound_retry_limit,**options)
     data_mode = str(data_mode).strip().lower()
     if data_mode not in ('photometry', 'spectral'):
         raise ValueError("data_mode must be either 'photometry' or 'spectral'")
@@ -235,7 +385,8 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
     fitted_param_internal = None
     fitted_param_names = ['logMdot', 'Av']
     spectral_rede_mode = data_mode == 'spectral' and red_excess_mode
-    if spectral_rede_mode:
+    joint_rede_mode = red_excess_mode and (data_mode == 'spectral' or _normalize_red_excess_fit_param(red_excess_fit_param) == 'T_bb_R_bb')
+    if joint_rede_mode:
         fit_param_name = 'T_bb_R_bb'
         fitted_param_names.extend(['T_bb', 'R_bb'])
     elif red_excess_mode:
@@ -250,10 +401,10 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
     for param_name in regularize_params:
         if param_name in ('logMdot', 'Av') and param_name not in internal_regularize_params:
             internal_regularize_params.append(param_name)
-        elif spectral_rede_mode and param_name in ('T_bb', 'temperature', 'temp'):
+        elif joint_rede_mode and param_name in ('T_bb', 'temperature', 'temp'):
             if 'T_bb' not in internal_regularize_params:
                 internal_regularize_params.append('T_bb')
-        elif spectral_rede_mode and param_name in ('R_bb', 'R', 'radius', 'geometry', 'logR_bb'):
+        elif joint_rede_mode and param_name in ('R_bb', 'R', 'radius', 'geometry', 'logR_bb'):
             if 'logR_bb' not in internal_regularize_params:
                 internal_regularize_params.append('logR_bb')
         elif red_excess_mode and fit_param_name == 'T_bb' and param_name in ('T_bb', 'temperature', 'temp'):
@@ -280,8 +431,23 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
     fixed_T_bb = _safe_float(default_params.get('T_bb', fixed_T_bb), fixed_T_bb)
     fixed_R_bb = _safe_float(default_params.get('R_bb', fixed_R_bb), fixed_R_bb)
 
+    excluded_red_epochs = []
     if data_mode == 'spectral':
         daily_data = _get_spectral_daily_data(df)
+        if red_excess_mode:
+            eligible = {}
+            for jd, day in daily_data.items():
+                wave = _coerce_wavelength_meters(day)*1e6
+                blue = (wave >= 1.15) & (wave <= 1.75)
+                red = spectral_red_continuum_mask(
+                    wave, spectral_red_min_micron, spectral_red_mask_regions_micron)
+                valid_wave = wave[day['Flux'].to_numpy() > 0]
+                if np.sum(blue) >= 2 and spectral_red_has_kl_coverage(
+                        valid_wave, spectral_red_min_micron, spectral_red_mask_regions_micron):
+                    eligible[jd] = day[blue | red].copy()
+                else:
+                    excluded_red_epochs.append(jd)
+            daily_data = eligible
     else:
         daily_data = get_daily_data(df, required_filters)
     if not daily_data:
@@ -348,7 +514,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                     fluxerr_val = max(0.1 * flux_val, 1e-12)
 
                 frac_err = fluxerr_val / flux_val
-                frac_err = np.sqrt(frac_err**2 + 0.05**2)
+                frac_err = np.hypot(frac_err, systematic_fractional_error)
                 if np.isnan(log_flux) or np.isinf(log_flux) or np.isnan(frac_err) or np.isinf(frac_err):
                     continue
 
@@ -388,11 +554,11 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                         continue
 
                     log_flux = np.log(flux_val)
-                    if fluxerr_val == 0 or np.isnan(fluxerr_val):
-                        fluxerr_val = max(0.1 * flux_val, 1e-12)
+                    if not np.isfinite(fluxerr_val) or fluxerr_val <= 0:
+                        fluxerr_val = missing_photometric_fractional_error * flux_val
 
                     frac_err = fluxerr_val / flux_val
-                    frac_err = np.sqrt(frac_err**2 + 0.05**2)
+                    frac_err = np.hypot(frac_err, systematic_fractional_error)
                     if np.isnan(log_flux) or np.isinf(log_flux) or np.isnan(frac_err) or np.isinf(frac_err):
                         continue
 
@@ -450,7 +616,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
     n_data_points = len(all_frequencies)
     print(f"Fitting {n_data_points} data points across {n_days} days")
 
-    n_params_per_day = 4 if spectral_rede_mode else (3 if red_excess_mode else 2)
+    n_params_per_day = 4 if joint_rede_mode else (3 if red_excess_mode else 2)
     n_global_params = len(global_params)
     # In evaluation-only mode every model parameter is fixed by the caller, so
     # none of them consume a degree of freedom.
@@ -461,7 +627,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
         return None
 
     reg_param_indices = {'logMdot': [], 'Av': []}
-    if spectral_rede_mode:
+    if joint_rede_mode:
         reg_param_indices['T_bb'] = []
         reg_param_indices['logR_bb'] = []
     elif red_excess_mode:
@@ -477,7 +643,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
             reg_param_indices['logMdot'].append((day_idx * n_params_per_day, (day_idx + 1) * n_params_per_day))
         if 'Av' in internal_regularize_params:
             reg_param_indices['Av'].append((day_idx * n_params_per_day + 1, (day_idx + 1) * n_params_per_day + 1))
-        if spectral_rede_mode:
+        if joint_rede_mode:
             if 'T_bb' in internal_regularize_params:
                 reg_param_indices['T_bb'].append((day_idx * n_params_per_day + 2, (day_idx + 1) * n_params_per_day + 2))
             if 'logR_bb' in internal_regularize_params:
@@ -488,7 +654,10 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
     reg_time_diffs = np.array(reg_time_diffs)
     param_bounds = []
     initial_guess = []
-    radius_bounds = (0.05 * constants.au, 20 * constants.au)
+    radius_bounds = tuple(float(v) * constants.au for v in bb_radius_bounds_au)
+    for name, bounds in [('BB temperature', bb_temperature_bounds), ('BB radius', radius_bounds)]:
+        if len(bounds) != 2 or not np.all(np.isfinite(bounds)) or not 0 < bounds[0] < bounds[1]:
+            raise ValueError(f'{name} bounds must be positive and increasing')
 
     for _ in range(n_days):
         initial_guess.extend([np.log10(default_params['Mdot']), default_params['Av']])
@@ -497,15 +666,15 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
             for value in mdot_bounds_msun_per_year
         ))
         param_bounds.append(tuple(float(value) for value in av_bounds))
-        if spectral_rede_mode:
+        if joint_rede_mode:
             initial_guess.append(default_params['T_bb'])
-            param_bounds.append((650.0, 5000.0))
+            param_bounds.append(tuple(bb_temperature_bounds))
             initial_guess.append(np.log10(default_params['R_bb']))
             param_bounds.append((np.log10(radius_bounds[0]), np.log10(radius_bounds[1])))
         elif red_excess_mode:
             if fit_param_name == 'T_bb':
                 initial_guess.append(default_params['T_bb'])
-                param_bounds.append((1000.0, 10000.0))
+                param_bounds.append(tuple(bb_temperature_bounds))
             else:
                 initial_guess.append(np.log10(default_params['R_bb']))
                 param_bounds.append((np.log10(radius_bounds[0]), np.log10(radius_bounds[1])))
@@ -528,7 +697,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
 
     def model_function_vectorized(params):
         predicted_fluxes = np.full(n_data_points, -50.0)
-        if spectral_rede_mode:
+        if joint_rede_mode:
             logMdot_array = params[::4][:n_days]
             av_array = params[1::4][:n_days]
             t_bb_array = params[2::4][:n_days]
@@ -558,7 +727,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
             mdot = 10.0 ** logMdot
             av = av_array[day_idx]
             try:
-                if spectral_rede_mode:
+                if joint_rede_mode:
                     day_wavelengths = all_wavelengths_micron[day_mask]
 
                     log_fluxes_acc = accretion_model(
@@ -572,10 +741,12 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                     log_fluxes_bb = planck_model_custom(
                         day_frequencies, T_bb, distance, av, R_bb=R_bb
                     )
-                    valid_bb = ~(np.isnan(log_fluxes_bb) | np.isinf(log_fluxes_bb) | (log_fluxes_bb < -200))
+                    valid_bb = ~(np.isnan(log_fluxes_bb) | np.isinf(log_fluxes_bb))
                     log_fluxes_bb[~valid_bb] = -50.0
                     acc_flux = np.where(np.isfinite(log_fluxes_acc), np.exp(log_fluxes_acc), 0.0)
                     bb_flux = np.where(np.isfinite(log_fluxes_bb), np.exp(log_fluxes_bb), 0.0)
+                    if data_mode == 'photometry':
+                        bb_flux = np.where(np.isin(day_filters, ['K', 'L']), bb_flux, 0.0)
                     total_flux = acc_flux + bb_flux
                     total_flux = np.where((total_flux > 0) & np.isfinite(total_flux), total_flux, np.exp(-50.0))
                     day_predicted = np.log(total_flux)
@@ -622,7 +793,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                                 red_frequencies, T_bb, distance, av, R_bb=R_bb
                             )
                             valid_acc = ~(np.isnan(log_fluxes_red_acc) | np.isinf(log_fluxes_red_acc) | (log_fluxes_red_acc < -45))
-                            valid_bb = ~(np.isnan(log_fluxes_red_bb) | np.isinf(log_fluxes_red_bb) | (log_fluxes_red_bb < -200))
+                            valid_bb = ~(np.isnan(log_fluxes_red_bb) | np.isinf(log_fluxes_red_bb))
                             log_fluxes_red_acc[~valid_acc] = -50.0
                             log_fluxes_red_bb[~valid_bb] = -50.0
                             red_acc_flux = np.where(np.isfinite(log_fluxes_red_acc), np.exp(log_fluxes_red_acc), 0.0)
@@ -904,7 +1075,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
 
     def initialize_spectral_rede_stages(params):
         """Stage A disk fit on blue data, then Stage B BB fit on red excess."""
-        if not spectral_rede_mode:
+        if not joint_rede_mode:
             return np.array(params, dtype=float, copy=True), {}
 
         staged = np.array(params, dtype=float, copy=True)
@@ -924,8 +1095,9 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
         for day_idx in range(n_days):
             start_idx = day_idx * n_params_per_day
             day_mask = day_indices == day_idx
-            blue_mask = day_mask & (all_wavelengths_micron < SPECTRAL_REDE_THRESHOLD_MICRON)
-            red_mask = day_mask & (all_wavelengths_micron >= SPECTRAL_REDE_THRESHOLD_MICRON)
+            blue_mask = day_mask & (np.isin(filter_indices, ['J', 'H']) if data_mode == 'photometry' else all_wavelengths_micron < SPECTRAL_REDE_THRESHOLD_MICRON)
+            red_mask = day_mask & (np.isin(filter_indices, ['K', 'L']) if data_mode == 'photometry' else spectral_red_continuum_mask(
+                all_wavelengths_micron, spectral_red_min_micron, spectral_red_mask_regions_micron))
 
             day_bounds = np.array(param_bounds[start_idx:start_idx + n_params_per_day], dtype=float)
             lower = day_bounds[:, 0]
@@ -1051,7 +1223,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
         R_out = default_params['R_out']
         distance = default_params['distance']
         R_in = default_params['R_in']
-        max_fraction = float(spectral_rede_max_blue_bb_fraction)
+        max_fraction = float(spectral_rede_max_blue_bb_fraction) if data_mode == 'spectral' else 0.0
         penalty_scale = np.sqrt(float(spectral_rede_blue_penalty_weight))
 
         for day_idx in range(n_days):
@@ -1102,10 +1274,12 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                     -50.0,
                 ))
                 bb_flux = np.exp(np.where(
-                    np.isfinite(bb_log_flux) & (bb_log_flux >= -200.0),
+                    np.isfinite(bb_log_flux),
                     bb_log_flux,
                     -50.0,
                 ))
+                if data_mode == 'photometry':
+                    bb_flux = np.where(np.isin(filter_indices[day_mask], ['K', 'L']), bb_flux, 0.0)
                 total_flux = acc_flux + bb_flux
                 if np.any(~np.isfinite(total_flux)) or np.any(total_flux <= 0):
                     return np.full(residual_size, 1e6)
@@ -1131,16 +1305,29 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
 
             jd_day = sorted_jd_days[day_idx]
             try:
-                day_result = optimize.least_squares(
-                    joint_residual,
-                    x0=x0,
-                    bounds=(lower, upper),
-                    ftol=optimizer_ftol,
-                    xtol=optimizer_ftol,
-                    gtol=optimizer_gtol,
-                    x_scale=np.maximum(np.abs(x0), 1.0),
+                starts = [x0]
+                red_mask = (np.isin(filter_indices[day_mask], ['K', 'L']) if data_mode == 'photometry' else spectral_red_continuum_mask(
+                    day_wavelengths, spectral_red_min_micron, spectral_red_mask_regions_micron))
+                red_freq = day_frequencies[red_mask]
+                red_observed = np.exp(day_log_fluxes[red_mask])
+                red_sigma = red_observed*day_errors[red_mask]
+                disk_red = np.exp(accretion_model(red_freq,10**x0[0],M,R_star,R_out,R_in,distance,x0[1]))
+                for temperature in (400., 800., 1500., 3000., 6000.):
+                    if not lower[2] < temperature < upper[2]: continue
+                    trial = x0.copy(); trial[2] = temperature
+                    unit_bb = np.exp(planck_model_custom(red_freq,temperature,distance,x0[1],R_bb=constants.au))
+                    denominator = np.sum((unit_bb/red_sigma)**2)
+                    amplitude = np.sum(unit_bb*(red_observed-disk_red)/red_sigma**2)/denominator if denominator > 0 else 0
+                    if amplitude > 0: trial[3] = np.log10(constants.au*np.sqrt(amplitude))
+                    starts.append(np.clip(trial,lower,upper))
+                candidates = [optimize.least_squares(
+                    joint_residual, x0=start, bounds=(lower, upper),
+                    ftol=optimizer_ftol, xtol=optimizer_ftol, gtol=optimizer_gtol,
+                    x_scale=np.array([1.,10.,1000.,1.]),
                     max_nfev=min(local_solver_max_nfev, optimizer_maxfun),
-                )
+                ) for start in starts]
+                converged = [candidate for candidate in candidates if candidate.success]
+                day_result = min(converged or candidates, key=lambda candidate: candidate.cost)
                 if np.all(np.isfinite(day_result.x)):
                     refined[start_idx:start_idx + n_params_per_day] = day_result.x
                 diagnostics.append({
@@ -1152,6 +1339,8 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                     'njev': int(day_result.njev) if day_result.njev is not None else None,
                     'cost': float(2.0 * day_result.cost),
                     'optimality': float(day_result.optimality),
+                    'multistart_objectives': [float(2*c.cost) for c in candidates],
+                    'multistart_nfev': sum(c.nfev for c in candidates),
                 })
                 state = 'converged' if day_result.success else 'stopped with warning'
                 print(
@@ -1181,7 +1370,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                 varied_initial_guess[idx] += np.random.uniform(-0.2, 0.2)
             elif idx % n_params_per_day == 1:
                 varied_initial_guess[idx] += np.random.uniform(-0.3, 0.3)
-            elif spectral_rede_mode:
+            elif joint_rede_mode:
                 if idx % n_params_per_day == 2:
                     varied_initial_guess[idx] += np.random.uniform(-150.0, 150.0)
                 else:
@@ -1194,7 +1383,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
 
     spectral_rede_stage_info = {}
     independent_diagnostics = []
-    if spectral_rede_mode and not evaluate_only:
+    if joint_rede_mode and not evaluate_only:
         print("Stage A/B initialization: fitting blue accretion disk, then red excess BB...")
         varied_initial_guess, spectral_rede_stage_info = initialize_spectral_rede_stages(initial_guess)
         print(
@@ -1212,9 +1401,9 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
         and float(lambda_reg) == 0.0
         and all(np.sum(day_indices == day_idx) == 2 for day_idx in range(n_days))
     )
-    independent_spectral_rede_mode = (
+    independent_joint_rede_mode = (
         not evaluate_only
-        and spectral_rede_mode
+        and joint_rede_mode
         and spectral_rede_joint_refine
         and n_global_params == 0
         and float(lambda_reg) == 0.0
@@ -1224,11 +1413,11 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
         print("Evaluating fixed parameters without optimization...")
     elif direct_two_filter_mode:
         print("Starting direct two-filter root solve...")
-    elif independent_spectral_rede_mode:
+    elif independent_joint_rede_mode:
         print("Starting independent per-day Stage C joint spectral red-excess refinement...")
-    elif spectral_rede_mode and spectral_rede_joint_refine:
+    elif joint_rede_mode and spectral_rede_joint_refine:
         print("Starting Stage C joint spectral red-excess refinement...")
-    elif spectral_rede_mode:
+    elif joint_rede_mode:
         print("Skipping Stage C joint refinement; using Stage A/B parameters")
     else:
         print("Starting optimized regularized optimization...")
@@ -1273,7 +1462,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
             result.nfev = 0
             result.nit = 0
             print(f"Direct two-filter root solve handled {n_direct_days}/{n_days} day(s)")
-        elif independent_spectral_rede_mode:
+        elif independent_joint_rede_mode:
             class IndependentSpectralRedeResult:
                 pass
 
@@ -1290,7 +1479,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                 f"{successful_days}/{n_days} day(s)."
             )
             result.nfev = sum(item['nfev'] for item in independent_diagnostics)
-        elif spectral_rede_mode and not spectral_rede_joint_refine:
+        elif joint_rede_mode and not spectral_rede_joint_refine:
             class SpectralRedeStagedResult:
                 pass
 
@@ -1324,7 +1513,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
         if (
             not evaluate_only
             and not direct_two_filter_mode
-            and not independent_spectral_rede_mode
+            and not independent_joint_rede_mode
             and not result.success
             and result.nfev < 500
         ):
@@ -1374,18 +1563,28 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
         if hasattr(result, 'nit'):
             print(f"Iterations: {result.nit}")
 
-        param_errors = np.zeros(len(popt)) if evaluate_only else np.ones(len(popt)) * 0.1
-        if debug and not evaluate_only:
-            print("Computing parameter uncertainties...")
-            epsilon = 1e-6
-            chi_squared_center = np.sum(((all_log_fluxes - model_function_vectorized(popt)) / all_errors) ** 2)
-            for idx in range(min(20, len(popt))):
-                params_plus = popt.copy()
-                params_plus[idx] += epsilon
-                chi_squared_plus = np.sum(((all_log_fluxes - model_function_vectorized(params_plus)) / all_errors) ** 2)
-                curvature = (chi_squared_plus - chi_squared_center) / (epsilon ** 2)
-                if curvature > 0:
-                    param_errors[idx] = np.sqrt(1.0 / curvature)
+        param_errors = np.zeros(len(popt)) if evaluate_only else np.full(len(popt), np.nan)
+        uncertainty_diagnostics = []
+        daily_covariances = {}
+        if not evaluate_only and n_global_params == 0 and float(lambda_reg) == 0:
+            for day_idx in range(n_days):
+                mask = day_indices == day_idx
+                indices = np.arange(day_idx*n_params_per_day, (day_idx+1)*n_params_per_day)
+                steps = [1e-5, 1e-4, 0.01, 1e-5] if joint_rede_mode else ([1e-5, 1e-4, 0.01 if fit_param_name == 'T_bb' else 1e-5] if red_excess_mode else [1e-5, 1e-4])
+                jac = []
+                for idx, step in zip(indices, steps):
+                    plus, minus = popt.copy(), popt.copy()
+                    plus[idx] += step; minus[idx] -= step
+                    jac.append((model_function_vectorized(plus)[mask]-model_function_vectorized(minus)[mask])/(2*step*all_errors[mask]))
+                jac = np.asarray(jac).T
+                scales = np.maximum(np.linalg.norm(jac, axis=0), np.finfo(float).tiny)
+                normalized = jac/scales
+                rank = np.linalg.matrix_rank(normalized, tol=1e-8)
+                if rank == n_params_per_day:
+                    covariance = np.linalg.inv(normalized.T@normalized)/np.outer(scales, scales)
+                    param_errors[indices] = np.sqrt(np.maximum(np.diag(covariance), 0))
+                    daily_covariances[day_idx] = covariance
+                uncertainty_diagnostics.append(dict(JD=sorted_jd_days[day_idx],rank=int(rank),parameters=n_params_per_day,condition=float(np.linalg.cond(normalized))))
 
         results = {
             'success': bool(result.success),
@@ -1413,7 +1612,11 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                 'param_names': fitted_param_names,
                 'regularize_params': regularize_params,
                 'data_mode': data_mode,
+                'missing_photometric_fractional_error': float(missing_photometric_fractional_error) if data_mode == 'photometry' else None,
+                'systematic_fractional_error': float(systematic_fractional_error),
                 'evaluate_only': bool(evaluate_only),
+                'uncertainty_method': 'local weighted model Jacobian, absolute measurement errors; no parameter-error floor',
+                'uncertainty_diagnostics': uncertainty_diagnostics,
                 'AR_mode': AR_mode,
                 'AR_method': 'random-walk Metropolis MCMC' if AR_mode else None,
                 'AR_mcmc_chains': AR_MCMC_CHAINS if AR_mode else None,
@@ -1423,17 +1626,17 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                 'two_filter_direct_solver': direct_two_filter_mode,
                 'red_excess_mode': red_excess_mode,
                 'red_excess_fit_param': fit_param_name,
-                'spectral_rede_threshold_micron': SPECTRAL_REDE_THRESHOLD_MICRON if spectral_rede_mode else None,
-                'spectral_rede_joint_refine': bool(spectral_rede_joint_refine) if spectral_rede_mode else None,
-                'spectral_rede_independent_joint_refine': bool(independent_spectral_rede_mode) if spectral_rede_mode else None,
+                'spectral_rede_threshold_micron': SPECTRAL_REDE_THRESHOLD_MICRON if joint_rede_mode else None,
+                'spectral_rede_joint_refine': bool(spectral_rede_joint_refine) if joint_rede_mode else None,
+                'spectral_rede_independent_joint_refine': bool(independent_joint_rede_mode) if joint_rede_mode else None,
                 'spectral_rede_independent_diagnostics': (
                     _to_builtin(independent_diagnostics)
-                    if independent_spectral_rede_mode and '_to_builtin' in globals()
-                    else independent_diagnostics if independent_spectral_rede_mode else None
+                    if independent_joint_rede_mode and '_to_builtin' in globals()
+                    else independent_diagnostics if independent_joint_rede_mode else None
                 ),
-                'spectral_rede_max_blue_bb_fraction': float(spectral_rede_max_blue_bb_fraction) if spectral_rede_mode else None,
-                'spectral_rede_blue_penalty_weight': float(spectral_rede_blue_penalty_weight) if spectral_rede_mode else None,
-                'spectral_rede_stage_info': _to_builtin(spectral_rede_stage_info) if spectral_rede_mode and '_to_builtin' in globals() else spectral_rede_stage_info,
+                'spectral_rede_max_blue_bb_fraction': float(spectral_rede_max_blue_bb_fraction) if joint_rede_mode else None,
+                'spectral_rede_blue_penalty_weight': float(spectral_rede_blue_penalty_weight) if joint_rede_mode else None,
+                'spectral_rede_stage_info': _to_builtin(spectral_rede_stage_info) if joint_rede_mode and '_to_builtin' in globals() else spectral_rede_stage_info,
                 'fixed_T_bb': fixed_T_bb,
                 'fixed_R_bb': fixed_R_bb,
                 'optimizer_method': (
@@ -1442,7 +1645,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                     else 'direct two-filter root/least-squares'
                     if direct_two_filter_mode
                     else 'independent per-day four-parameter least-squares'
-                    if independent_spectral_rede_mode
+                    if independent_joint_rede_mode
                     else 'L-BFGS-B'
                 ),
                 'optimizer_maxiter': optimizer_maxiter,
@@ -1451,6 +1654,15 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                 'optimizer_gtol': optimizer_gtol,
                 'mdot_bounds_msun_per_year': list(mdot_bounds_msun_per_year),
                 'av_bounds': list(av_bounds),
+                'bb_temperature_bounds': list(bb_temperature_bounds),
+                'bb_radius_bounds_au': list(bb_radius_bounds_au),
+                'spectral_red_min_micron': float(spectral_red_min_micron),
+                'spectral_red_mask_regions_micron': [list(region) for region in spectral_red_mask_regions_micron],
+                'spectral_red_coverage_requirement': {
+                    'K_micron': [2.0, 2.5], 'L_micron': [3.3, 4.2],
+                    'min_unique_samples_per_band': 2,
+                } if spectral_rede_mode else None,
+                'excluded_red_epochs': excluded_red_epochs,
                 'local_solver_max_nfev': local_solver_max_nfev,
                 'local_solver_ftol': local_solver_ftol,
                 'local_solver_gtol': local_solver_gtol,
@@ -1462,7 +1674,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
 
         for day_idx in range(n_days):
             jd_day = sorted_jd_days[day_idx]
-            if spectral_rede_mode:
+            if joint_rede_mode:
                 logMdot_opt = popt[day_idx * 4]
                 Mdot_opt = 10 ** logMdot_opt / M_sun * year
                 Av_opt = popt[day_idx * 4 + 1]
@@ -1524,6 +1736,9 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
                     'Av_err': param_errors[day_idx * 2 + 1] if day_idx * 2 + 1 < len(param_errors) else 0.1,
                 }
 
+        for day_idx, covariance in daily_covariances.items():
+            results['daily_params'][sorted_jd_days[day_idx]]['logMdot_Av_cov'] = float(covariance[0,1])
+
         for param_name, idx in global_param_map.items():
             results['global_params'][param_name] = popt[idx]
             results['param_errors'][param_name] = param_errors[idx] if idx < len(param_errors) else 0.1
@@ -1543,7 +1758,9 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
             print("Generating AR mode 3D MCMC posterior...")
             ar_mcmc_data = generate_ar_mcmc_samples(
                 ar_visualization_days, daily_data, fit_filters, default_params,
-                global_param_map, popt, results['daily_params'], data_mode=data_mode
+                global_param_map, popt, results['daily_params'], data_mode=data_mode,
+                missing_photometric_fractional_error=missing_photometric_fractional_error,
+                systematic_fractional_error=systematic_fractional_error
             )
             results['AR_mcmc_data'] = ar_mcmc_data
 
@@ -1557,7 +1774,7 @@ def ultimate_fitting_regularized(required_filters, fit_filters, global_params=()
         print(f"Chi-squared: {chi_squared:.2f}")
         print(f"Reduced chi-squared: {reduced_chi_squared:.2f}")
         print(f"Regularization term: {reg_term:.2f}")
-        if spectral_rede_mode:
+        if joint_rede_mode:
             print(f"Blue BB penalty: {blue_penalty:.2f}")
         return results
     except KeyboardInterrupt:
@@ -1571,8 +1788,11 @@ __all__ = [
     '_normalize_red_excess_fit_param',
     '_safe_float',
     '_resolve_red_excess_component',
+    'spectral_red_continuum_mask',
+    'spectral_red_has_kl_coverage',
     '_coerce_wavelength_meters',
     '_get_spectral_daily_data',
     '_photometric_frequency_from_row',
     'ultimate_fitting_regularized',
+    'fit_with_expanding_bounds',
 ]

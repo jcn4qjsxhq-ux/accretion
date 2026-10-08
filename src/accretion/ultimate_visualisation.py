@@ -118,34 +118,56 @@ def julian_to_calendar(jd_array):
     return calendar_dates
 
 
-def add_gregorian_top_axis(ax, n_ticks=6, fontsize=12, use_grid_ticks=True, dynamic=True):
-    """Add a Gregorian date top axis that tracks zoom/pan."""
+def add_gregorian_top_axis(ax, n_ticks=6, fontsize=12, use_grid_ticks=True,
+                           dynamic=True, calendar_years=False, show_title=True):
+    """Add calendar labels; optionally start on January 1 year grid lines."""
     ax_top = ax.twiny()
+    updating = False
 
-    def update():
-        x0, x1 = ax.get_xlim()
-        if x1 <= x0:
+    def update(initial=False):
+        nonlocal updating
+        if updating:
             return
+        updating = True
+        try:
+            x0, x1 = ax.get_xlim()
+            if x1 <= x0:
+                return
+            if initial and calendar_years:
+                from datetime import datetime
+                first, last = [int(v[:4]) for v in julian_to_calendar([x0, x1])]
+                span = last-first
+                step = next((s for s in (1, 2, 5, 10, 20, 50, 100) if span/s <= 12), 100)
+                years = range((first//step)*step, last+step, step)
+                pairs = [(datetime(y, 1, 1).toordinal()+1721424.5, str(y)) for y in years]
+                pairs = [(t, label) for t, label in pairs if x0 <= t <= x1]
+                ticks = [t for t, _ in pairs]
+                labels = [label for _, label in pairs]
+                if len(ticks) >= 2:
+                    ax.set_xticks(ticks)
+                    ax.set_xlim(x0, x1)
+                else:
+                    ticks = np.linspace(x0, x1, n_ticks)
+                    labels = julian_to_calendar(ticks)
+            else:
+                if calendar_years:
+                    from matplotlib.ticker import AutoLocator
+                    ax.xaxis.set_major_locator(AutoLocator())
+                ticks = [t for t in ax.get_xticks() if x0 <= t <= x1] if use_grid_ticks else []
+                if len(ticks) < 2:
+                    ticks = np.linspace(x0, x1, n_ticks)
+                labels = julian_to_calendar(ticks)
+            ax_top.set_xlim(x0, x1)
+            ax_top.set_xticks(ticks)
+            ax_top.set_xticklabels(labels, rotation=0 if initial and calendar_years else -45,
+                                    ha='center' if initial and calendar_years else 'right')
+            ax_top.set_xlabel('Gregorian Date' if show_title else '', fontsize=fontsize)
+        finally:
+            updating = False
 
-        if use_grid_ticks:
-            ticks = ax.get_xticks()
-            ticks = [t for t in ticks if x0 <= t <= x1]
-            if len(ticks) < 2:
-                ticks = np.linspace(x0, x1, n_ticks)
-        else:
-            ticks = np.linspace(x0, x1, n_ticks)
-
-        labels = julian_to_calendar(ticks)
-        ax_top.set_xlim(x0, x1)
-        ax_top.set_xticks(ticks)
-        ax_top.set_xticklabels(labels, rotation=-45, ha='right')
-        ax_top.set_xlabel('Gregorian Date', fontsize=fontsize)
-
-    update()
-
+    update(initial=True)
     if dynamic:
         ax.callbacks.connect('xlim_changed', lambda _ax: update())
-
     return ax_top
 
 
@@ -972,6 +994,120 @@ def plot_ar_surface(results, folder_name):
     print(f"\nAll plots saved to {output_dir}/")
 
 
+def _red_excess_result_sets(results):
+    if 'daily_params' in results:
+        family = 'spectral' if results.get('fit_info', {}).get('data_mode') == 'spectral' else 'photo'
+        return {family: results}
+    if not results or set(results) - {'photo', 'spectral'}:
+        raise ValueError("Supply a saved result or a mapping with 'photo'/'spectral' keys.")
+    return results
+
+
+def red_excess_parameter_table(results):
+    """Collect matching joint-fit parameters, retaining flagged NaN T/R values."""
+    from astropy.time import Time
+    rows = []
+    for family, result in _red_excess_result_sets(results).items():
+        mass = _stellar_mass_solar(result)
+        for jd, params in sorted(result['daily_params'].items()):
+            rows.append(dict(family=family, JD=jd, year=float(Time(jd,format='jd').decimalyear),
+                MstarMdot=mass*params.get('Mdot',np.nan), MstarMdot_err=mass*params.get('Mdot_err',np.nan),
+                Av=params.get('Av',np.nan), Av_err=params.get('Av_err',np.nan),
+                T=params.get('T_bb',np.nan), T_err=params.get('T_bb_err',np.nan),
+                R=params.get('R_bb',np.nan)/constants.au, R_err=params.get('R_bb_err',np.nan)/constants.au,
+                BB_identifiable=params.get('BB_identifiable',True)))
+    return pd.DataFrame(rows)
+
+
+def plot_red_excess_evolution(results, save_path=None, show=True, end_zoom_range=(2458849.5, 2461400)):
+    """Plot saved contextual accretion, extinction, T and R evolution.
+
+    Accept a single result or a mapping of photo/spectral results. No fitting
+    or backend changes occur; returned figures retain notebook interaction.
+    """
+    results = _red_excess_result_sets(results)
+    quantities=[('Mdot',r'$M_\star\dot M$ ($M_\odot^2\,yr^{-1}$)',.5),('Av',r'$A_V$ (mag)',1),('T_bb',r'$T_{bb}$ (K)',1),('R_bb',r'$R_{bb}$ (au)',1/constants.au)]
+    ncols=2 if len(results)>1 and end_zoom_range is not None else 1
+    fig,axes=plt.subplots(4,ncols,figsize=(20 if ncols==2 else 17,11),sharex='col',squeeze=False,layout='constrained')
+    for column in range(ncols):
+        stack=axes[:,column]
+        for kind,result in results.items():
+            frame=pd.DataFrame.from_dict(result['daily_params'],orient='index').sort_index().reindex(columns=['Mdot','Mdot_err','Av','Av_err','T_bb','T_bb_err','R_bb','R_bb_err'])
+            for ax,(key,label,scale) in zip(stack,quantities):
+                if key == 'Mdot': scale = _stellar_mass_solar(result)
+                ax.errorbar(frame.index,frame[key]*scale,yerr=frame[key+'_err']*scale,fmt='o' if kind=='photo' else 's',markersize=4 if kind=='photo' else 6,capsize=2,color='#d55e00' if kind=='photo' else '#0072b2',label='Photometric JHKL' if kind=='photo' else 'Spectroscopic JH + K onward')
+                ax.set_ylabel(label); ax.grid(alpha=.25)
+                if key in ('Mdot','R_bb'): ax.set_yscale('log')
+        # Preserve full uncertainties in the tables. Triangles mark off-axis errors.
+        for ax,key in [(stack[2],'T_bb'),(stack[3],'R_bb')]:
+            scale=1 if key=='T_bb' else 1/constants.au
+            values=[p.get(key,np.nan)*scale for result in results.values() for p in result['daily_params'].values() if np.isfinite(p.get(key,np.nan))]
+            if not values: continue
+            low=0 if key=='T_bb' else max(.05,min(values)*.3)
+            high=max(values)*1.35
+            ax.set_ylim(low,high)
+            for kind,result in results.items():
+                color='#d55e00' if kind=='photo' else '#0072b2'
+                for jd,p in result['daily_params'].items():
+                    value,error=p.get(key,np.nan)*scale,p.get(key+'_err',np.nan)*scale
+                    if not np.isfinite(value) or not np.isfinite(error): continue
+                    if value+error>high: ax.scatter([jd],[high*.98],marker='^',color=color,s=25)
+                    if value-error<low: ax.scatter([jd],[low+.02*(high-low) if key=='T_bb' else low*1.05],marker='v',color=color,s=25)
+        stack[2].text(.99,.96,'Triangles: uncertainty continues beyond the axis',ha='right',va='top',transform=stack[2].transAxes,fontsize=9)
+        stack[0].legend(loc='best'); stack[-1].set_xlabel('Julian Date')
+        if column==1: stack[-1].set_xlim(*end_zoom_range)
+        add_gregorian_top_axis(stack[0],calendar_years=True,show_title=False)
+    fig.suptitle('Context: accretion + red excess; blackbody temperature and radius fitted together')
+    if save_path is not None: fig.savefig(_generated_figure_path(save_path),bbox_inches='tight')
+    if show: plt.show()
+    return fig,axes
+
+def plot_red_excess_correlations(results, save_path=None, show=True):
+    """Plot T/R versus MstarMdot/Av from matching contextual fits.
+
+    Shared viridis colours encode observation year. Circles denote photometry,
+    squares spectroscopy. Unidentifiable BB epochs are omitted; full errors
+    remain in the returned table, with triangles for off-axis vertical errors.
+    """
+    from matplotlib.colors import Normalize
+    from matplotlib.lines import Line2D
+    frame = red_excess_parameter_table(results)
+    frame = frame[frame.BB_identifiable & np.isfinite(frame[['MstarMdot','Av','T','R','year']]).all(axis=1)].copy()
+    if frame.empty:
+        raise ValueError('No identifiable temperature/radius results to plot.')
+    norm=Normalize(frame.year.min(),frame.year.max());cmap=plt.get_cmap('viridis')
+    fig,axes=plt.subplots(2,2,figsize=(15,10),layout='constrained')
+    for ax,(x,y) in zip(axes.flat,[('MstarMdot','T'),('Av','T'),('MstarMdot','R'),('Av','R')]):
+        for row in frame.itertuples(index=False):
+            color=cmap(norm(row.year));marker='o' if row.family=='photo' else 's'
+            ax.errorbar(getattr(row,x),getattr(row,y),xerr=getattr(row,x+'_err'),yerr=getattr(row,y+'_err'),fmt='none',ecolor=color,alpha=.45,capsize=2,zorder=1)
+            ax.scatter(getattr(row,x),getattr(row,y),c=[color],marker=marker,s=40 if marker=='o' else 75,edgecolors='black',linewidths=.5,zorder=3)
+        ax.set_xlabel(r'$M_\star\dot M$ ($M_\odot^2\,yr^{-1}$)' if x=='MstarMdot' else r'$A_V$ (mag)',fontsize=12)
+        ax.set_ylabel(r'$T_{bb}$ (K)' if y=='T' else r'$R_{bb}$ (au)',fontsize=12)
+        ax.grid(alpha=.2)
+        if x=='MstarMdot': ax.set_xscale('log')
+        # Limits keep the measured evolution legible; all errors are in the CSV.
+        low=0 if y=='T' else max(.05,frame[y].min()*.3)
+        high=frame[y].max()*1.35
+        ax.set_ylim(low,high)
+        if y=='R': ax.set_yscale('log')
+        for row in frame.itertuples(index=False):
+            value,error=getattr(row,y),getattr(row,y+'_err');color=cmap(norm(row.year))
+            if value+error>high: ax.scatter(getattr(row,x),high*.98,marker='^',color=color,s=22,zorder=3)
+            if value-error<low: ax.scatter(getattr(row,x),low+.02*(high-low) if y=='T' else low*1.05,marker='v',color=color,s=22,zorder=3)
+    handles=[Line2D([],[],marker='o',linestyle='none',markerfacecolor='gray',markeredgecolor='black',label='Photometric JHKL'),Line2D([],[],marker='s',linestyle='none',markerfacecolor='gray',markeredgecolor='black',label='Spectroscopic JH + K onward')]
+    axes[0,0].legend(handles=handles,fontsize=10)
+    colorbar=fig.colorbar(plt.cm.ScalarMappable(norm=norm,cmap=cmap),ax=axes,pad=.02,shrink=.9)
+    colorbar.set_label('Observation year (Gregorian)')
+    ticks=np.arange(np.ceil(norm.vmin/10)*10,norm.vmax+1,10)
+    colorbar.set_ticks(np.unique(np.r_[ticks,np.floor(norm.vmax)]))
+    fig.suptitle('Red-excess context: temperature and radius versus accretion and extinction',fontsize=15)
+    fig.supxlabel('Matched parameters from each joint contextual fit. Triangles mark vertical errors extending beyond the axes.',fontsize=10)
+    if save_path is not None: fig.savefig(_generated_figure_path(save_path),bbox_inches='tight')
+    if show: plt.show()
+    return fig,axes,frame
+
+
 def plot_red_excess_results(results, filename):
     if not results['fit_info']['red_excess_mode']:
         print("Not in red excess mode!")
@@ -979,6 +1115,9 @@ def plot_red_excess_results(results, filename):
 
     fit_info = results.get('fit_info', {})
     fit_param_name = _normalize_red_excess_fit_param(fit_info.get('red_excess_fit_param', 'T_bb'))
+
+    if fit_param_name == 'T_bb_R_bb':
+        return plot_red_excess_evolution(results, save_path=filename)
 
     times = []
     quantity_values = []
@@ -1252,8 +1391,8 @@ def plot_spectral_fit_day(results, jd_day, ax=None, ax_residual=None, show=True,
     ax.set_ylabel('Flux density (Jy)')
     ax.set_yscale('log')
 
-    # Focus limits around the model envelope (±15%)
-    finite_model = np.asarray(plot_model_flux, dtype=float)
+    # Include the observations: model-only limits hid excess outside JH.
+    finite_model = np.concatenate((np.asarray(plot_model_flux, dtype=float), flux))
     finite_model = finite_model[np.isfinite(finite_model) & (finite_model > 0)]
     if finite_model.size > 0:
         model_min = np.min(finite_model)
@@ -1263,6 +1402,9 @@ def plot_spectral_fit_day(results, jd_day, ax=None, ax_residual=None, show=True,
         else:
             ax.set_ylim(model_min * 0.85, model_max * 1.15 + 1e-30)
 
+    windows = results.get('fit_info', {}).get('overview_fit_windows', {}).get(jd_day, [])
+    for index, (low, high) in enumerate(windows):
+        ax.axvspan(low, high, color='0.5', alpha=.10, label='Fitted wavelengths' if index == 0 else None)
     ax.set_title(f'{date_label}  |  JD {jd_day}  |  Av={daily_params["Av"]:.2f}, logMdot={daily_params["logMdot"]:.3f}{title_extra}')
     ax.grid(True, alpha=0.3)
     ax.legend()
@@ -1323,7 +1465,29 @@ def _spectral_day_has_data_in_range(results, jd_day, show_range=None):
     return bool(np.any(valid))
 
 
-def plot_spectral_fit_grid(results, save_dir='results/generated/pictures/spectral_mode', filename='spectral_fit_overview.pdf', show_individual=True, residual_window=51, show_range=None):
+def plot_spectral_fit_grid(results, save_dir='results/generated/pictures/spectral_mode', filename='spectral_fit_overview.pdf', show_individual=True, residual_window=51, show_range=None, observed_df=None):
+    """Plot saved spectral fits, optionally against full masked observations.
+
+    ``save_dir=None`` displays only. Full observations are matched by DateCode,
+    while saved fitted wavelengths define the shaded windows. No fit is changed.
+    """
+    if observed_df is not None:
+        full_days = _get_spectral_daily_data(observed_df)
+        by_code = {str(day.DateCode.iloc[0]): day for day in full_days.values()}
+        fitted_days = results['daily_data']
+        full_data, windows = {}, {}
+        for jd, day in fitted_days.items():
+            code = str(day.DateCode.iloc[0])
+            if code not in by_code:
+                raise ValueError(f'No full observations for fitted spectral date {code}')
+            full_data[jd] = by_code[code]
+            wave = np.unique(_coerce_wavelength_meters(day) * 1e6)
+            gap = max(.02, 5*np.median(np.diff(wave))) if len(wave)>1 else .02
+            chunks = np.split(wave, np.flatnonzero(np.diff(wave)>gap)+1)
+            windows[jd] = [(chunk.min(),chunk.max()) for chunk in chunks if len(chunk)>1]
+        results = {**results, 'daily_data':full_data,
+                   'fit_info':{**results.get('fit_info',{}), 'overview_fit_windows':windows}}
+
     all_jd_days = sorted(results.get('daily_params', {}).keys())
     jd_days = [
         jd_day for jd_day in all_jd_days
@@ -1358,17 +1522,15 @@ def plot_spectral_fit_grid(results, save_dir='results/generated/pictures/spectra
         )
 
     plt.tight_layout()
-    if os.path.isabs(str(save_dir)):
-        os.makedirs(save_dir, exist_ok=True)
-        output_path = os.path.join(save_dir, filename)
-    else:
-        output_path = _generated_figure_path(f'{output_prefix}_{filename}')
-    fig.savefig(output_path, dpi=200, bbox_inches='tight')
-
+    if save_dir is not None:
+        if os.path.isabs(str(save_dir)):
+            os.makedirs(save_dir, exist_ok=True)
+            output_path = os.path.join(save_dir, filename)
+        else:
+            output_path = _generated_figure_path(f'{output_prefix}_{filename}')
+        fig.savefig(output_path, dpi=200, bbox_inches='tight')
     if show_individual:
         plt.show()
-        return None
-
     return fig
 
 
@@ -2041,6 +2203,9 @@ __all__ = [
     'comprehensive_results_visualization',
     'plot_ar_surface',
     'plot_red_excess_results',
+    'red_excess_parameter_table',
+    'plot_red_excess_evolution',
+    'plot_red_excess_correlations',
     'plot_spectral_fit_day',
     'plot_spectral_fit_grid',
     'visualize_spectral_results',
